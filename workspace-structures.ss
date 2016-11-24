@@ -20,51 +20,51 @@
 (define make-workspace-structure
   (lambda ()
     (let ((time-stamp *codelet-count*)
-	  (enclosing-group #f)
-	  (strength 0)
-	  (proposal-level 0)
-	  (graphics-pexp #f)
-	  (drawn? #f))
+          (enclosing-group #f)
+          (strength 0)
+          (proposal-level 0)
+          (graphics-pexp #f)
+          (drawn? #f))
       (lambda msg
-	(let ((self (1st msg)))
-	  (record-case (rest msg)
-	    (object-type () 'workspace-structure)
-	    (drawn? () drawn?)
-	    (set-drawn? (new-value) (set! drawn? new-value) 'done)
-	    (get-graphics-pexp () graphics-pexp)
-	    (set-graphics-pexp (pexp) (set! graphics-pexp pexp) 'done)
-	    (get-time-stamp () time-stamp)
-	    ;; This is the time since the structure was proposed (not built):
-	    (get-age () (- *codelet-count* time-stamp))
-	    (get-enclosing-group () enclosing-group)
-	    (get-strength () strength)
-	    (get-weakness () (100- (expt strength 0.95)))
-	    (get-proposal-level () proposal-level)
-	    (proposed? () (< proposal-level %built%))
-	    (update-proposal-level (new-level)
-              (set! proposal-level new-level)
-	      'done)
-	    (update-enclosing-group (new-group)
-	      (set! enclosing-group new-group)
-	      'done)
-	    (update-strength ()
-	      (let* ((internal-strength (tell self 'calculate-internal-strength))
-		     (external-strength (tell self 'calculate-external-strength))
-		     (intrinsic-strength
-		       (weighted-average
-			 (list internal-strength external-strength)
-			 (list internal-strength (100- internal-strength))))
-		     (compatibility (tell self 'get-thematic-compatibility))
-		     (thematic-weight (abs compatibility)))
-		(set! strength
-		  (round
-		    (weighted-average
-		      (list (if (> compatibility 0) 100 0) intrinsic-strength)
-		      (list thematic-weight (1- thematic-weight))))))
-	      'done)
-	    ;; For structures that lack their own local method:
-	    (get-thematic-compatibility () 0)
-	    (else (delegate msg base-object))))))))
+       (let ((self (1st msg)))
+         (record-case (rest msg)
+           (object-type () 'workspace-structure)
+           (drawn? () drawn?)
+           (set-drawn? (new-value) (set! drawn? new-value) 'done)
+           (get-graphics-pexp () graphics-pexp)
+           (set-graphics-pexp (pexp) (set! graphics-pexp pexp) 'done)
+           (get-time-stamp () time-stamp)
+      ;; This is the time since the structure was proposed (not built):
+           (get-age () (- *codelet-count* time-stamp))
+           (get-enclosing-group () enclosing-group)
+           (get-strength () strength)
+           (get-weakness () (100- (expt strength 0.95)))
+           (get-proposal-level () proposal-level)
+           (proposed? () (< proposal-level %built%))
+           (update-proposal-level (new-level)
+                   (set! proposal-level new-level)
+             'done)
+           (update-enclosing-group (new-group)
+             (set! enclosing-group new-group)
+             'done)
+           (update-strength ()
+             (let* ((internal-strength (tell self 'calculate-internal-strength))
+                    (external-strength (tell self 'calculate-external-strength))
+                    (intrinsic-strength
+                      (weighted-average
+                       (list internal-strength external-strength)
+                       (list internal-strength (100- internal-strength))))
+                    (compatibility (tell self 'get-thematic-compatibility))
+                    (thematic-weight (abs compatibility)))
+              (set! strength
+                (round
+                  (weighted-average
+                    (list (if (> compatibility 0) 100 0) intrinsic-strength)
+                    (list thematic-weight (1- thematic-weight))))))
+             'done)
+      ;; For structures that lack their own local method:
+           (get-thematic-compatibility () 0)
+           (else (delegate msg base-object))))))))
 
 
 (define wins-fight?
@@ -74,19 +74,19 @@
     (stochastic-pick
       '(#t #f)
       (temp-adjusted-values
-	(list (* challenger-weight (tell challenger 'get-strength))
-	      (* defender-weight (tell defender 'get-strength)))))))
+       (list (* challenger-weight (tell challenger 'get-strength))
+             (* defender-weight (tell defender 'get-strength)))))))
 
 
 (define wins-all-fights?
   (lambda (challenger challenger-weight defending-structures defender-weight/s)
     (if (list? defender-weight/s)
-	(andmap
-	  (lambda (defender defender-weight)
-	    (wins-fight? challenger challenger-weight defender defender-weight))
-	  defending-structures
-	  defender-weight/s)
-	(andmap
-	  (lambda (defender)
-	    (wins-fight? challenger challenger-weight defender defender-weight/s))
-	  defending-structures))))
+     (andmap
+       (lambda (defender defender-weight)
+         (wins-fight? challenger challenger-weight defender defender-weight))
+       defending-structures
+       defender-weight/s)
+     (andmap
+       (lambda (defender)
+         (wins-fight? challenger challenger-weight defender defender-weight/s))
+       defending-structures))))

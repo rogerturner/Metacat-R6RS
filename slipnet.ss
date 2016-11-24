@@ -24,259 +24,259 @@
 (define make-slipnode
   (lambda (name-symbol short-name conceptual-depth)
     (let* ((activation 0)
-	   (activation-buffer 0)
-	   (frozen? #f)
-	   (changed-frozen? #f)
-	   (rate-of-decay #f)
-	   (intrinsic-link-length 0)
-	   (shrunk-link-length 0)
-	   (top-down-codelet-types '())
-	   (incoming-links '())
-	   (category-links '())
-	   (instance-links '())
-	   (property-links '())
-	   (lateral-links '())
-	   (lateral-sliplinks '())
-	   (links-labeled-by-node '())
-	   (descriptor-predicate? (lambda (object) #f))
-	   (full-lowercase-name
-	    (string-downcase
-	     (string-suffix (symbol->string name-symbol) 6)))
-	   (full-uppercase-name (string-upcase full-lowercase-name))
-	   (graphics-coord #f)
-	   (graphics-label-coord #f))
+           (activation-buffer 0)
+           (frozen? #f)
+           (changed-frozen? #f)
+           (rate-of-decay #f)
+           (intrinsic-link-length 0)
+           (shrunk-link-length 0)
+           (top-down-codelet-types '())
+           (incoming-links '())
+           (category-links '())
+           (instance-links '())
+           (property-links '())
+           (lateral-links '())
+           (lateral-sliplinks '())
+           (links-labeled-by-node '())
+           (descriptor-predicate? (lambda (object) #f))
+           (full-lowercase-name
+            (string-downcase
+             (string-suffix (symbol->string name-symbol) 6)))
+           (full-uppercase-name (string-upcase full-lowercase-name))
+           (graphics-coord #f)
+           (graphics-label-coord #f))
       (lambda msg
-	(let ((self (1st msg)))
-	  (record-case (rest msg)
-	    (object-type () 'slipnode)
-	    (get-name-symbol () name-symbol)
-	    (get-lowercase-name () full-lowercase-name)
-	    (get-uppercase-name () full-uppercase-name)
-	    (get-short-name () short-name)
-	    (get-CM-short-name ()
-	      (if (eq? self plato-letter-category)
-		;; This avoids occasional graphics problems with overlapping CMs:
-		"LettCtgy"
-		(tell self 'get-short-name)))
-	    ;; This is solely for the purposes of (say <slipnode>):
-	    (print-name () short-name)
-	    (print () (printf "Slipnode \"~a\"~%" short-name))
-	    (draw-activation-graphics (slipnet-window)
-	      (tell slipnet-window 'draw-activation
-		graphics-coord activation frozen?))
-	    (reset ()
-              (set! activation 0)
-	      (set! activation-buffer 0)
-	      (set! frozen? #f)
-	      (set! changed-frozen? #f)
-	      (set! rate-of-decay
-		(1- (expt (% conceptual-depth) (/ %update-cycle-length% 15))))
-	      'done)
-	    (get-graphics-coord () graphics-coord)
-	    (get-graphics-label-coord () graphics-label-coord)
-	    (set-graphics-coord (coord) (set! graphics-coord coord) 'done)
-	    (set-graphics-label-coord (coord) (set! graphics-label-coord coord) 'done)
-	    (get-conceptual-depth () conceptual-depth)
-	    (frozen? () frozen?)
-	    (get-activation () activation)
-	    (get-intrinsic-link-length () intrinsic-link-length)
-	    (get-shrunk-link-length () shrunk-link-length)
-	    (get-incoming-links () incoming-links)
-	    (get-category-links () category-links)
-	    (get-lateral-links () lateral-links)
-	    (get-lateral-sliplinks () lateral-sliplinks)
-	    (get-property-links () property-links)
-	    (get-links-labeled-by-node () links-labeled-by-node)
-	    (get-degree-of-assoc ()
-	      (100- (if (fully-active? self) shrunk-link-length intrinsic-link-length)))
+       (let ((self (1st msg)))
+         (record-case (rest msg)
+           (object-type () 'slipnode)
+           (get-name-symbol () name-symbol)
+           (get-lowercase-name () full-lowercase-name)
+           (get-uppercase-name () full-uppercase-name)
+           (get-short-name () short-name)
+           (get-CM-short-name ()
+             (if (eq? self plato-letter-category)
+    ;; This avoids occasional graphics problems with overlapping CMs:
+              "LettCtgy"
+              (tell self 'get-short-name)))
+      ;; This is solely for the purposes of (say <slipnode>):
+           (print-name () short-name)
+           (print () (printf "Slipnode \"~a\"~%" short-name))
+           (draw-activation-graphics (slipnet-window)
+             (tell slipnet-window 'draw-activation
+              graphics-coord activation frozen?))
+           (reset ()
+                  (set! activation 0)
+             (set! activation-buffer 0)
+             (set! frozen? #f)
+             (set! changed-frozen? #f)
+             (set! rate-of-decay
+              (1- (expt (% conceptual-depth) (/ %update-cycle-length% 15))))
+             'done)
+           (get-graphics-coord () graphics-coord)
+           (get-graphics-label-coord () graphics-label-coord)
+           (set-graphics-coord (coord) (set! graphics-coord coord) 'done)
+           (set-graphics-label-coord (coord) (set! graphics-label-coord coord) 'done)
+           (get-conceptual-depth () conceptual-depth)
+           (frozen? () frozen?)
+           (get-activation () activation)
+           (get-intrinsic-link-length () intrinsic-link-length)
+           (get-shrunk-link-length () shrunk-link-length)
+           (get-incoming-links () incoming-links)
+           (get-category-links () category-links)
+           (get-lateral-links () lateral-links)
+           (get-lateral-sliplinks () lateral-sliplinks)
+           (get-property-links () property-links)
+           (get-links-labeled-by-node () links-labeled-by-node)
+           (get-degree-of-assoc ()
+             (100- (if (fully-active? self) shrunk-link-length intrinsic-link-length)))
 
-	    (category? () (not (null? instance-links)))
-	    (instance? () (not (null? category-links)))
+           (category? () (not (null? instance-links)))
+           (instance? () (not (null? category-links)))
 
-	    (get-category ()
-	      (if (null? category-links)
-		  #f
-		  (tell (1st category-links) 'get-to-node)))
+           (get-category ()
+             (if (null? category-links)
+              #f
+              (tell (1st category-links) 'get-to-node)))
 
-	    (get-outgoing-links ()
-	      (append category-links instance-links property-links
-		lateral-links lateral-sliplinks))
+           (get-outgoing-links ()
+             (append category-links instance-links property-links
+              lateral-links lateral-sliplinks))
 
-	    (get-instance-nodes ()
-	      (tell-all instance-links 'get-to-node))
+           (get-instance-nodes ()
+             (tell-all instance-links 'get-to-node))
 
-	    (get-similar-property-links ()
-	      (filter (lambda (link)
-			(prob? (temp-adjusted-probability
-				 (% (tell link 'get-degree-of-assoc)))))
-		property-links))
+           (get-similar-property-links ()
+             (filter (lambda (link)
+                      (prob? (temp-adjusted-probability
+                              (% (tell link 'get-degree-of-assoc)))))
+              property-links))
 
-	    (get-related-node (relation)
-	      (if (eq? relation plato-identity)
-		self
-		(let ((related-nodes
-			(tell-all
-			  (filter
-			    (lambda (link) (eq? (tell link 'get-label-node) relation))
-			    (tell self 'get-outgoing-links))
-			  'get-to-node)))
-		  (cond
-		    ((null? related-nodes) #f)
-		    ((null? (rest related-nodes)) (1st related-nodes))
-		    (else (select
-			    (lambda (node)
-			      (eq? (tell node 'get-category) (tell self 'get-category)))
-			    related-nodes))))))
+           (get-related-node (relation)
+             (if (eq? relation plato-identity)
+              self
+              (let ((related-nodes
+                     (tell-all
+                       (filter
+                         (lambda (link) (eq? (tell link 'get-label-node) relation))
+                         (tell self 'get-outgoing-links))
+                       'get-to-node)))
+                (cond
+                  ((null? related-nodes) #f)
+                  ((null? (rest related-nodes)) (1st related-nodes))
+                  (else (select
+                         (lambda (node)
+                           (eq? (tell node 'get-category) (tell self 'get-category)))
+                         related-nodes))))))
 
-	    (freeze ()
-	      (set! frozen? #t)
-	      (set! changed-frozen? #t)
-	      'done)
-	    (unfreeze ()
-	      (set! frozen? #f)
-	      (set! changed-frozen? #t)
-	      'done)
-	    (clamp (new-value)
-	      (monitor-slipnode-activation-change self activation new-value)
-	      (set! activation new-value)
-	      (set! activation-buffer 0)
-	      (set! frozen? #t)
-	      (set! changed-frozen? #t)
-	      'done)
-	    (set-activation (new-value)
-	      (if* (not frozen?)
-		(set! activation new-value)
-		(set! activation-buffer 0))
-	      'done)
-	    (update-activation (new-value)
-	      (if* (not frozen?)
-		(monitor-slipnode-activation-change self activation new-value)
-		(set! activation new-value)
-		(set! activation-buffer 0))
-	      'done)
-	    (increment-activation-buffer (delta)
-	      (if* (not frozen?)
-		(set! activation-buffer (+ activation-buffer delta)))
-	      'done)
-	    (decrement-activation-buffer (delta)
-	      (if* (not frozen?)
-		(set! activation-buffer (- activation-buffer delta)))
-	      'done)
-	    (flush-activation-buffer ()
-	      (let ((new-value (min %max-activation% (+ activation activation-buffer))))
-		(monitor-slipnode-activation-change self activation new-value)
-		(set! activation new-value)
-		(set! activation-buffer 0))
-	      'done)
-	    (activate-from-workspace ()
-	      (tell self 'increment-activation-buffer %workspace-activation%)
-	      'done)
-	    (decay-activation ()
-	      (let ((decay-amount (round (* rate-of-decay activation))))
-		(tell self 'decrement-activation-buffer decay-amount))
-	      'done)
-	    (spread-activation ()
-	      (for* each link in (tell self 'get-outgoing-links) do
-		(let* ((to-node (tell link 'get-to-node))
-		       (association (tell link 'get-intrinsic-degree-of-assoc))
-		       (spread-amount
-			 (round (* (/ %update-cycle-length% 15)
-				   (% association)
-				   activation))))
-		  (tell to-node 'increment-activation-buffer spread-amount)))
-	      'done)
+           (freeze ()
+             (set! frozen? #t)
+             (set! changed-frozen? #t)
+             'done)
+           (unfreeze ()
+             (set! frozen? #f)
+             (set! changed-frozen? #t)
+             'done)
+           (clamp (new-value)
+             (monitor-slipnode-activation-change self activation new-value)
+             (set! activation new-value)
+             (set! activation-buffer 0)
+             (set! frozen? #t)
+             (set! changed-frozen? #t)
+             'done)
+           (set-activation (new-value)
+             (if* (not frozen?)
+              (set! activation new-value)
+              (set! activation-buffer 0))
+             'done)
+           (update-activation (new-value)
+             (if* (not frozen?)
+              (monitor-slipnode-activation-change self activation new-value)
+              (set! activation new-value)
+              (set! activation-buffer 0))
+             'done)
+           (increment-activation-buffer (delta)
+             (if* (not frozen?)
+              (set! activation-buffer (+ activation-buffer delta)))
+             'done)
+           (decrement-activation-buffer (delta)
+             (if* (not frozen?)
+              (set! activation-buffer (- activation-buffer delta)))
+             'done)
+           (flush-activation-buffer ()
+             (let ((new-value (min %max-activation% (+ activation activation-buffer))))
+              (monitor-slipnode-activation-change self activation new-value)
+              (set! activation new-value)
+              (set! activation-buffer 0))
+             'done)
+           (activate-from-workspace ()
+             (tell self 'increment-activation-buffer %workspace-activation%)
+             'done)
+           (decay-activation ()
+             (let ((decay-amount (round (* rate-of-decay activation))))
+              (tell self 'decrement-activation-buffer decay-amount))
+             'done)
+           (spread-activation ()
+             (for* each link in (tell self 'get-outgoing-links) do
+              (let* ((to-node (tell link 'get-to-node))
+                     (association (tell link 'get-intrinsic-degree-of-assoc))
+                     (spread-amount
+                      (round (* (/ %update-cycle-length% 15)
+                              (% association)
+                              activation))))
+                (tell to-node 'increment-activation-buffer spread-amount)))
+             'done)
 
-	    (set-intrinsic-link-length (new-value)
-	      (set! intrinsic-link-length new-value)
-	      (set! shrunk-link-length (round (40% new-value)))
-	      'done)
+           (set-intrinsic-link-length (new-value)
+             (set! intrinsic-link-length new-value)
+             (set! shrunk-link-length (round (40% new-value)))
+             'done)
 
-	    (define-descriptor-predicate (new-procedure)
-	      (set! descriptor-predicate? new-procedure)
-	      'done)
+           (define-descriptor-predicate (new-procedure)
+             (set! descriptor-predicate? new-procedure)
+             'done)
 
-	    (possible-descriptor? (object)
-	      (descriptor-predicate? object))
+           (possible-descriptor? (object)
+             (descriptor-predicate? object))
 
-	    (description-possible? (object)
-	      (not (null? (tell self 'get-possible-descriptors object))))
+           (description-possible? (object)
+             (not (null? (tell self 'get-possible-descriptors object))))
 
-	    (get-possible-descriptors (object)
-	      (filter-meth (tell-all instance-links 'get-to-node)
-		'possible-descriptor? object))
+           (get-possible-descriptors (object)
+             (filter-meth (tell-all instance-links 'get-to-node)
+              'possible-descriptor? object))
 
-	    (set-top-down-codelet-types codelet-types
-	      (set! top-down-codelet-types codelet-types)
-	      'done)
+           (set-top-down-codelet-types codelet-types
+             (set! top-down-codelet-types codelet-types)
+             'done)
 
-	    (attempt-to-post-top-down-codelets ()
-	      (if* (above-threshold? self)
-		(let ((urgency (* (% conceptual-depth) activation)))
-		  (for* each codelet-type in top-down-codelet-types do
-		    (stochastic-if* (post-codelet-probability codelet-type)
-		      (repeat* (num-of-codelets-to-post codelet-type) times
-			;; Scope for top-down codelets posted by
-			;; active slipnodes is entire workspace:
-			(tell *coderack* 'add-deferred-codelet
-			  (tell codelet-type 'make-codelet
-			    urgency self *workspace*)))))))
-	      'done)
+           (attempt-to-post-top-down-codelets ()
+             (if* (above-threshold? self)
+              (let ((urgency (* (% conceptual-depth) activation)))
+                (for* each codelet-type in top-down-codelet-types do
+                  (stochastic-if* (post-codelet-probability codelet-type)
+                    (repeat* (num-of-codelets-to-post codelet-type) times
+      ;; Scope for top-down codelets posted by
+      ;; active slipnodes is entire workspace:
+                     (tell *coderack* 'add-deferred-codelet
+                       (tell codelet-type 'make-codelet
+                         urgency self *workspace*)))))))
+             'done)
 
-	    (add-to-incoming-links (new-link)
-	      (set! incoming-links (cons new-link incoming-links))
-	      'done)
+           (add-to-incoming-links (new-link)
+             (set! incoming-links (cons new-link incoming-links))
+             'done)
 
-	    (add-to-outgoing-links (link-type new-link)
-	      (case link-type
-		(category (set! category-links (cons new-link category-links)))
-		(instance (set! instance-links (cons new-link instance-links)))
-		(property (set! property-links (cons new-link property-links)))
-		(lateral (set! lateral-links (cons new-link lateral-links)))
-		(lateral-sliplink
-		  (set! lateral-sliplinks (cons new-link lateral-sliplinks))))
-	      'done)
+           (add-to-outgoing-links (link-type new-link)
+             (case link-type
+              (category (set! category-links (cons new-link category-links)))
+              (instance (set! instance-links (cons new-link instance-links)))
+              (property (set! property-links (cons new-link property-links)))
+              (lateral (set! lateral-links (cons new-link lateral-links)))
+              (lateral-sliplink
+                (set! lateral-sliplinks (cons new-link lateral-sliplinks))))
+             'done)
 
-	    (add-to-links-labeled-by-node (link)
-	      (set! links-labeled-by-node (cons link links-labeled-by-node))
-	      'done)
+           (add-to-links-labeled-by-node (link)
+             (set! links-labeled-by-node (cons link links-labeled-by-node))
+             'done)
 
-	    ;; slippage <desc1>==<label>==><desc2> is applicable to <node> iff:
-	    ;;
-	    ;; (1) <desc1> = <node>
-	    ;;   In this case the slipped node is <desc2>
-	    ;;
-	    ;; (2) <node> has a sliplink with label
-	    ;;   In this case the slipped node is the node related to <node> by <label>
-	    ;;   (probability is a function of sliplink's current degree of association)
-	    ;; Example:   a => b
-	    ;;            |
-	    ;;            z => ?
-	    ;; first=(opp)=>last slippage applied to <successor> node
-	    ;; should sometimes cause a slippage to <predecessor>.
+      ;; slippage <desc1>==<label>==><desc2> is applicable to <node> iff:
+      ;;
+      ;; (1) <desc1> = <node>
+      ;;   In this case the slipped node is <desc2>
+      ;;
+      ;; (2) <node> has a sliplink with label
+      ;;   In this case the slipped node is the node related to <node> by <label>
+      ;;   (probability is a function of sliplink's current degree of association)
+      ;; Example:   a => b
+      ;;            |
+      ;;            z => ?
+      ;; first=(opp)=>last slippage applied to <successor> node
+      ;; should sometimes cause a slippage to <predecessor>.
 
-	    (apply-slippages (slippages sliplog)
-	      (cond
-		((null? slippages) self)
-		((eq? (tell (1st slippages) 'get-descriptor1) self)
-		 (tell sliplog 'applied (1st slippages))
-		 (tell (1st slippages) 'get-descriptor2))
-		(else
-		  ;; See if a coattail slippage can be made:
-		  (let ((label (tell (1st slippages) 'get-label)))
-		    (if (or (not (exists? label))
-			    (eq? (tell (1st slippages) 'get-CM-type)
-			         (tell self 'get-category)))
-		      (tell self 'apply-slippages (rest slippages) sliplog)
-		      (let ((sliplink (select-meth lateral-sliplinks 'labeled? label)))
-			(if (and (exists? sliplink)
-			         (prob? (coattail-slippage-probability
-					  (1st slippages) label self sliplink)))
-			  (let ((node2 (tell self 'get-related-node label)))
-			    (tell sliplog 'coattail self label node2 (1st slippages))
-			    node2)
-			  (tell self 'apply-slippages (rest slippages) sliplog))))))))
+           (apply-slippages (slippages sliplog)
+             (cond
+              ((null? slippages) self)
+              ((eq? (tell (1st slippages) 'get-descriptor1) self)
+               (tell sliplog 'applied (1st slippages))
+               (tell (1st slippages) 'get-descriptor2))
+              (else
+      ;; See if a coattail slippage can be made:
+                (let ((label (tell (1st slippages) 'get-label)))
+                  (if (or (not (exists? label))
+                       (eq? (tell (1st slippages) 'get-CM-type)
+                            (tell self 'get-category)))
+                    (tell self 'apply-slippages (rest slippages) sliplog)
+                    (let ((sliplink (select-meth lateral-sliplinks 'labeled? label)))
+                     (if (and (exists? sliplink)
+                              (prob? (coattail-slippage-probability
+                                      (1st slippages) label self sliplink)))
+                       (let ((node2 (tell self 'get-related-node label)))
+                         (tell sliplog 'coattail self label node2 (1st slippages))
+                         node2)
+                       (tell self 'apply-slippages (rest slippages) sliplog))))))))
 
-	    (else (delegate msg base-object))))))))
+           (else (delegate msg base-object))))))))
 
 
 (define coattail-slippage-probability
@@ -289,64 +289,64 @@
     (if (eq? from-node to-node)
       plato-identity
       (let ((link (select
-		    (lambda (link) (eq? (tell link 'get-from-node) from-node))
-		    (tell to-node 'get-incoming-links))))
-	(if (exists? link)
-	  (tell link 'get-label-node)
-	  #f)))))
+                   (lambda (link) (eq? (tell link 'get-from-node) from-node))
+                   (tell to-node 'get-incoming-links))))
+       (if (exists? link)
+         (tell link 'get-label-node)
+         #f)))))
 
 
 (define relationship-between
   (lambda (nodes)
     (if (all-exist? nodes)
       (let ((relations (adjacency-map get-label nodes)))
-	(if (and (all-exist? relations) (all-same? relations))
-	  (1st relations)
-	  #f))
+       (if (and (all-exist? relations) (all-same? relations))
+         (1st relations)
+         #f))
       #f)))
 
 
 (define make-slipnet-link
   (lambda (from-node to-node link-type)
     (let ((label-node #f)
-	  (fixed-length? #f)
-	  (link-length 0)
-	  (print-name
-	    (format "~a-->~a"
-	      (tell from-node 'get-lowercase-name)
-	      (tell to-node 'get-lowercase-name))))
+          (fixed-length? #f)
+          (link-length 0)
+          (print-name
+            (format "~a-->~a"
+              (tell from-node 'get-lowercase-name)
+              (tell to-node 'get-lowercase-name))))
       (lambda msg
-	(let ((self (1st msg)))
-	  (record-case (rest msg)
-	    (object-type () 'slipnet-link)
-	    (print-name () print-name)
-	    (print ()
-	      (printf "Sliplink ~a~n" print-name))
-	    (get-link-type () link-type)
-	    (get-from-node () from-node)
-	    (get-to-node () to-node)
-	    (get-label-node () label-node)
-	    (get-link-length () link-length)
-	    (get-intrinsic-degree-of-assoc ()
-	      (if fixed-length?
-		(100- link-length)
-		(100- (tell label-node 'get-intrinsic-link-length))))
-	    (get-degree-of-assoc ()
-	      (if fixed-length?
-		(100- link-length)
-		(if (fully-active? label-node)
-		  (100- (tell label-node 'get-shrunk-link-length))
-		  (100- (tell label-node 'get-intrinsic-link-length)))))
-	    (labeled? (node) (eq? label-node node))
-	    (set-label-node (node)
-	      (set! label-node node)
-	      (tell label-node 'add-to-links-labeled-by-node self)
-	      'done)
-	    (set-link-length (new-length)
-	      (set! link-length new-length)
-	      (set! fixed-length? #t)
-	      'done)
-	    (else (delegate msg base-object))))))))
+       (let ((self (1st msg)))
+         (record-case (rest msg)
+           (object-type () 'slipnet-link)
+           (print-name () print-name)
+           (print ()
+             (printf "Sliplink ~a~n" print-name))
+           (get-link-type () link-type)
+           (get-from-node () from-node)
+           (get-to-node () to-node)
+           (get-label-node () label-node)
+           (get-link-length () link-length)
+           (get-intrinsic-degree-of-assoc ()
+             (if fixed-length?
+              (100- link-length)
+              (100- (tell label-node 'get-intrinsic-link-length))))
+           (get-degree-of-assoc ()
+             (if fixed-length?
+              (100- link-length)
+              (if (fully-active? label-node)
+                (100- (tell label-node 'get-shrunk-link-length))
+                (100- (tell label-node 'get-intrinsic-link-length)))))
+           (labeled? (node) (eq? label-node node))
+           (set-label-node (node)
+             (set! label-node node)
+             (tell label-node 'add-to-links-labeled-by-node self)
+             'done)
+           (set-link-length (new-length)
+             (set! link-length new-length)
+             (set! fixed-length? #t)
+             'done)
+           (else (delegate msg base-object))))))))
 
 
 (define related?
@@ -386,7 +386,7 @@
       (tell node 'flush-activation-buffer))
     (for* each node in (filter partially-active? *slipnet-nodes*) do
       (stochastic-if* (^3 (% (tell node 'get-activation)))
-	(tell node 'update-activation %max-activation%)))))
+       (tell node 'update-activation %max-activation%)))))
 
 
 (define fully-active?
@@ -469,17 +469,17 @@
 
 (define *slipnet-letters*
   (list plato-a plato-b plato-c plato-d plato-e plato-f plato-g plato-h plato-i
-	plato-j plato-k plato-l plato-m plato-n plato-o plato-p plato-q plato-r
-	plato-s plato-t plato-u plato-v plato-w plato-x plato-y plato-z))
+   plato-j plato-k plato-l plato-m plato-n plato-o plato-p plato-q plato-r
+   plato-s plato-t plato-u plato-v plato-w plato-x plato-y plato-z))
 
-(define *slipnet-numbers*	
+(define *slipnet-numbers*  
   (list plato-one plato-two plato-three plato-four plato-five))
 
 (define *top-down-slipnodes*
   (list plato-left plato-right plato-predecessor plato-successor
-	plato-sameness plato-predgrp plato-succgrp plato-samegrp
-	plato-string-position-category plato-alphabetic-position-category
-	plato-length))
+   plato-sameness plato-predgrp plato-succgrp plato-samegrp
+   plato-string-position-category plato-alphabetic-position-category
+   plato-length))
 
 (define *initially-clamped-slipnodes*
   (list plato-letter-category plato-string-position-category))
@@ -505,9 +505,9 @@
 (define platonic-relation?
   (lambda (node)
     (or (eq? node plato-identity)
-	(eq? node plato-opposite)
-	(eq? node plato-predecessor)
-	(eq? node plato-successor))))
+     (eq? node plato-opposite)
+     (eq? node plato-predecessor)
+     (eq? node plato-successor))))
 
 (define platonic-literal?
   (compose not platonic-relation?))
@@ -537,8 +537,8 @@
     top-down-group-scout:category))
 
 (for* each node in (list plato-string-position-category
-		         plato-alphabetic-position-category
-			 plato-length) do
+                    plato-alphabetic-position-category
+                    plato-length) do
   (tell node 'set-top-down-codelet-types
     top-down-description-scout))
 
@@ -607,7 +607,7 @@
 (tell plato-letter 'define-descriptor-predicate letter?)
 
 (tell plato-group 'define-descriptor-predicate group?)
-			  
+        
 
 
 ;;  SUCCESSOR and PREDECESSOR links
@@ -745,27 +745,27 @@
 (instance-link* string-position-category --> leftmost length: 100)
 (category-link* leftmost --> string-position-category
    length: (- (cd plato-string-position-category)
-	      (cd plato-leftmost)))
+            (cd plato-leftmost)))
 
 (instance-link* string-position-category --> rightmost length: 100)
 (category-link* rightmost --> string-position-category
    length: (- (cd plato-string-position-category)
-	      (cd plato-rightmost)))
+            (cd plato-rightmost)))
 
 (instance-link* string-position-category --> middle length: 100)
 (category-link* middle --> string-position-category
    length: (- (cd plato-string-position-category)
-	      (cd plato-middle)))
+            (cd plato-middle)))
 
 (instance-link* string-position-category --> single length: 100)
 (category-link* single --> string-position-category
    length: (- (cd plato-string-position-category)
-	      (cd plato-single)))
+            (cd plato-single)))
 
 (instance-link* string-position-category --> whole length: 100)
 (category-link* whole --> string-position-category
    length: (- (cd plato-string-position-category)
-	      (cd plato-whole)))
+            (cd plato-whole)))
 
 
 
@@ -774,12 +774,12 @@
 (instance-link* alphabetic-position-category --> alphabetic-first length: 100)
 (category-link* alphabetic-first --> alphabetic-position-category
    length: (- (cd plato-alphabetic-position-category)
-	      (cd plato-alphabetic-first)))
+            (cd plato-alphabetic-first)))
 
 (instance-link* alphabetic-position-category --> alphabetic-last length: 100)
 (category-link* alphabetic-last --> alphabetic-position-category
    length: (- (cd plato-alphabetic-position-category)
-	      (cd plato-alphabetic-last)))
+            (cd plato-alphabetic-last)))
 
 
 
@@ -788,12 +788,12 @@
 (instance-link* direction-category --> left length: 100)
 (category-link* left --> direction-category
    length: (- (cd plato-direction-category)
-	      (cd plato-left)))
+            (cd plato-left)))
 
 (instance-link* direction-category --> right length: 100)
 (category-link* right --> direction-category
    length: (- (cd plato-direction-category)
-	      (cd plato-right)))
+            (cd plato-right)))
 
 
 
@@ -802,17 +802,17 @@
 (instance-link* bond-category --> predecessor length: 100)
 (category-link* predecessor --> bond-category
    length: (- (cd plato-bond-category)
-	      (cd plato-predecessor)))
+            (cd plato-predecessor)))
 
 (instance-link* bond-category --> successor length: 100)
 (category-link* successor --> bond-category
    length: (- (cd plato-bond-category)
-	      (cd plato-successor)))
+            (cd plato-successor)))
 
 (instance-link* bond-category --> sameness length: 100)
 (category-link* sameness --> bond-category
    length: (- (cd plato-bond-category)
-	      (cd plato-sameness)))
+            (cd plato-sameness)))
 
 
 
@@ -821,17 +821,17 @@
 (instance-link* group-category --> predgrp length: 100)
 (category-link* predgrp --> group-category
    length: (- (cd plato-group-category)
-	      (cd plato-predgrp)))
+            (cd plato-predgrp)))
 
 (instance-link* group-category --> succgrp length: 100)
 (category-link* succgrp --> group-category
    length: (- (cd plato-group-category)
-	      (cd plato-succgrp)))
+            (cd plato-succgrp)))
 
 (instance-link* group-category --> samegrp length: 100)
 (category-link* samegrp --> group-category
    length: (- (cd plato-group-category)
-	      (cd plato-samegrp)))
+            (cd plato-samegrp)))
 
 
 

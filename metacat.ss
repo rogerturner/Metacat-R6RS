@@ -53,26 +53,26 @@
 ;; do some basic error checking first
 
 (when (or (not (top-level-bound? '*platform*))
-	  (not (memq *platform* '(linux windows macintosh))))
+       (not (memq *platform* '(linux windows macintosh))))
   (printf "Error: *platform* is not set properly!~%")
   (printf "Check the configuration settings in the file metacat.ss~%")
   (thread-kill))
 
 (when (or (not (top-level-bound? '*metacat-directory*))
-	  (not (file-exists? *metacat-directory*)))
+       (not (file-exists? *metacat-directory*)))
   (printf "Error: *metacat-directory* is not set properly!~%")
   (printf "Check the configuration settings in the file metacat.ss~%")
   (thread-kill))
 
 (when (or (not (top-level-bound? '*file-dialog-directory*))
-	  (not (file-exists? *file-dialog-directory*)))
+       (not (file-exists? *file-dialog-directory*)))
   (printf "Error: *file-dialog-directory* is not set properly!~%")
   (printf "Check the configuration settings in the file metacat.ss~%")
   (thread-kill))
 
 (when (or (not (top-level-bound? '*tcl/tk-version*))
-	  (not (number? *tcl/tk-version*))
-	  (< *tcl/tk-version* 8.3))
+       (not (number? *tcl/tk-version*))
+       (< *tcl/tk-version* 8.3))
   (printf "Error: Tcl/Tk version is not 8.3 or later!~%")
   (printf "Check the configuration settings in the file metacat.ss~%")
   (thread-kill))

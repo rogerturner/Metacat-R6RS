@@ -34,9 +34,9 @@
   (lambda args
     (if* (not (null? args))
       (let ((n (1st args)))
-	(cond
-	  ((> n 0) (set! %step-cycles% n) (step-mode-on))
-	  (else (step-mode-off)))))
+       (cond
+         ((> n 0) (set! %step-cycles% n) (step-mode-on))
+         (else (step-mode-off)))))
     (printf "step mode ~a~a~%"
       (if *step-mode?* 'on 'off)
       (if *step-mode?* (format ", step size ~a" %step-cycles%) ""))))
@@ -55,18 +55,18 @@
   (lambda args
     (if (null? args)
       (if *break-time*
-	`(breaktime set at ,*break-time*)
-	'(no breaktime set))
+       `(breaktime set at ,*break-time*)
+       '(no breaktime set))
       (let ((breaktime (1st args)))
-	(if (= breaktime 0)
-	  (begin
-	    (set! *break-time* #f)
-	    (tell *control-panel* 'clear-breakpoint-message)
-	    '(breaktime cleared))
-	  (begin
-	    (set! *break-time* breaktime)
-	    (tell *control-panel* 'display-breakpoint-message)
-	    `(breaktime set at ,*break-time*)))))))
+       (if (= breaktime 0)
+         (begin
+           (set! *break-time* #f)
+           (tell *control-panel* 'clear-breakpoint-message)
+           '(breaktime cleared))
+         (begin
+           (set! *break-time* breaktime)
+           (tell *control-panel* 'display-breakpoint-message)
+           `(breaktime set at ,*break-time*)))))))
 
 (define clear-breakpoint
   (lambda ()
@@ -103,8 +103,8 @@
       (printf "stopped~%")
       ;; see above
       (if* (equal? swl:version "0.9u")
-	(printf "> ") ;; fake a prompt
-	(waiter-prompt-and-read no-prompt))
+       (printf "> ") ;; fake a prompt
+       (waiter-prompt-and-read no-prompt))
       (set! *running?* #f)
       (tell *control-panel* 'switch-to-input-mode)
       (reset))))
@@ -116,7 +116,7 @@
       (swl:sync-display)
       ;; see above
       (if* (equal? swl:version "0.9u")
-	(waiter-prompt-and-read no-prompt))
+       (waiter-prompt-and-read no-prompt))
       (set! *running?* #f)
       (tell *control-panel* 'switch-to-input-mode)
       (reset))))
@@ -126,11 +126,11 @@
     (if (not (exists? *breakpoint-continuation*))
       (printf "No previous break.~%")
       (begin
-	(tell *control-panel* 'switch-to-run-mode)
-	(set! *interrupt?* #f)
-	(set! *running?* #t)
-	(if* *display-mode?* (restore-current-state))
-	(*breakpoint-continuation* 'ignore)))))
+       (tell *control-panel* 'switch-to-run-mode)
+       (set! *interrupt?* #f)
+       (set! *running?* #t)
+       (if* *display-mode?* (restore-current-state))
+       (*breakpoint-continuation* 'ignore)))))
 
 (define suspend
   (lambda ()
@@ -147,25 +147,25 @@
   (lambda ()
     (continuation-point* terminate
       (repeat* forever
-	(step-mcat)
-	(if* (= *codelet-count* *initial-slipnode-unclamp-time*)
-	  (say "Unclamping initially-clamped slipnodes...")
-	  (for* each node in *initially-clamped-slipnodes* do
-	    (tell node 'unfreeze)))
-	(if* (tell *coderack* 'empty?)
-	  (post-initial-codelets)
-	  (clamp-initial-slipnodes))
-	(if* (= 0 (modulo *codelet-count* %update-cycle-length%))
-	  (update-everything))
-	(if* (or *interrupt?*
-	         (and *step-mode?* (= 0 (modulo *codelet-count* %step-cycles%)))
-	         (and *break-time* (= *break-time* *codelet-count*)))
-	  (update-all-graphics)
-	  (printf "Codelets run: ~a~n" *codelet-count*)
-	  (break))
-	(if* (= 0 (modulo *codelet-count* %garbage-collect-cycles%))
-	  (tell *themespace-window* 'garbage-collect)
-	  (tell *workspace-window* 'garbage-collect))))))
+       (step-mcat)
+       (if* (= *codelet-count* *initial-slipnode-unclamp-time*)
+         (say "Unclamping initially-clamped slipnodes...")
+         (for* each node in *initially-clamped-slipnodes* do
+           (tell node 'unfreeze)))
+       (if* (tell *coderack* 'empty?)
+         (post-initial-codelets)
+         (clamp-initial-slipnodes))
+       (if* (= 0 (modulo *codelet-count* %update-cycle-length%))
+         (update-everything))
+       (if* (or *interrupt?*
+                (and *step-mode?* (= 0 (modulo *codelet-count* %step-cycles%)))
+                (and *break-time* (= *break-time* *codelet-count*)))
+         (update-all-graphics)
+         (printf "Codelets run: ~a~n" *codelet-count*)
+         (break))
+       (if* (= 0 (modulo *codelet-count* %garbage-collect-cycles%))
+         (tell *themespace-window* 'garbage-collect)
+         (tell *workspace-window* 'garbage-collect))))))
 
 (define step-mcat
   (lambda ()
@@ -184,8 +184,8 @@
     (random-seed seed)
     (set! *this-run*
       (if %justify-mode%
-	(list initial-sym modified-sym target-sym answer-sym seed)
-	(list initial-sym modified-sym target-sym seed)))
+       (list initial-sym modified-sym target-sym answer-sym seed)
+       (list initial-sym modified-sym target-sym seed)))
     (tell *coderack* 'initialize)
     (set! *codelet-count* 0)
     (set! *initial-slipnode-unclamp-time* 0)
@@ -211,17 +211,17 @@
     (if* %justify-mode%
       (add-string-position-descriptions-to-letters *answer-string*))
     (if* (or (= (tell *initial-string* 'get-length) 1)
-	     (= (tell *modified-string* 'get-length) 1)
-	     (= (tell *target-string* 'get-length) 1)
-	     (and %justify-mode% (= (tell *answer-string* 'get-length) 1)))
+          (= (tell *modified-string* 'get-length) 1)
+          (= (tell *target-string* 'get-length) 1)
+          (and %justify-mode% (= (tell *answer-string* 'get-length) 1)))
       ;; changed 'update-activation to 'set-activation to avoid the
       ;; possibility of creating trace events before a run actually begins
       (tell plato-object-category 'set-activation %max-activation%))
     (for* each obj in (tell *workspace* 'get-objects) do
       (for* each descriptor in (tell-all (tell obj 'get-descriptions) 'get-descriptor)
-	;; changed 'update-activation to 'set-activation to avoid the
-	;; possibility of creating trace events before a run actually begins
-	do (tell descriptor 'set-activation %max-activation%)))
+  ;; changed 'update-activation to 'set-activation to avoid the
+  ;; possibility of creating trace events before a run actually begins
+       do (tell descriptor 'set-activation %max-activation%)))
     (update-workspace-values)
     (clamp-initial-slipnodes)
     (if* %slipnet-graphics% (tell *slipnet-window* 'update-graphics))
@@ -232,13 +232,13 @@
 (define init-workspace
   (lambda (initial-sym modified-sym target-sym answer-sym)
     (let ((initial-string (make-workspace-string 'initial initial-sym))
-	  (modified-string (make-workspace-string 'modified modified-sym))
-	  (target-string (make-workspace-string 'target target-sym))
-	  (answer-string (if %justify-mode%
-			   (make-workspace-string 'answer answer-sym)
-			   #f)))
+          (modified-string (make-workspace-string 'modified modified-sym))
+          (target-string (make-workspace-string 'target target-sym))
+          (answer-string (if %justify-mode%
+                          (make-workspace-string 'answer answer-sym)
+                          #f)))
       (tell *workspace* 'initialize
-	initial-string modified-string target-string answer-string)
+       initial-string modified-string target-string answer-string)
       (set! *initial-string* initial-string)
       (set! *modified-string* modified-string)
       (set! *target-string* target-string)
@@ -248,14 +248,14 @@
       (set! *bottom-strings* (list *target-string* *answer-string*))
       (set! *vertical-strings* (list *initial-string* *target-string*))
       (set! *non-answer-strings*
-	(list *initial-string* *modified-string* *target-string*))
+       (list *initial-string* *modified-string* *target-string*))
       (set! *all-strings*
-	(list *initial-string* *modified-string* *target-string* *answer-string*))
+       (list *initial-string* *modified-string* *target-string* *answer-string*))
       (if* %workspace-graphics%
-	(tell *workspace-window* 'draw-problem
-	  initial-string modified-string target-string answer-string))
+       (tell *workspace-window* 'draw-problem
+         initial-string modified-string target-string answer-string))
       (tell *comment-window* 'new-problem
-	initial-sym modified-sym target-sym answer-sym))))
+       initial-sym modified-sym target-sym answer-sym))))
 
 (define clamp-initial-slipnodes
   (lambda ()
@@ -263,34 +263,34 @@
       (tell node 'clamp %max-activation%))
     (set! *initial-slipnode-unclamp-time*
       (+ *codelet-count*
-	 (* %initial-slipnode-clamp-cycles% %update-cycle-length%)))))
+       (* %initial-slipnode-clamp-cycles% %update-cycle-length%)))))
 
 (define post-initial-codelets
   (lambda ()
     (repeat* (* 2 (length (tell *workspace* 'get-objects))) times
       (tell *coderack* 'add-deferred-codelet
-	(tell bottom-up-bond-scout 'make-codelet %very-low-urgency%))
+       (tell bottom-up-bond-scout 'make-codelet %very-low-urgency%))
       (tell *coderack* 'add-deferred-codelet
-	(tell bottom-up-bridge-scout 'make-codelet %very-low-urgency%)))
+       (tell bottom-up-bridge-scout 'make-codelet %very-low-urgency%)))
     (tell *coderack* 'post-deferred-codelets)))
 
 (define add-string-position-descriptions-to-letters
   (lambda (string)
     (let ((string-length (tell string 'get-length))
-	  (leftmost-letter (tell string 'get-letter 0)))
+          (leftmost-letter (tell string 'get-letter 0)))
       (if (= string-length 1)
-	(tell leftmost-letter 'new-description
-	  plato-string-position-category plato-single)
-	(let ((rightmost-letter (tell string 'get-letter (sub1 string-length))))
-	  (tell leftmost-letter 'new-description
-	    plato-string-position-category plato-leftmost)
-	  (tell rightmost-letter 'new-description
-	    plato-string-position-category plato-rightmost)
-	  (if* (odd? string-length)
-	    (let ((middle-letter
-		    (tell string 'get-letter (truncate (/ string-length 2)))))
-	      (tell middle-letter 'new-description
-		plato-string-position-category plato-middle))))))))
+       (tell leftmost-letter 'new-description
+         plato-string-position-category plato-single)
+       (let ((rightmost-letter (tell string 'get-letter (sub1 string-length))))
+         (tell leftmost-letter 'new-description
+           plato-string-position-category plato-leftmost)
+         (tell rightmost-letter 'new-description
+           plato-string-position-category plato-rightmost)
+         (if* (odd? string-length)
+           (let ((middle-letter
+                  (tell string 'get-letter (truncate (/ string-length 2)))))
+             (tell middle-letter 'new-description
+              plato-string-position-category plato-middle))))))))
 
 (define update-everything
   (lambda ()
@@ -298,8 +298,8 @@
     (update-workspace-values)
     (if* (tell *trace* 'within-snag-period?)
       (let ((progress-achieved (tell *trace* 'progress-since-last-snag)))
-	(stochastic-if* (% progress-achieved)
-	  (tell *trace* 'undo-snag-condition))))
+       (stochastic-if* (% progress-achieved)
+         (tell *trace* 'undo-snag-condition))))
     (if* (tell *trace* 'clamp-period-expired?)
       (tell *trace* 'undo-last-clamp))
     (tell *workspace* 'spread-activation-to-themespace)
@@ -320,14 +320,14 @@
       (tell structure 'update-strength))
     (let ((objects (tell *workspace* 'get-objects)))
       (for* each object in objects do
-	(tell object 'update-raw-importance))
+       (tell object 'update-raw-importance))
       (tell *initial-string* 'update-all-relative-importances)
       (tell *modified-string* 'update-all-relative-importances)
       (tell *target-string* 'update-all-relative-importances)
       (if* %justify-mode%
-	(tell *answer-string* 'update-all-relative-importances))
+       (tell *answer-string* 'update-all-relative-importances))
       (for* each object in objects do
-	(tell object 'update-object-values)))
+       (tell object 'update-object-values)))
     (tell *initial-string* 'update-average-intra-string-unhappiness)
     (tell *modified-string* 'update-average-intra-string-unhappiness)
     (tell *target-string* 'update-average-intra-string-unhappiness)

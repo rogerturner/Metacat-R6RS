@@ -35,9 +35,9 @@
 (define compose
   (lambda (f . l)
     (if (null? l)
-	f
-	(let ((g (apply compose l)))
-	  (lambda (x) (f (g x)))))))
+     f
+     (let ((g (apply compose l)))
+       (lambda (x) (f (g x)))))))
 
 (define base-object
   (lambda msg
@@ -48,14 +48,14 @@
 (define tell
   (lambda args
     (let ((object (1st args))
-	  (message args))
+          (message args))
 ;; for debugging:
 ;;      (set! *last-object* object)
 ;;      (set! *last-message* (rest message))
       (let ((result (apply object message)))
-	(if (eq? result 'invalid-message-indicator)
-	  (report-error-and-halt message object)
-	  result)))))
+       (if (eq? result 'invalid-message-indicator)
+         (report-error-and-halt message object)
+         result)))))
 
 (define report-error-and-halt
   (lambda (message object)
@@ -71,32 +71,32 @@
 (define delegate
   (lambda args
     (let ((message (1st args))
-	  (objects (rest args)))
+          (objects (rest args)))
       (continuation-point* return-immediately
-	(for* each object in objects do
-	  (let ((result (apply object message)))
-	    (if* (not (eq? result 'invalid-message-indicator))
-	      (return-immediately result))))
-	'invalid-message-indicator))))
+       (for* each object in objects do
+         (let ((result (apply object message)))
+           (if* (not (eq? result 'invalid-message-indicator))
+             (return-immediately result))))
+       'invalid-message-indicator))))
 
 (define delegate-to-all
   (lambda args
     (let ((message (rest (1st args)))
-	  (objects (rest args)))
+          (objects (rest args)))
       (continuation-point* return-immediately
-	(map (lambda (object)
-	       (let ((result (apply object (cons object message))))
-		 (if (eq? result 'invalid-message-indicator)
-		   (return-immediately 'invalid-message-indicator)
-		   result)))
-	  objects)))))
+       (map (lambda (object)
+              (let ((result (apply object (cons object message))))
+               (if (eq? result 'invalid-message-indicator)
+                 (return-immediately 'invalid-message-indicator)
+                 result)))
+         objects)))))
 
 (define print
   (lambda l
     (for* each obj in (flatten l) do
       (if (procedure? obj)
-	(tell obj 'print)
-	(printf "~a~%" obj)))))
+       (tell obj 'print)
+       (printf "~a~%" obj)))))
 
 (define say-object
   (lambda (x)
@@ -132,7 +132,7 @@
   (lambda (object)
     (member (tell object 'object-type)
       '(generic-event answer-event clamp-event concept-activation-event
-	 group-event rule-event concept-mapping-event snag-event))))
+        group-event rule-event concept-mapping-event snag-event))))
 
 (define slipnode?
   (lambda (object)
@@ -202,14 +202,14 @@
 (define sort-wrt-order
   (lambda (l order)
     (sort (lambda (v1 v2)
-	    (< (list-index order v1)
-	       (list-index order v2)))
+           (< (list-index order v1)
+              (list-index order v2)))
       l)))
 
 (define sort-by-method
   (lambda (method-name pred? l)
     (sort (lambda (v1 v2)
-	    (pred? (tell v1 method-name) (tell v2 method-name)))
+           (pred? (tell v1 method-name) (tell v2 method-name)))
       l)))
 
 ;; ascending-index-list returns 0-based indices
@@ -218,38 +218,38 @@
   (lambda (n)
     (letrec
       ((accumulate
-	 (lambda (i numbers)
-	   (if (zero? i)
-	     (cons i numbers)
-	     (accumulate (sub1 i) (cons i numbers))))))
+        (lambda (i numbers)
+          (if (zero? i)
+            (cons i numbers)
+            (accumulate (sub1 i) (cons i numbers))))))
       (accumulate (sub1 n) '()))))
 
 (define descending-index-list
   (lambda (n)
     (letrec
       ((accumulate
-	 (lambda (i numbers)
-	   (if (= i n)
-	     numbers
-	     (accumulate (add1 i) (cons i numbers))))))
+        (lambda (i numbers)
+          (if (= i n)
+            numbers
+            (accumulate (add1 i) (cons i numbers))))))
       (accumulate 0 '()))))
 
 (define symbol->letter-categories
   (lambda (sym)
     (map (compose
-	   eval
-	   string->symbol
-	   (lambda (s) (string-append "plato-" s))
-	   string)
-	 (string->list (symbol->string sym)))))
+          eval
+          string->symbol
+          (lambda (s) (string-append "plato-" s))
+          string)
+     (string->list (symbol->string sym)))))
 
 (define char-index
   (lambda (char string)
     (let loop ((i 0))
       (cond
-	((= i (string-length string)) -1)
-	((char=? (string-ref string i) char) i)
-	(else (loop (+ i 1)))))))
+       ((= i (string-length string)) -1)
+       ((char=? (string-ref string i) char) i)
+       (else (loop (+ i 1)))))))
 
 (define string-upcase
   (lambda (s)
@@ -264,8 +264,8 @@
     (if (string=? s "")
       ""
       (string-append
-	(string (char-upcase (string-ref s 0)))
-	(substring s 1 (string-length s))))))
+       (string (char-upcase (string-ref s 0)))
+       (substring s 1 (string-length s))))))
 
 (define quoted-string
   (lambda (string)
@@ -274,9 +274,9 @@
 (define make-table
   (lambda (row-dim column-dim . optional-args)
     (let ((initial-value (if (null? optional-args) #f (1st optional-args)))
-	  (table (make-vector row-dim)))
+          (table (make-vector row-dim)))
       (for-each-vector-element* (table i) do
-	(vector-set! table i (make-vector column-dim initial-value)))
+       (vector-set! table i (make-vector column-dim initial-value)))
       table)))
 
 (define row-dimension vector-length)
@@ -332,13 +332,13 @@
   (lambda (target source scalar)
     (for-each-vector-element* (target i) do
       (vector-set! target i
-	(+ (vector-ref target i) (* scalar (vector-ref source i)))))))
+       (+ (vector-ref target i) (* scalar (vector-ref source i)))))))
 
 (define rotate-90-degrees-clockwise
   (lambda (old-table)
     (let* ((row-dim (row-dimension old-table))
-	   (column-dim (column-dimension old-table))
-	   (new-table (make-table column-dim row-dim)))
+           (column-dim (column-dimension old-table))
+           (new-table (make-table column-dim row-dim)))
       (for-each-table-element* (old-table i j) do
         (table-set! new-table j (sub1 (- row-dim i)) (table-ref old-table i j)))
       new-table)))
@@ -369,7 +369,7 @@
   (let ((ln10 (log 10)))
     (lambda (x)
       (let ((result (/ (log x) ln10)))
-	(+ result (* (sgn result) 1E-15))))))
+       (+ result (* (sgn result) 1E-15))))))
 
 (define sgn
   (lambda (x)
@@ -378,8 +378,8 @@
 (define list-index
   (lambda (l x)
     (if (eq? (1st l) x)
-	0
-	(add1 (list-index (rest l) x)))))
+     0
+     (add1 (list-index (rest l) x)))))
 
 (define cd
   (lambda (x)
@@ -396,7 +396,7 @@
      ((<= p 0.0) #f)
      ((>= p 1.0) #t)
      (else (> p (random 1.0))))))
-	
+  
 (define ~
   (lambda (n)
     (let ((delta (random (add1 (round (sqrt n))))))
@@ -418,8 +418,8 @@
   (lambda (l weights)
     (let ((weight-sum (sum weights)))
       (if (zero? weight-sum)
-	  (random-pick l)
-	  (nth (weighted-index (random (exact->inexact weight-sum)) weights) l)))))
+       (random-pick l)
+       (nth (weighted-index (random (exact->inexact weight-sum)) weights) l)))))
 
 ;; stochastic-pick-by-method tells message to each object in
 ;; object-list, yielding a list of integer/real numbers.  It
@@ -439,8 +439,8 @@
 (define weighted-index
   (lambda (w weights)
     (if (< w (1st weights))
-	0
-	(add1 (weighted-index (- w (1st weights)) (rest weights))))))
+     0
+     (add1 (weighted-index (- w (1st weights)) (rest weights))))))
 
 ;; selection-list is a list of lists:  ((<weight> <obj> ...) ... )
 ;; stochastic-select picks an element stochastically, biased by the weights.
@@ -450,15 +450,15 @@
   (lambda (selection-list)
     (let ((weight-sum (sum (map 1st selection-list))))
       (if (zero? weight-sum)
-	  (random-pick selection-list)
-	  (weighted-select (random (exact->inexact weight-sum)) selection-list)))))
+       (random-pick selection-list)
+       (weighted-select (random (exact->inexact weight-sum)) selection-list)))))
 
 (define weighted-select
   (lambda (w selection-list)
     (let ((first-element (1st selection-list)))
       (if (< w (1st first-element))
-	  first-element
-	  (weighted-select (- w (1st first-element)) (rest selection-list))))))
+       first-element
+       (weighted-select (- w (1st first-element)) (rest selection-list))))))
 
 (define stochastic-filter
   (lambda (proc l)
@@ -499,25 +499,25 @@
   (lambda (l)
     (letrec
       ((walk (lambda (l leaves)
-	       (cond
-		 ((null? l) leaves)
-		 ((list? (1st l)) (walk (1st l) (walk (rest l) leaves)))
-		 (else (cons (1st l) (walk (rest l) leaves)))))))
+              (cond
+               ((null? l) leaves)
+               ((list? (1st l)) (walk (1st l) (walk (rest l) leaves)))
+               (else (cons (1st l) (walk (rest l) leaves)))))))
       (walk l '()))))
 
 (define select-longest-list
   (lambda (l)
     (let ((result (select-extreme max length l)))
       (if (exists? result)
-	result
-	'()))))
+       result
+       '()))))
 
 (define select-extreme
   (lambda (min/max proc l)
     (if (null? l)
       #f
       (let ((values (map proc l)))
-	(2nd (assv (apply min/max values) (map list values l)))))))
+       (2nd (assv (apply min/max values) (map list values l)))))))
 
 (define maximum
   (lambda (l)
@@ -545,10 +545,10 @@
   (letrec
     ((select
        (lambda (predicate? l)
-	 (cond
-	   ((null? l) #f)
-	   ((predicate? (1st l)) (1st l))
-	   (else (select predicate? (rest l)))))))
+        (cond
+          ((null? l) #f)
+          ((predicate? (1st l)) (1st l))
+          (else (select predicate? (rest l)))))))
     select))
 
 ;; filter retains exactly the elements of l which satisfy pred?
@@ -592,9 +592,9 @@
     (if (null? l)
       '()
       (let ((value (proc (1st l))))
-	(if (pred? value)
-	  (cons value (map-filter proc pred? (rest l)))
-	  (map-filter proc pred? (rest l)))))))
+       (if (pred? value)
+         (cons value (map-filter proc pred? (rest l)))
+         (map-filter proc pred? (rest l)))))))
 
 ;; cross-product procedures take 2-ary pred? and proc procedures as arguments,
 ;; which get applied to the pairs of the cross-product l1 x l2.
@@ -622,44 +622,44 @@
   (lambda (pred? proc l1 l2)
     (letrec
       ((f (lambda (l result)
-	    (if (null? l)
-	      result
-	      (g (1st l) l2 (f (rest l) result)))))
+           (if (null? l)
+             result
+             (g (1st l) l2 (f (rest l) result)))))
        (g (lambda (x l result)
-	    (cond
-	      ((null? l) result)
-	      ((pred? x (1st l)) (cons (proc x (1st l)) (g x (rest l) result)))
-	      (else (g x (rest l) result))))))
+           (cond
+             ((null? l) result)
+             ((pred? x (1st l)) (cons (proc x (1st l)) (g x (rest l) result)))
+             (else (g x (rest l) result))))))
       (f l1 '()))))
 
 (define cross-product-map-filter
   (lambda (proc pred? l1 l2)
     (letrec
       ((f (lambda (l result)
-	    (if (null? l)
-	      result
-	      (g (1st l) l2 (f (rest l) result)))))
+           (if (null? l)
+             result
+             (g (1st l) l2 (f (rest l) result)))))
        (g (lambda (x l result)
-	    (if (null? l)
-	      result
-	      (let ((value (proc x (1st l))))
-		(if (pred? value)
-		  (cons value (g x (rest l) result))
-		  (g x (rest l) result)))))))
+           (if (null? l)
+             result
+             (let ((value (proc x (1st l))))
+              (if (pred? value)
+                (cons value (g x (rest l) result))
+                (g x (rest l) result)))))))
       (f l1 '()))))
 
 (define cross-product-ormap
   (lambda (pred? l1 l2)
     (ormap (lambda (x)
-	     (ormap (lambda (y) (pred? x y))
-	       l2))
+            (ormap (lambda (y) (pred? x y))
+              l2))
       l1)))
 
 (define cross-product-andmap
   (lambda (pred? l1 l2)
     (andmap (lambda (x)
-	      (andmap (lambda (y) (pred? x y))
-		l2))
+             (andmap (lambda (y) (pred? x y))
+              l2))
       l1)))
 
 (define cross-product-for-each
@@ -691,22 +691,22 @@
   (lambda (proc l)
     (letrec
       ((pairwise-map
-	 (lambda (l)
-	   (if (null? l)
-	     '()
-	     (append
-	       (map (lambda (x) (proc (1st l) x)) (rest l))
-	       (pairwise-map (rest l)))))))
+        (lambda (l)
+          (if (null? l)
+            '()
+            (append
+              (map (lambda (x) (proc (1st l) x)) (rest l))
+              (pairwise-map (rest l)))))))
       (pairwise-map l))))
 
 (define pairwise-do
   (lambda (proc l)
     (letrec
       ((pairwise-do
-	 (lambda (l)
-	   (if* (not (null? l))
-	     (for* each obj in (rest l) do (proc (1st l) obj))
-	     (pairwise-do (rest l))))))
+        (lambda (l)
+          (if* (not (null? l))
+            (for* each obj in (rest l) do (proc (1st l) obj))
+            (pairwise-do (rest l))))))
       (pairwise-do l)
       'done)))
 
@@ -714,10 +714,10 @@
   (lambda (pred? l)
     (letrec
       ((pairwise-andmap
-	 (lambda (l)
-	   (or (null? l)
-	       (and (andmap (lambda (x) (pred? (1st l) x)) (rest l))
-		    (pairwise-andmap (rest l)))))))
+        (lambda (l)
+          (or (null? l)
+              (and (andmap (lambda (x) (pred? (1st l) x)) (rest l))
+               (pairwise-andmap (rest l)))))))
       (pairwise-andmap l))))
 
 (define intersect
@@ -738,22 +738,22 @@
      ((null? l) '())
      ((null? (rest l)) (1st l))
      (else (intersect-pred equiv-pred?
-	     (1st l) (intersect-all-pred equiv-pred? (rest l)))))))
+            (1st l) (intersect-all-pred equiv-pred? (rest l)))))))
 
 (define partition
   (lambda (pred? l)
     (letrec ((partition
-	      (lambda (l)
-		(if (null? l)
-		    '()
-		    (insert (1st l) (partition (rest l))))))
-	     (insert
-	      (lambda (x l)
-		(cond
-		 ((null? l) (cons (list x) l))
-		 ((andmap (lambda (y) (pred? x y)) (1st l))
-		  (cons (cons x (1st l)) (rest l)))
-		 (else (cons (1st l) (insert x (rest l))))))))
+              (lambda (l)
+               (if (null? l)
+                   '()
+                   (insert (1st l) (partition (rest l))))))
+             (insert
+              (lambda (x l)
+               (cond
+                ((null? l) (cons (list x) l))
+                ((andmap (lambda (y) (pred? x y)) (1st l))
+                 (cons (cons x (1st l)) (rest l)))
+                (else (cons (1st l) (insert x (rest l))))))))
       (partition l))))
 
 ;; bounded-random-partition randomly partitions the elements of l into
@@ -765,25 +765,25 @@
   (lambda (pred? l bound)
     (letrec
       ((partition
-	 (lambda (l)
-	   (if (null? l)
-	     '()
-	     (let ((x (random-pick l)))
-	       (insert x (partition (remove-first x l)))))))
+        (lambda (l)
+          (if (null? l)
+            '()
+            (let ((x (random-pick l)))
+              (insert x (partition (remove-first x l)))))))
        (insert
-	 (lambda (x l)
-	   (cond
-	     ((null? l) (cons (list x) l))
-	     ((and (< (length (1st l)) bound)
-		   (andmap (lambda (y) (pred? x y)) (1st l)))
-	      (cons (cons x (1st l)) (rest l)))
-	     (else (cons (1st l) (insert x (rest l)))))))
+        (lambda (x l)
+          (cond
+            ((null? l) (cons (list x) l))
+            ((and (< (length (1st l)) bound)
+              (andmap (lambda (y) (pred? x y)) (1st l)))
+             (cons (cons x (1st l)) (rest l)))
+            (else (cons (1st l) (insert x (rest l)))))))
        (remove-first
-	 (lambda (x l)
-	   (cond
-	     ((null? l) '())
-	     ((eq? (1st l) x) (rest l))
-	     (else (cons (1st l) (remove-first x (rest l))))))))
+        (lambda (x l)
+          (cond
+            ((null? l) '())
+            ((eq? (1st l) x) (rest l))
+            (else (cons (1st l) (remove-first x (rest l))))))))
       (partition l))))
 
 ;; force member? to return #t or #f
@@ -848,11 +848,11 @@
   (lambda (pred?)
     (letrec
       ((remove-duplicates
-	 (lambda (l)
-	   (cond
-	     ((null? l) '())
-	     ((member-pred? pred? (1st l) (rest l)) (remove-duplicates (rest l)))
-	     (else (cons (1st l) (remove-duplicates (rest l))))))))
+        (lambda (l)
+          (cond
+            ((null? l) '())
+            ((member-pred? pred? (1st l) (rest l)) (remove-duplicates (rest l)))
+            (else (cons (1st l) (remove-duplicates (rest l))))))))
       remove-duplicates)))
 
 (define remq-duplicates

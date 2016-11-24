@@ -43,9 +43,9 @@
 (define set-window-size-defaults
   (lambda (scale)
     (let* ((screen-width (swl:screen-width))
-	   (screen-height (swl:screen-height))
-	   (width (lambda (w) (round (* scale w))))
-	   (height (lambda (h) (round (* scale h)))))
+           (screen-height (swl:screen-height))
+           (width (lambda (w) (round (* scale w))))
+           (height (lambda (h) (round (* scale h)))))
       (set! %default-13x5-slipnet-width% (width 650))
       (set! %default-coderack-width% (width 230))
       (set! %default-temperature-width% (width 70))
@@ -73,9 +73,9 @@
 (define swl-color
   (lambda (name)
     (let* ((entry (assoc name *color-names*))
-	   (r (cadr entry))
-	   (g (caddr entry))
-	   (b (cadddr entry)))
+           (r (cadr entry))
+           (g (caddr entry))
+           (b (cadddr entry)))
       (make <rgb> r g b))))
 
 (define *color-names*
@@ -1038,9 +1038,9 @@
   (lambda (values distribution-frequency-values)
     (lambda msg
       (record-case (rest msg)
-	(object-type () 'probability-distribution)
-	(choose-value () (stochastic-pick values distribution-frequency-values))
-	(else (delegate msg base-object))))))
+       (object-type () 'probability-distribution)
+       (choose-value () (stochastic-pick values distribution-frequency-values))
+       (else (delegate msg base-object))))))
 
 
 (define %very-low-translation-temperature-threshold-distribution%
