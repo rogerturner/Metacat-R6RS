@@ -20,35 +20,45 @@
 (define *codelet-count* 0)
 (define *temperature* 0)
 
-(define *workspace-window* #f)
-(define *slipnet-window* #f)
-(define *coderack-window* #f)
-(define *themespace-window* #f)
-(define *top-themes-window* #f)
-(define *bottom-themes-window* #f)
-(define *vertical-themes-window* #f)
-(define *memory-window* #f)
-(define *comment-window* #f)
-(define *trace-window* #f)
-(define *temperature-window* #f)
-(define *EEG-window* #f)
-(define *control-panel* #f)
+(define *workspace-window* (lambda z #f))
+(define *slipnet-window* (lambda z #f))
+(define *coderack-window* (lambda z #f))
+(define *themespace-window* (lambda z #f))
+(define *top-themes-window* (lambda z #f))
+(define *bottom-themes-window* (lambda z #f))
+(define *vertical-themes-window* (lambda z #f))
+(define *memory-window* (lambda z #f))
+(define *comment-window* (lambda z #f))
+(define *trace-window* (lambda z #f))
+(define *temperature-window* (lambda z #f))
+(define *EEG* (lambda z #f))
+(define *EEG-window* (lambda z #f))
+(define *control-panel* (lambda z #f))
 
 ;; Default configuration:
 (define %eliza-mode% #t)
 (define %justify-mode% #f)
 (define %self-watching-enabled% #t)
 (define %verbose% #f)
-(define %workspace-graphics% #t)
-(define %slipnet-graphics% #t)
-(define %coderack-graphics% #t)
-(define %codelet-count-graphics% #t)
-(define %highlight-last-codelet% #t)
-(define %nice-graphics% #t)
+(define %workspace-graphics% *gui*)
+(define %slipnet-graphics% *gui*)
+(define %coderack-graphics% *gui*)
+(define %codelet-count-graphics% *gui*)
+(define %highlight-last-codelet% *gui*)
+(define %nice-graphics% *gui*)
 
 (define *repl-thread* #f)
 
 (define setup
+  (lambda args
+    (if* *gui*
+      (if (null? args)
+        (setup-gui)
+        (setup-gui args)))
+    (if *repl*
+      (set! *comment-window* (make-comment-reporter)))))
+
+(define setup-gui
   (lambda args
     (let ((scale (if (null? args) 1 (car args))))
       (printf "Initializing windows...")
@@ -65,9 +75,9 @@
       (set! *comment-window* (make-comment-window))
       (set! *trace-window* (make-trace-window))
       (set! *temperature-window* (make-temperature-window))
+      (set! *EEG* (make-EEG))
       (set! *EEG-window* (make-EEG-window))
       (set! *control-panel* (make-control-panel))
-      (set! *repl-thread* (thread-self))
       (enable-resizing)
       ;; this reduces an annoying problem in SWL 0.9x in which >'s gradually fill
       ;; up the bottom line of the REPL window with each new call to (break):
@@ -149,12 +159,14 @@
 
 (define verbose-on
   (lambda ()
+    (set! %verbose% #t)
     (if* (not (tell *control-panel* 'verbose-mode?))
       (tell *control-panel* 'toggle-verbose-mode))
     'ok))
 
 (define verbose-off
   (lambda ()
+    (set! %verbose% #f)
     (if* (tell *control-panel* 'verbose-mode?)
       (tell *control-panel* 'toggle-verbose-mode))
     'ok))
@@ -167,3 +179,92 @@
     (printf "  %snag-pause%               ~a ms~%" %snag-pause%)
     (printf "  %codelet-highlight-pause%  ~a ms~%" %codelet-highlight-pause%)
     (printf "  %text-scroll-pause%        ~a ms~%" %text-scroll-pause%)))
+
+;;----------------------------------------------------------------------
+;; Probability distributions
+
+(define make-probability-distribution
+  (lambda (values distribution-frequency-values)
+    (lambda msg
+      (record-case (rest msg)
+       (object-type () 'probability-distribution)
+       (choose-value () (stochastic-pick values distribution-frequency-values))
+       (else (delegate msg base-object))))))
+
+
+(define %very-low-translation-temperature-threshold-distribution%
+  (make-probability-distribution
+    '(10  20  30  40  50  60  70  80  90 100)
+    '( 5  150  5   2   1   1   1   1   1   1)))
+
+
+(define %low-translation-temperature-threshold-distribution%
+  (make-probability-distribution
+    '(10  20  30  40  50  60  70  80  90 100)
+    '( 2   5  150  5   2   1   1   1   1   1)))
+
+
+(define %medium-translation-temperature-threshold-distribution%
+  (make-probability-distribution
+    '(10  20  30  40  50  60  70  80  90 100)
+    '( 1   2   5  150  5   2   1   1   1   1)))
+
+
+(define %high-translation-temperature-threshold-distribution%
+  (make-probability-distribution
+    '(10  20  30  40  50  60  70  80  90 100)
+    '( 1   1   2   5  150  5   2   1   1   1)))
+
+
+(define %very-high-translation-temperature-threshold-distribution%
+  (make-probability-distribution
+    '(10  20  30  40  50  60  70  80  90 100)
+    '( 1   1   1   2   5  150  5   2   1   1)))
+
+;;--------------------------------------------------------------------------------
+;; command line parser
+
+(define tokenize-string
+  (lambda (input)
+    (let ((chars (map char-downcase (string->list input))))
+      (define consume-noise
+       (lambda (buffer tokens chars)
+         (cond
+           ((null? chars) (reverse tokens))
+           ((char-noise? (1st chars))
+            (consume-noise buffer tokens (rest chars)))
+           ((char-alphabetic? (1st chars))
+            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
+           ((char-numeric? (1st chars))
+            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
+           (else 'error))))
+      (define consume-letters
+       (lambda (buffer tokens chars)
+         (cond
+           ((null? chars)
+            (let ((new-token (string->symbol (list->string (reverse buffer)))))
+              (reverse (cons new-token tokens))))
+           ((char-noise? (1st chars))
+            (let ((new-token (string->symbol (list->string (reverse buffer)))))
+              (consume-noise '() (cons new-token tokens) (rest chars))))
+           ((char-alphabetic? (1st chars))
+            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
+           (else 'error))))
+      (define consume-digits
+       (lambda (buffer tokens chars)
+         (cond
+           ((null? chars)
+            (let ((new-token (string->number (list->string (reverse buffer)))))
+              (reverse (cons new-token tokens))))
+           ((char-noise? (1st chars))
+            (let ((new-token (string->number (list->string (reverse buffer)))))
+              (consume-noise '() (cons new-token tokens) (rest chars))))
+           ((char-numeric? (1st chars))
+            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
+           (else 'error))))
+      (consume-noise '() '() chars))))
+
+(define char-noise?
+  (lambda (char)
+    (and (not (char-alphabetic? char))
+     (not (char-numeric? char)))))

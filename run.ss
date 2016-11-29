@@ -100,7 +100,7 @@
     (continuation-point* breakpoint
       (set! *breakpoint-continuation* breakpoint)
       (swl:sync-display)
-      (printf "stopped~%")
+      (if* *gui* (printf "stopped~%"))
       ;; see above
       (if* (equal? swl:version "0.9u")
        (printf "> ") ;; fake a prompt
@@ -134,7 +134,6 @@
 
 (define suspend
   (lambda ()
-    (printf "Type (go) or click on the Workspace to continue...~%")
     (break)))
 
 (define rerun
@@ -193,7 +192,6 @@
     (set! *temperature-clamped?* #f)
     (for* each node in *slipnet-nodes* do
       (tell node 'reset))
-    (set! *fg-color* %default-fg-color%)
     (tell *temperature-window* 'initialize)
     (tell *temperature-window* 'update-graphics 100)
     (tell *EEG-window* 'initialize)

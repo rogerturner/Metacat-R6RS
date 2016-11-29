@@ -1141,7 +1141,7 @@
 (define opp plato-opposite)
 (define diff #f)
 
-(define ?
+(define themes?
   (lambda ()
     (printf "Theme Types:  top bot ver~n")
     (printf "Dimensions:   lcat len dir spos apos otype gtype btype facet~n")

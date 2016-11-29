@@ -17,6 +17,17 @@
 ;; details.
 ;;=============================================================================
 
+;; required by SWL 0.9x
+(import swl:oop)
+(import swl:macros)
+(import swl:generics)
+(import swl:option)
+(import swl:threads)
+
+(define pause
+  (lambda (ms)
+    (thread-sleep ms)))
+
 (define swl-font
   (lambda (face size . style)
     (if (or (null? style) (symbol? (car style)))
@@ -32,6 +43,7 @@
 
 (define create-mcat-logo
   (lambda ()
+    (set! *repl-thread* (thread-self))
     (let* ((top (create <toplevel> with
                  (width: 110)
                  (height: 80)

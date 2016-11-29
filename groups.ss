@@ -724,7 +724,7 @@
                              (build-bond new-bond)
                              new-bond)))
                         letters)))
-                 (group-graphics 'erase proposed-group)
+                 (if* %workspace-graphics% (group-graphics 'erase proposed-group))
                  (let ((new-group
                         (make-group
                           string group-category plato-letter-category direction

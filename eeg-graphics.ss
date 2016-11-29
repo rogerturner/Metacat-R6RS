@@ -232,4 +232,4 @@
               (tell graphics-window 'delete 'garbage)))
            (else (delegate msg graphics-window))))))))
 
-(define *EEG* (make-EEG))
+;; (define *EEG* (make-EEG)) ;; moved to setup

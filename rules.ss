@@ -1744,6 +1744,14 @@
             (string-append indent (string-suffix s next-pos)))))))))
 
 
+(define find-next-space-position
+  (lambda (s i)
+    (cond
+      ((>= i (string-length s)) (string-length s))
+      ((char=? (string-ref s i) #\space) i)
+      (else (find-next-space-position s (+ i 1))))))
+
+
 (define get-rule-clause-phrases
   (lambda (string)
     (lambda (rule-clause)

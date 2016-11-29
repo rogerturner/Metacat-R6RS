@@ -838,7 +838,10 @@
   (lambda (group flipped?)
     (let ((generic-event (make-generic-event 'group))
           (print-name
-            (let ((text (group-event-pexp-text-string group))
+            (let ((text 
+                    (if *gui*
+                      (group-event-pexp-text-string group)
+                      "group event"))
                   (direction (tell group 'get-direction)))
               (cond
                ((eq? direction plato-right) (format ">~a>" text))

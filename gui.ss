@@ -78,53 +78,7 @@
        (send space set-background-color! (car color)))
       (pack space (side: side)))))
 
-;;--------------------------------------------------------------------------------
-;; command line parser for control panel
-
-(define tokenize-string
-  (lambda (input)
-    (let ((chars (map char-downcase (string->list input))))
-      (define consume-noise
-       (lambda (buffer tokens chars)
-         (cond
-           ((null? chars) (reverse tokens))
-           ((char-noise? (1st chars))
-            (consume-noise buffer tokens (rest chars)))
-           ((char-alphabetic? (1st chars))
-            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
-           ((char-numeric? (1st chars))
-            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
-           (else 'error))))
-      (define consume-letters
-       (lambda (buffer tokens chars)
-         (cond
-           ((null? chars)
-            (let ((new-token (string->symbol (list->string (reverse buffer)))))
-              (reverse (cons new-token tokens))))
-           ((char-noise? (1st chars))
-            (let ((new-token (string->symbol (list->string (reverse buffer)))))
-              (consume-noise '() (cons new-token tokens) (rest chars))))
-           ((char-alphabetic? (1st chars))
-            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
-           (else 'error))))
-      (define consume-digits
-       (lambda (buffer tokens chars)
-         (cond
-           ((null? chars)
-            (let ((new-token (string->number (list->string (reverse buffer)))))
-              (reverse (cons new-token tokens))))
-           ((char-noise? (1st chars))
-            (let ((new-token (string->number (list->string (reverse buffer)))))
-              (consume-noise '() (cons new-token tokens) (rest chars))))
-           ((char-numeric? (1st chars))
-            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
-           (else 'error))))
-      (consume-noise '() '() chars))))
-
-(define char-noise?
-  (lambda (char)
-    (and (not (char-alphabetic? char))
-     (not (char-numeric? char)))))
+;;--------command line parser moved to setup.ss--------
 
 (define step-button-action
   (lambda (ignore)

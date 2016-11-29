@@ -922,7 +922,3 @@
 
 (define x-coord real-part)
 (define y-coord imag-part)
-
-(define pause
-  (lambda (ms)
-    (thread-sleep ms)))

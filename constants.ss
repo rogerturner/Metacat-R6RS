@@ -1031,43 +1031,4 @@
 (define %logo-icon-image% #f)
 (define %logo-window-title% "Logo")
 
-;;----------------------------------------------------------------------
-;; Probability distributions
-
-(define make-probability-distribution
-  (lambda (values distribution-frequency-values)
-    (lambda msg
-      (record-case (rest msg)
-       (object-type () 'probability-distribution)
-       (choose-value () (stochastic-pick values distribution-frequency-values))
-       (else (delegate msg base-object))))))
-
-
-(define %very-low-translation-temperature-threshold-distribution%
-  (make-probability-distribution
-    '(10  20  30  40  50  60  70  80  90 100)
-    '( 5  150  5   2   1   1   1   1   1   1)))
-
-
-(define %low-translation-temperature-threshold-distribution%
-  (make-probability-distribution
-    '(10  20  30  40  50  60  70  80  90 100)
-    '( 2   5  150  5   2   1   1   1   1   1)))
-
-
-(define %medium-translation-temperature-threshold-distribution%
-  (make-probability-distribution
-    '(10  20  30  40  50  60  70  80  90 100)
-    '( 1   2   5  150  5   2   1   1   1   1)))
-
-
-(define %high-translation-temperature-threshold-distribution%
-  (make-probability-distribution
-    '(10  20  30  40  50  60  70  80  90 100)
-    '( 1   1   2   5  150  5   2   1   1   1)))
-
-
-(define %very-high-translation-temperature-threshold-distribution%
-  (make-probability-distribution
-    '(10  20  30  40  50  60  70  80  90 100)
-    '( 1   1   1   2   5  150  5   2   1   1)))
+;;--------Probability distributions moved to setup.ss--------

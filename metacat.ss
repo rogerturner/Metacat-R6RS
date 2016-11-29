@@ -21,6 +21,11 @@
 ;; Version 1.1: Updated for Petite Chez Scheme 8.4 (January 2014)
 ;; Version 1.2: Minor bug fixes: graphics window resizing, menus (August 2016)
 
+;; Version 1.2+0.1.0: Cloned from science.slc.edu/~jmarshall/metacat/
+;;                    Added *gui* switch (run in Chez repl if #f)
+
+(define *metacat-version* "Metacat 1.2+0.1.0")
+
 ;; EDIT THESE SETTINGS APPROPRIATELY FOR YOUR SYSTEM:
 
 ;; Uncomment one of the following:
@@ -41,14 +46,13 @@
 ;; Version number of Tcl/Tk installed on your system
 (define *tcl/tk-version* 8.5)
 
+;; Set *gui* to #t for multiple windows (run with SWL), #f for REPL
+(define *gui* #f)
+
 ;;----------------------------------------------------------------------------
 
-;; required by SWL 0.9x
-(import swl:oop)
-(import swl:macros)
-(import swl:generics)
-(import swl:option)
-(import swl:threads)
+(define *swl*  *gui*)
+(define *repl* (not *gui*))
 
 ;; do some basic error checking first
 
@@ -83,8 +87,6 @@
 
 (load "syntactic-sugar.ss")
 (load "utilities.ss")
-(load "fonts.ss")
-(load "constants.ss")
 (load "setup.ss")
 (load "coderack.ss")
 (load "descriptions.ss")
@@ -109,21 +111,39 @@
 (load "trace.ss")
 (load "jootsing.ss")
 (load "memory.ss")
-(load "sgl-interpreter.ss")
-(load "general-graphics.ss")
-(load "slipnet-graphics.ss")
-(load "workspace-graphics.ss")
-(load "temperature-graphics.ss")
-(load "group-graphics.ss")
-(load "bridge-graphics.ss")
-(load "rule-graphics.ss")
-(load "coderack-graphics.ss")
-(load "theme-graphics.ss")
-(load "trace-graphics.ss")
-(load "memory-graphics.ss")
-(load "commentary-graphics.ss")
-(load "eeg-graphics.ss")
 (load "demos.ss")
-(load "gui.ss")
+(if* *gui*
+  (load "fonts.ss")
+  (load "constants.ss")
+  (load "sgl-interpreter.ss")
+  (load "general-graphics.ss")
+  (load "workspace-graphics.ss")
+  (load "group-graphics.ss")
+  (load "bridge-graphics.ss")
+  (load "rule-graphics.ss")
+  (load "slipnet-graphics.ss")
+  (load "temperature-graphics.ss")
+  (load "coderack-graphics.ss")
+  (load "theme-graphics.ss")
+  (load "trace-graphics.ss")
+  (load "memory-graphics.ss")
+  (load "commentary-graphics.ss")
+  (load "eeg-graphics.ss")
+  (load "gui.ss"))
 
-(printf "Metacat loaded.~%Type (setup) at the > prompt to begin.~%")
+(define ?
+  (lambda ()
+    (printf "~%For the problem...             Enter:~%")
+    (printf " \"If abc->abd, then ijk->???\" : (run \"abc abd ijk\")~%~%")
+    (printf "Try for a different answer    : (go)~%")
+    (printf "Forget previous answers       : (clearmem)~%")
+    (printf "Commentary style              : (eliza-mode-on) (eliza-mode-off)~%")
+    (printf "Verbose commentary            : (verbose-on)    (verbose-off)~%")
+    (printf "-> Metacat home page          : http://science.slc.edu/~~jmarshall/metacat/~%~%")))
+    
+(if *repl*
+  (begin
+    (load "repl.ss")
+    (setup)
+    (printf (string-append *metacat-version* ": enter (?) for help")))
+  (printf "Metacat loaded.~%Type (setup) at the > prompt to begin.~%"))
