@@ -54,7 +54,7 @@
            (active-theme-types '())
            (stored-current-state #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'themespace)
            (print ()
@@ -93,17 +93,17 @@
                 all-clusters)))
            (get-partial-state (theme-type)
              (let ((complete-state (tell self 'get-complete-state))
-                   (relevant-info? (lambda (info) (eq? (1st info) theme-type))))
+                   (relevant-info? (lambda (info) (eq? (first info) theme-type))))
               (list
                 (list theme-type)
-                (intersect (list theme-type) (2nd complete-state))
-                (filter relevant-info? (3rd complete-state))
-                (filter relevant-info? (4th complete-state)))))
+                (intersect (list theme-type) (second complete-state))
+                (filter relevant-info? (third complete-state))
+                (filter relevant-info? (fourth complete-state)))))
            (restore-state (state)
-             (let ((all-theme-types (1st state))
-                   (active-theme-types (2nd state))
-                   (theme-info (3rd state))
-                   (cluster-info (4th state)))
+             (let ((all-theme-types (first state))
+                   (active-theme-types (second state))
+                   (theme-info (third state))
+                   (cluster-info (fourth state)))
               (for* each theme-type in all-theme-types do
                 (tell self 'delete-theme-type theme-type)
                 (tell self 'unfreeze-theme-type theme-type)
@@ -111,17 +111,17 @@
               (for* each theme-type in active-theme-types do
                 (tell self 'thematic-pressure-on theme-type))
               (for* each entry in theme-info do
-                (let ((type (1st entry))
-                      (dim (2nd entry))
-                      (rel (3rd entry))
-                      (act (4th entry))
-                      (frozen? (5th entry)))
+                (let ((type (first entry))
+                      (dim (second entry))
+                      (rel (third entry))
+                      (act (fourth entry))
+                      (frozen? (fifth entry)))
                   (tell self 'set-theme-activation type dim rel act)
                   (if* frozen? (tell self 'freeze-theme type dim rel))))
               (for* each entry in cluster-info do
-                (let ((type (1st entry))
-                      (dim (2nd entry))
-                      (frozen? (3rd entry)))
+                (let ((type (first entry))
+                      (dim (second entry))
+                      (frozen? (third entry)))
                   (if* frozen? (tell self 'freeze-theme-cluster type dim)))))
              'done)
            (initialize ()
@@ -189,9 +189,9 @@
               'get-theme relation))
            (get-clusters (theme-type)
              (case theme-type
-              (top-bridge top-clusters)
-              (bottom-bridge bottom-clusters)
-              (vertical-bridge vertical-clusters)))
+              ((top-bridge) top-clusters)
+              ((bottom-bridge) bottom-clusters)
+              ((vertical-bridge) vertical-clusters)))
            (get-cluster (theme-type dimension)
              (select-meth (tell self 'get-clusters theme-type) 'dimension? dimension))
            (get-dimensions () dimensions)
@@ -223,7 +223,7 @@
            (get-nonzero-theme-pattern (theme-type)
              (cons theme-type
               (filter-out
-                (lambda (entry) (and (= (length entry) 3) (= 0 (3rd entry))))
+                (lambda (entry) (and (= (length entry) 3) (= 0 (third entry))))
                 (entries (tell self 'get-complete-theme-pattern theme-type)))))
            (get-all-complete-theme-patterns ()
              (map
@@ -461,7 +461,7 @@
              (themes '())
              (frozen? #f))
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'theme-cluster)
              (print ()
@@ -506,15 +506,15 @@
                   #f
                   (let ((ranked-themes
                          (sort-by-method 'get-absolute-activation > themes)))
-                    (if (and (positive? (tell (1st ranked-themes) 'get-activation))
-                         (> (- (tell (1st ranked-themes)
+                    (if (and (positive? (tell (first ranked-themes) 'get-activation))
+                         (> (- (tell (first ranked-themes)
                                 'get-absolute-activation)
                              (if (null? (rest ranked-themes))
                                0
-                               (tell (2nd ranked-themes)
+                               (tell (second ranked-themes)
                                 'get-absolute-activation)))
                           %dominant-theme-margin%))
-                     (1st ranked-themes)
+                     (first ranked-themes)
                      #f))))
               'done)
              (spread-activation ()
@@ -586,7 +586,7 @@
            (graphics-activation 0)
            (frozen? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'generic-theme)
            (get-theme-type () theme-type)
@@ -607,10 +607,10 @@
            (clicked? (x y)
              (if (exists? graphics-window-panel)
               (let ((delta (* 1/2 (tell graphics-window-panel 'get-activation-diameter))))
-                (or (and (<= (abs (- x (1st graphics-coord))) delta)
-                     (<= (abs (- y (2nd graphics-coord))) delta))
-                    (and (<= (abs (- x (1st text-coord))) delta)
-                     (<= (abs (- y (2nd text-coord))) delta))))
+                (or (and (<= (abs (- x (first graphics-coord))) delta)
+                     (<= (abs (- y (second graphics-coord))) delta))
+                    (and (<= (abs (- x (first text-coord))) delta)
+                     (<= (abs (- y (second text-coord))) delta))))
               #f))
            (draw-activation-graphics ()
              (tell graphics-window-panel 'draw-absolute-activation
@@ -696,7 +696,7 @@
   (lambda (theme-type dimension relation)
     (let ((generic-theme (make-generic-theme theme-type)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'bridge-theme)
            (ascii-name ()
@@ -735,16 +735,16 @@
 (define theme-type->bridge-type
   (lambda (theme-type)
     (case theme-type
-      (top-bridge 'top)
-      (bottom-bridge 'bottom)
-      (vertical-bridge 'vertical))))
+      ((top-bridge) 'top)
+      ((bottom-bridge) 'bottom)
+      ((vertical-bridge) 'vertical))))
 
 (define bridge-type->theme-type
   (lambda (theme-type)
     (case theme-type
-      (top 'top-bridge)
-      (bottom 'bottom-bridge)
-      (vertical 'vertical-bridge))))
+      ((top) 'top-bridge)
+      ((bottom) 'bottom-bridge)
+      ((vertical) 'vertical-bridge))))
 
 
 (define-codelet-procedure* thematic-bridge-scout
@@ -761,8 +761,8 @@
               (map (lambda (theme-type)
                     (* (tell *themespace*
                         'get-max-positive-theme-activation theme-type)
-                     (100- (tell *workspace* 'get-mapping-strength
-                            (theme-type->bridge-type theme-type)))))
+                     ($100- (tell *workspace* 'get-mapping-strength
+                             (theme-type->bridge-type theme-type)))))
                active-bridge-theme-types))
              (theme-type
                (stochastic-pick active-bridge-theme-types theme-type-weights))
@@ -867,8 +867,8 @@
               (say "No way to make a bridge that supports the themes. Fizzling.")
               (fizzle))
              (let* ((chosen-element (stochastic-select other-object-selection-list))
-                    (other-object (2nd chosen-element))
-                    (conditions (3rd chosen-element))
+                    (other-object (second chosen-element))
+                    (conditions (third chosen-element))
                     (object1 (if from-object? chosen-object other-object))
                     (object2 (if from-object? other-object chosen-object))
                     (flip1? (member? object1 conditions))
@@ -1157,28 +1157,28 @@
 (define set-themes
   (lambda args
     (case (length args)
-      (1 (tell *themespace* 'set-all-theme-activations (1st args)))
-      (2 (tell *themespace* 'set-theme-type-activations (1st args) (2nd args)))
-      (3 (tell *themespace* 'set-theme-cluster-activations
-          (1st args) (2nd args) (3rd args)))
-      (4 (tell *themespace* 'set-theme-activation
-          (1st args) (2nd args) (3rd args) (4th args))))))
+      ((1) (tell *themespace* 'set-all-theme-activations (first args)))
+      ((2) (tell *themespace* 'set-theme-type-activations (first args) (second args)))
+      ((3) (tell *themespace* 'set-theme-cluster-activations
+             (first args) (second args) (third args)))
+      ((4) (tell *themespace* 'set-theme-activation
+             (first args) (second args) (third args) (fourth args))))))
 
 (define freeze-themes
   (lambda args
     (case (length args)
-      (0 (tell *themespace* 'freeze-everything))
-      (1 (tell *themespace* 'freeze-theme-type (1st args)))
-      (2 (tell *themespace* 'freeze-theme-cluster (1st args) (2nd args)))
-      (3 (tell *themespace* 'freeze-theme (1st args) (2nd args) (3rd args))))))
+      ((0) (tell *themespace* 'freeze-everything))
+      ((1) (tell *themespace* 'freeze-theme-type (first args)))
+      ((2) (tell *themespace* 'freeze-theme-cluster (first args) (second args)))
+      ((3) (tell *themespace* 'freeze-theme (first args) (second args) (third args))))))
 
 (define unfreeze-themes
   (lambda args
     (case (length args)
-      (0 (tell *themespace* 'unfreeze-everything))
-      (1 (tell *themespace* 'unfreeze-theme-type (1st args)))
-      (2 (tell *themespace* 'unfreeze-theme-cluster (1st args) (2nd args)))
-      (3 (tell *themespace* 'unfreeze-theme (1st args) (2nd args) (3rd args))))))
+      ((0) (tell *themespace* 'unfreeze-everything))
+      ((1) (tell *themespace* 'unfreeze-theme-type (first args)))
+      ((2) (tell *themespace* 'unfreeze-theme-cluster (first args) (second args)))
+      ((3) (tell *themespace* 'unfreeze-theme (first args) (second args) (third args))))))
 
 (define clear-themes
   (lambda args
@@ -1194,10 +1194,10 @@
 (define delete-themes
   (lambda args
     (case (length args)
-      (0 (tell *themespace* 'delete-everything))
-      (1 (tell *themespace* 'delete-theme-type (1st args)))
-      (2 (tell *themespace* 'delete-theme-cluster (1st args) (2nd args)))
-      (3 (tell *themespace* 'delete-theme (1st args) (2nd args) (3rd args))))))
+      ((0) (tell *themespace* 'delete-everything))
+      ((1) (tell *themespace* 'delete-theme-type (first args)))
+      ((2) (tell *themespace* 'delete-theme-cluster (first args) (second args)))
+      ((3) (tell *themespace* 'delete-theme (first args) (second args) (third args))))))
 
 ;;;; temporary
 ;;(define showhi

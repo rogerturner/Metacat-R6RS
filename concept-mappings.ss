@@ -45,7 +45,7 @@
            (graphics-pexp #f)
            (previously-relevant? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'concept-mapping)
            (get-object1 () object1)
@@ -138,7 +138,7 @@
               (if (= degree-of-assoc 100)
                 100
                 (round (* degree-of-assoc
-                        (1- (^2 (% (tell self 'get-conceptual-depth)))))))))
+                        ($1- (^2 (% (tell self 'get-conceptual-depth)))))))))
            (get-concept-pattern ()
              (compress
               (list 'concepts

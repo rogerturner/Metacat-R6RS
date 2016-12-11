@@ -25,11 +25,11 @@
     (let* ((width
             (if (null? optional-args)
               %default-comment-window-width%
-              (1st optional-args)))
+              (first optional-args)))
            (height
              (if (< (length optional-args) 2)
                %default-comment-window-height%
-               (2nd optional-args)))
+               (second optional-args)))
            (window (new-comment-window width height)))
       (tell window 'initialize)
       window)))
@@ -55,7 +55,7 @@
              (eliza-paragraphs '())
              (non-eliza-paragraphs '()))
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'comment-window)
              (new-problem (initial-sym modified-sym target-sym answer-sym)

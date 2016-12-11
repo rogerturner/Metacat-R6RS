@@ -33,7 +33,7 @@
 (define ss
   (lambda args
     (if* (not (null? args))
-      (let ((n (1st args)))
+      (let ((n (first args)))
        (cond
          ((> n 0) (set! %step-cycles% n) (step-mode-on))
          (else (step-mode-off)))))
@@ -57,7 +57,7 @@
       (if *break-time*
        `(breaktime set at ,*break-time*)
        '(no breaktime set))
-      (let ((breaktime (1st args)))
+      (let ((breaktime (first args)))
        (if (= breaktime 0)
          (begin
            (set! *break-time* #f)

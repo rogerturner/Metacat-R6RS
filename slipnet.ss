@@ -46,7 +46,7 @@
            (graphics-coord #f)
            (graphics-label-coord #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'slipnode)
            (get-name-symbol () name-symbol)
@@ -70,7 +70,7 @@
              (set! frozen? #f)
              (set! changed-frozen? #f)
              (set! rate-of-decay
-              (1- (expt (% conceptual-depth) (/ %update-cycle-length% 15))))
+              ($1- (expt (% conceptual-depth) (/ %update-cycle-length% 15))))
              'done)
            (get-graphics-coord () graphics-coord)
            (get-graphics-label-coord () graphics-label-coord)
@@ -88,7 +88,7 @@
            (get-property-links () property-links)
            (get-links-labeled-by-node () links-labeled-by-node)
            (get-degree-of-assoc ()
-             (100- (if (fully-active? self) shrunk-link-length intrinsic-link-length)))
+             ($100- (if (fully-active? self) shrunk-link-length intrinsic-link-length)))
 
            (category? () (not (null? instance-links)))
            (instance? () (not (null? category-links)))
@@ -96,7 +96,7 @@
            (get-category ()
              (if (null? category-links)
               #f
-              (tell (1st category-links) 'get-to-node)))
+              (tell (first category-links) 'get-to-node)))
 
            (get-outgoing-links ()
              (append category-links instance-links property-links
@@ -122,7 +122,7 @@
                        'get-to-node)))
                 (cond
                   ((null? related-nodes) #f)
-                  ((null? (rest related-nodes)) (1st related-nodes))
+                  ((null? (rest related-nodes)) (first related-nodes))
                   (else (select
                          (lambda (node)
                            (eq? (tell node 'get-category) (tell self 'get-category)))
@@ -188,7 +188,7 @@
 
            (set-intrinsic-link-length (new-value)
              (set! intrinsic-link-length new-value)
-             (set! shrunk-link-length (round (40% new-value)))
+             (set! shrunk-link-length (round ($40% new-value)))
              'done)
 
            (define-descriptor-predicate (new-procedure)
@@ -228,11 +228,11 @@
 
            (add-to-outgoing-links (link-type new-link)
              (case link-type
-              (category (set! category-links (cons new-link category-links)))
-              (instance (set! instance-links (cons new-link instance-links)))
-              (property (set! property-links (cons new-link property-links)))
-              (lateral (set! lateral-links (cons new-link lateral-links)))
-              (lateral-sliplink
+              ((category) (set! category-links (cons new-link category-links)))
+              ((instance) (set! instance-links (cons new-link instance-links)))
+              ((property) (set! property-links (cons new-link property-links)))
+              ((lateral) (set! lateral-links (cons new-link lateral-links)))
+              ( (lateral-sliplink)
                 (set! lateral-sliplinks (cons new-link lateral-sliplinks))))
              'done)
 
@@ -257,22 +257,22 @@
            (apply-slippages (slippages sliplog)
              (cond
               ((null? slippages) self)
-              ((eq? (tell (1st slippages) 'get-descriptor1) self)
-               (tell sliplog 'applied (1st slippages))
-               (tell (1st slippages) 'get-descriptor2))
+              ((eq? (tell (first slippages) 'get-descriptor1) self)
+               (tell sliplog 'applied (first slippages))
+               (tell (first slippages) 'get-descriptor2))
               (else
       ;; See if a coattail slippage can be made:
-                (let ((label (tell (1st slippages) 'get-label)))
+                (let ((label (tell (first slippages) 'get-label)))
                   (if (or (not (exists? label))
-                       (eq? (tell (1st slippages) 'get-CM-type)
+                       (eq? (tell (first slippages) 'get-CM-type)
                             (tell self 'get-category)))
                     (tell self 'apply-slippages (rest slippages) sliplog)
                     (let ((sliplink (select-meth lateral-sliplinks 'labeled? label)))
                      (if (and (exists? sliplink)
                               (prob? (coattail-slippage-probability
-                                      (1st slippages) label self sliplink)))
+                                      (first slippages) label self sliplink)))
                        (let ((node2 (tell self 'get-related-node label)))
-                         (tell sliplog 'coattail self label node2 (1st slippages))
+                         (tell sliplog 'coattail self label node2 (first slippages))
                          node2)
                        (tell self 'apply-slippages (rest slippages) sliplog))))))))
 
@@ -301,7 +301,7 @@
     (if (all-exist? nodes)
       (let ((relations (adjacency-map get-label nodes)))
        (if (and (all-exist? relations) (all-same? relations))
-         (1st relations)
+         (first relations)
          #f))
       #f)))
 
@@ -312,11 +312,11 @@
           (fixed-length? #f)
           (link-length 0)
           (print-name
-            (format "~a-->~a"
+            (format "~a->~a"
               (tell from-node 'get-lowercase-name)
               (tell to-node 'get-lowercase-name))))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'slipnet-link)
            (print-name () print-name)
@@ -329,14 +329,14 @@
            (get-link-length () link-length)
            (get-intrinsic-degree-of-assoc ()
              (if fixed-length?
-              (100- link-length)
-              (100- (tell label-node 'get-intrinsic-link-length))))
+              ($100- link-length)
+              ($100- (tell label-node 'get-intrinsic-link-length))))
            (get-degree-of-assoc ()
              (if fixed-length?
-              (100- link-length)
+              ($100- link-length)
               (if (fully-active? label-node)
-                (100- (tell label-node 'get-shrunk-link-length))
-                (100- (tell label-node 'get-intrinsic-link-length)))))
+                ($100- (tell label-node 'get-shrunk-link-length))
+                ($100- (tell label-node 'get-intrinsic-link-length)))))
            (labeled? (node) (eq? label-node node))
            (set-label-node (node)
              (set! label-node node)
@@ -612,158 +612,158 @@
 
 ;;  SUCCESSOR and PREDECESSOR links
 
-(lateral-link* a --> b label: successor)
-(lateral-link* b --> c label: successor)
-(lateral-link* c --> d label: successor)
-(lateral-link* d --> e label: successor)
-(lateral-link* e --> f label: successor)
-(lateral-link* f --> g label: successor)
-(lateral-link* g --> h label: successor)
-(lateral-link* h --> i label: successor)
-(lateral-link* i --> j label: successor)
-(lateral-link* j --> k label: successor)
-(lateral-link* k --> l label: successor)
-(lateral-link* l --> m label: successor)
-(lateral-link* m --> n label: successor)
-(lateral-link* n --> o label: successor)
-(lateral-link* o --> p label: successor)
-(lateral-link* p --> q label: successor)
-(lateral-link* q --> r label: successor)
-(lateral-link* r --> s label: successor)
-(lateral-link* s --> t label: successor)
-(lateral-link* t --> u label: successor)
-(lateral-link* u --> v label: successor)
-(lateral-link* v --> w label: successor)
-(lateral-link* w --> x label: successor)
-(lateral-link* x --> y label: successor)
-(lateral-link* y --> z label: successor)
+(lateral-link* a -> b label: successor)
+(lateral-link* b -> c label: successor)
+(lateral-link* c -> d label: successor)
+(lateral-link* d -> e label: successor)
+(lateral-link* e -> f label: successor)
+(lateral-link* f -> g label: successor)
+(lateral-link* g -> h label: successor)
+(lateral-link* h -> i label: successor)
+(lateral-link* i -> j label: successor)
+(lateral-link* j -> k label: successor)
+(lateral-link* k -> l label: successor)
+(lateral-link* l -> m label: successor)
+(lateral-link* m -> n label: successor)
+(lateral-link* n -> o label: successor)
+(lateral-link* o -> p label: successor)
+(lateral-link* p -> q label: successor)
+(lateral-link* q -> r label: successor)
+(lateral-link* r -> s label: successor)
+(lateral-link* s -> t label: successor)
+(lateral-link* t -> u label: successor)
+(lateral-link* u -> v label: successor)
+(lateral-link* v -> w label: successor)
+(lateral-link* w -> x label: successor)
+(lateral-link* x -> y label: successor)
+(lateral-link* y -> z label: successor)
 
-(lateral-link* z --> y label: predecessor)
-(lateral-link* y --> x label: predecessor)
-(lateral-link* x --> w label: predecessor)
-(lateral-link* w --> v label: predecessor)
-(lateral-link* v --> u label: predecessor)
-(lateral-link* u --> t label: predecessor)
-(lateral-link* t --> s label: predecessor)
-(lateral-link* s --> r label: predecessor)
-(lateral-link* r --> q label: predecessor)
-(lateral-link* q --> p label: predecessor)
-(lateral-link* p --> o label: predecessor)
-(lateral-link* o --> n label: predecessor)
-(lateral-link* n --> m label: predecessor)
-(lateral-link* m --> l label: predecessor)
-(lateral-link* l --> k label: predecessor)
-(lateral-link* k --> j label: predecessor)
-(lateral-link* j --> i label: predecessor)
-(lateral-link* i --> h label: predecessor)
-(lateral-link* h --> g label: predecessor)
-(lateral-link* g --> f label: predecessor)
-(lateral-link* f --> e label: predecessor)
-(lateral-link* e --> d label: predecessor)
-(lateral-link* d --> c label: predecessor)
-(lateral-link* c --> b label: predecessor)
-(lateral-link* b --> a label: predecessor)
+(lateral-link* z -> y label: predecessor)
+(lateral-link* y -> x label: predecessor)
+(lateral-link* x -> w label: predecessor)
+(lateral-link* w -> v label: predecessor)
+(lateral-link* v -> u label: predecessor)
+(lateral-link* u -> t label: predecessor)
+(lateral-link* t -> s label: predecessor)
+(lateral-link* s -> r label: predecessor)
+(lateral-link* r -> q label: predecessor)
+(lateral-link* q -> p label: predecessor)
+(lateral-link* p -> o label: predecessor)
+(lateral-link* o -> n label: predecessor)
+(lateral-link* n -> m label: predecessor)
+(lateral-link* m -> l label: predecessor)
+(lateral-link* l -> k label: predecessor)
+(lateral-link* k -> j label: predecessor)
+(lateral-link* j -> i label: predecessor)
+(lateral-link* i -> h label: predecessor)
+(lateral-link* h -> g label: predecessor)
+(lateral-link* g -> f label: predecessor)
+(lateral-link* f -> e label: predecessor)
+(lateral-link* e -> d label: predecessor)
+(lateral-link* d -> c label: predecessor)
+(lateral-link* c -> b label: predecessor)
+(lateral-link* b -> a label: predecessor)
 
-(lateral-link* one --> two label: successor)
-(lateral-link* two --> three label: successor)
-(lateral-link* three --> four label: successor)
-(lateral-link* four --> five label: successor)
+(lateral-link* one -> two label: successor)
+(lateral-link* two -> three label: successor)
+(lateral-link* three -> four label: successor)
+(lateral-link* four -> five label: successor)
 
-(lateral-link* five --> four label: predecessor)
-(lateral-link* four --> three label: predecessor)
-(lateral-link* three --> two label: predecessor)
-(lateral-link* two --> one label: predecessor)
+(lateral-link* five -> four label: predecessor)
+(lateral-link* four -> three label: predecessor)
+(lateral-link* three -> two label: predecessor)
+(lateral-link* two -> one label: predecessor)
 
 
 
 ;;  LETTER-CATEGORY links
 
 (instance-link*
-   letter-category --> (a b c d e f g h i j k l m n o p q r s t u v w x y z)
+   letter-category -> (a b c d e f g h i j k l m n o p q r s t u v w x y z)
    all-lengths: 97)
 
 (category-link*
-   (a b c d e f g h i j k l m n o p q r s t u v w x y z) --> letter-category
+   (a b c d e f g h i j k l m n o p q r s t u v w x y z) -> letter-category
    all-lengths: 0)
 
 (let ((letter-category-depth (cd plato-letter-category)))
   (for* each letter in *slipnet-letters* do
-    (tell (1st (tell letter 'get-category-links))
+    (tell (first (tell letter 'get-category-links))
       'set-link-length (- letter-category-depth (cd letter)))))
 
-(lateral-link* samegrp --> letter-category length: 50)
+(lateral-link* samegrp -> letter-category length: 50)
 
 
 
 ;;  LENGTH links
 
-(instance-link* length --> (one two three four five) all-lengths: 100)
-(category-link* (one two three four five) --> length all-lengths: 0)
+(instance-link* length -> (one two three four five) all-lengths: 100)
+(category-link* (one two three four five) -> length all-lengths: 0)
 
 (let ((length-depth (cd plato-length)))
   (for* each number in *slipnet-numbers* do
-    (tell (1st (tell number 'get-category-links))
+    (tell (first (tell number 'get-category-links))
       'set-link-length (- length-depth (cd number)))))
 
-(lateral-link* predgrp --> length length: 95)
-(lateral-link* succgrp --> length length: 95)
-(lateral-link* samegrp --> length length: 95)
+(lateral-link* predgrp -> length length: 95)
+(lateral-link* succgrp -> length length: 95)
+(lateral-link* samegrp -> length length: 95)
 
 
 
 ;;  OPPOSITE links
 
-(lateral-sliplink* alphabetic-first <--> alphabetic-last label: opposite)
-(lateral-sliplink* leftmost <--> rightmost label: opposite)
-(lateral-sliplink* left <--> right label: opposite)
-(lateral-sliplink* successor <--> predecessor label: opposite)
-(lateral-sliplink* predgrp <--> succgrp label: opposite)
+(lateral-sliplink* alphabetic-first <-> alphabetic-last label: opposite)
+(lateral-sliplink* leftmost <-> rightmost label: opposite)
+(lateral-sliplink* left <-> right label: opposite)
+(lateral-sliplink* successor <-> predecessor label: opposite)
+(lateral-sliplink* predgrp <-> succgrp label: opposite)
 
 
 
 ;;  PROPERTY links
 
-(property-link* a --> alphabetic-first length: 75)
-(property-link* z --> alphabetic-last length: 75)
+(property-link* a -> alphabetic-first length: 75)
+(property-link* z -> alphabetic-last length: 75)
 
 
 
 ;;  OBJECT-CATEGORY links
 
-(instance-link* object-category --> letter length: 100)
-(category-link* letter --> object-category
+(instance-link* object-category -> letter length: 100)
+(category-link* letter -> object-category
    length: (- (cd plato-object-category) (cd plato-letter)))
 
-(instance-link* object-category --> group length: 100)
-(category-link* group --> object-category
+(instance-link* object-category -> group length: 100)
+(category-link* group -> object-category
    length: (- (cd plato-object-category) (cd plato-group)))
 
 
 
 ;;  STRING-POSITION-CATEGORY links
 
-(instance-link* string-position-category --> leftmost length: 100)
-(category-link* leftmost --> string-position-category
+(instance-link* string-position-category -> leftmost length: 100)
+(category-link* leftmost -> string-position-category
    length: (- (cd plato-string-position-category)
             (cd plato-leftmost)))
 
-(instance-link* string-position-category --> rightmost length: 100)
-(category-link* rightmost --> string-position-category
+(instance-link* string-position-category -> rightmost length: 100)
+(category-link* rightmost -> string-position-category
    length: (- (cd plato-string-position-category)
             (cd plato-rightmost)))
 
-(instance-link* string-position-category --> middle length: 100)
-(category-link* middle --> string-position-category
+(instance-link* string-position-category -> middle length: 100)
+(category-link* middle -> string-position-category
    length: (- (cd plato-string-position-category)
             (cd plato-middle)))
 
-(instance-link* string-position-category --> single length: 100)
-(category-link* single --> string-position-category
+(instance-link* string-position-category -> single length: 100)
+(category-link* single -> string-position-category
    length: (- (cd plato-string-position-category)
             (cd plato-single)))
 
-(instance-link* string-position-category --> whole length: 100)
-(category-link* whole --> string-position-category
+(instance-link* string-position-category -> whole length: 100)
+(category-link* whole -> string-position-category
    length: (- (cd plato-string-position-category)
             (cd plato-whole)))
 
@@ -771,13 +771,13 @@
 
 ;;  ALPHABETIC-POSITION-CATEGORY links
 
-(instance-link* alphabetic-position-category --> alphabetic-first length: 100)
-(category-link* alphabetic-first --> alphabetic-position-category
+(instance-link* alphabetic-position-category -> alphabetic-first length: 100)
+(category-link* alphabetic-first -> alphabetic-position-category
    length: (- (cd plato-alphabetic-position-category)
             (cd plato-alphabetic-first)))
 
-(instance-link* alphabetic-position-category --> alphabetic-last length: 100)
-(category-link* alphabetic-last --> alphabetic-position-category
+(instance-link* alphabetic-position-category -> alphabetic-last length: 100)
+(category-link* alphabetic-last -> alphabetic-position-category
    length: (- (cd plato-alphabetic-position-category)
             (cd plato-alphabetic-last)))
 
@@ -785,13 +785,13 @@
 
 ;;  DIRECTION-CATEGORY links
 
-(instance-link* direction-category --> left length: 100)
-(category-link* left --> direction-category
+(instance-link* direction-category -> left length: 100)
+(category-link* left -> direction-category
    length: (- (cd plato-direction-category)
             (cd plato-left)))
 
-(instance-link* direction-category --> right length: 100)
-(category-link* right --> direction-category
+(instance-link* direction-category -> right length: 100)
+(category-link* right -> direction-category
    length: (- (cd plato-direction-category)
             (cd plato-right)))
 
@@ -799,18 +799,18 @@
 
 ;;  BOND-CATEGORY links
 
-(instance-link* bond-category --> predecessor length: 100)
-(category-link* predecessor --> bond-category
+(instance-link* bond-category -> predecessor length: 100)
+(category-link* predecessor -> bond-category
    length: (- (cd plato-bond-category)
             (cd plato-predecessor)))
 
-(instance-link* bond-category --> successor length: 100)
-(category-link* successor --> bond-category
+(instance-link* bond-category -> successor length: 100)
+(category-link* successor -> bond-category
    length: (- (cd plato-bond-category)
             (cd plato-successor)))
 
-(instance-link* bond-category --> sameness length: 100)
-(category-link* sameness --> bond-category
+(instance-link* bond-category -> sameness length: 100)
+(category-link* sameness -> bond-category
    length: (- (cd plato-bond-category)
             (cd plato-sameness)))
 
@@ -818,18 +818,18 @@
 
 ;;  GROUP-CATEGORY links
 
-(instance-link* group-category --> predgrp length: 100)
-(category-link* predgrp --> group-category
+(instance-link* group-category -> predgrp length: 100)
+(category-link* predgrp -> group-category
    length: (- (cd plato-group-category)
             (cd plato-predgrp)))
 
-(instance-link* group-category --> succgrp length: 100)
-(category-link* succgrp --> group-category
+(instance-link* group-category -> succgrp length: 100)
+(category-link* succgrp -> group-category
    length: (- (cd plato-group-category)
             (cd plato-succgrp)))
 
-(instance-link* group-category --> samegrp length: 100)
-(category-link* samegrp --> group-category
+(instance-link* group-category -> samegrp length: 100)
+(category-link* samegrp -> group-category
    length: (- (cd plato-group-category)
             (cd plato-samegrp)))
 
@@ -837,41 +837,41 @@
 
 ;;  ASSOCIATED GROUP links
 
-(lateral-link* sameness --> samegrp length: 30 label: group-category)
-(lateral-link* successor --> succgrp length: 60 label: group-category)
-(lateral-link* predecessor --> predgrp length: 60 label: group-category)
+(lateral-link* sameness -> samegrp length: 30 label: group-category)
+(lateral-link* successor -> succgrp length: 60 label: group-category)
+(lateral-link* predecessor -> predgrp length: 60 label: group-category)
 
 
 
 ;;  ASSOCIATED BOND-CATEGORY links
 
-(lateral-link* samegrp --> sameness length: 90 label: bond-category)
-(lateral-link* succgrp --> successor length: 90 label: bond-category)
-(lateral-link* predgrp --> predecessor length: 90 label: bond-category)
+(lateral-link* samegrp -> sameness length: 90 label: bond-category)
+(lateral-link* succgrp -> successor length: 90 label: bond-category)
+(lateral-link* predgrp -> predecessor length: 90 label: bond-category)
 
 
 
 ;;  BOND-FACET links
 
-(instance-link* bond-facet --> letter-category length: 100)
-(category-link* letter-category --> bond-facet
+(instance-link* bond-facet -> letter-category length: 100)
+(category-link* letter-category -> bond-facet
    length: (- (cd plato-bond-facet) (cd plato-letter-category)))
 
-(instance-link* bond-facet --> length length: 100)
-(category-link* length --> bond-facet
+(instance-link* bond-facet -> length length: 100)
+(category-link* length -> bond-facet
    length: (- (cd plato-bond-facet) (cd plato-length)))
 
 
 
 ;;  LETTER-CATEGORY-LENGTH links
 
-(lateral-sliplink* letter-category <--> length length: 95)
+(lateral-sliplink* letter-category <-> length length: 95)
 
 
 
 ;;  LETTER-GROUP links
 
-(lateral-sliplink* letter <--> group length: 90)
+(lateral-sliplink* letter <-> group length: 90)
 
 
 
@@ -880,7 +880,7 @@
 ;; Copycat conceptual problem:  For abc -> ...; cba -> ?, if the a's in the
 ;; initial and target strings get described as "first" ("alphabetic-first", that is),
 ;; then a first=>first mapping is almost certain for any bridge between them.
-;; However, this makes an a-->a bridge incompatible with a symmetric c-->c
+;; However, this makes an a->a bridge incompatible with a symmetric c->c
 ;; bridge because the CMs {rmost=>lmost, first=>first} are incompatible.
 ;; This helps out in the xyz problem, but it is a big hindrence here.  Really these
 ;; CMs should be simply "non-supporting", rather than "incompatible".  We want
@@ -894,17 +894,17 @@
 ;; incompatible CMs.  However, {first=>last, lmost=>rmost} will still be supporting,
 ;; and {lmost=>rmost, left=>left} will still be incompatible, as they should be:
 
-(lateral-link* leftmost <--> left length: 90 label: identity)
-(lateral-link* leftmost <--> right length: 100 label: opposite)
-(lateral-link* rightmost <--> left length: 100 label: opposite)
-(lateral-link* rightmost <--> right length: 90 label: identity)
-(lateral-link* alphabetic-first <--> leftmost length: 100)
-(lateral-link* alphabetic-first <--> rightmost length: 100)
-(lateral-link* alphabetic-last <--> leftmost length: 100)
-(lateral-link* alphabetic-last <--> rightmost length: 100)
+(lateral-link* leftmost <-> left length: 90 label: identity)
+(lateral-link* leftmost <-> right length: 100 label: opposite)
+(lateral-link* rightmost <-> left length: 100 label: opposite)
+(lateral-link* rightmost <-> right length: 90 label: identity)
+(lateral-link* alphabetic-first <-> leftmost length: 100)
+(lateral-link* alphabetic-first <-> rightmost length: 100)
+(lateral-link* alphabetic-last <-> leftmost length: 100)
+(lateral-link* alphabetic-last <-> rightmost length: 100)
 
 
 
 ;;  OTHER LINKS
 
-(lateral-sliplink* single <--> whole length: 90)
+(lateral-sliplink* single <-> whole length: 90)

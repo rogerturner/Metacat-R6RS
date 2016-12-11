@@ -105,7 +105,7 @@
        (let ((letcat-pexp (tell group 'get-letcat-graphics-pexp)))
          (if (and (exists? letcat-pexp)
               (= proposal-level %built%))
-           `(let-sgl ,(2nd letcat-pexp) ,rectangle-pexp ,(3rd letcat-pexp))
+           `(let-sgl ,(second letcat-pexp) ,rectangle-pexp ,(third letcat-pexp))
            rectangle-pexp))))))
 
 

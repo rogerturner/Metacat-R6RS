@@ -37,7 +37,7 @@
   (lambda (activation)
     (let ((grey-level
            (+ %memory-background-grey-level%
-              (round (* (% activation) (100- %memory-background-grey-level%))))))
+              (round (* (% activation) ($100- %memory-background-grey-level%))))))
       (swl-color (string-append "grey" (number->string grey-level))))))
 
 (define memory-window-press-handler
@@ -69,11 +69,11 @@
     (let* ((width
             (if (null? optional-args)
               %default-memory-width%
-              (1st optional-args)))
+              (first optional-args)))
            (height
              (if (< (length optional-args) 2)
                %default-memory-height%
-               (2nd optional-args)))
+               (second optional-args)))
            (window (new-memory-window width height)))
       (tell window 'initialize)
       window)))
@@ -97,17 +97,17 @@
              (next-y (- top-y memory-icon-spacing))
              (center-x 1/2))
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'memory-window)
              (add-memory-icon (answer)
               (let* ((memory-icon-pexp-info
                       (get-memory-icon-pexp-info
                         graphics-window answer center-x next-y))
-                     (get-normal-icon-pexp (1st memory-icon-pexp-info))
-                     (highlight-icon-pexp (2nd memory-icon-pexp-info))
-                     (memory-icon-width (3rd memory-icon-pexp-info))
-                     (memory-icon-height (4th memory-icon-pexp-info))
+                     (get-normal-icon-pexp (first memory-icon-pexp-info))
+                     (highlight-icon-pexp (second memory-icon-pexp-info))
+                     (memory-icon-width (third memory-icon-pexp-info))
+                     (memory-icon-height (fourth memory-icon-pexp-info))
                      (x1 (- center-x (* 1/2 memory-icon-width)))
                      (x2 (+ center-x (* 1/2 memory-icon-width)))
                      (y1 (- next-y memory-icon-height))
@@ -146,10 +146,10 @@
                 (let* ((memory-icon-pexp-info
                         (get-memory-icon-pexp-info
                           graphics-window descrip center-x next-y))
-                       (get-normal-icon-pexp (1st memory-icon-pexp-info))
-                       (highlight-icon-pexp (2nd memory-icon-pexp-info))
-                       (memory-icon-width (3rd memory-icon-pexp-info))
-                       (memory-icon-height (4th memory-icon-pexp-info))
+                       (get-normal-icon-pexp (first memory-icon-pexp-info))
+                       (highlight-icon-pexp (second memory-icon-pexp-info))
+                       (memory-icon-width (third memory-icon-pexp-info))
+                       (memory-icon-height (fourth memory-icon-pexp-info))
                        (x1 (- center-x (* 1/2 memory-icon-width)))
                        (x2 (+ center-x (* 1/2 memory-icon-width)))
                        (y1 (- next-y memory-icon-height))

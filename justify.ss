@@ -41,12 +41,12 @@
     ;; ...and skip directly to unification section
 
          (if* (exists? result)
-           (let* ((translated-rule (1st result))
-                  (supporting-vertical-bridges (2nd result))
-                  (slippage-log (3rd result))
-                  (vertical-mapping-supporting-groups (4th result))
-                  (from-ref-objs (5th result))
-                  (to-ref-objs (6th result))
+           (let* ((translated-rule (first result))
+                  (supporting-vertical-bridges (second result))
+                  (slippage-log (third result))
+                  (vertical-mapping-supporting-groups (fourth result))
+                  (from-ref-objs (fifth result))
+                  (to-ref-objs (sixth result))
                   (ref-objs1 (if (eq? rule-type 'top) from-ref-objs to-ref-objs))
                   (ref-objs2 (if (eq? rule-type 'top) to-ref-objs from-ref-objs))
                   (matching-rule (select-meth other-rules 'equal? translated-rule)))
@@ -141,7 +141,7 @@
          (let* ((strength (tell chosen-rule 'get-strength))
                 (other-weights
                   (map
-                    (lambda (r) (100- (abs (- strength (tell r 'get-strength)))))
+                    (lambda (r) ($100- (abs (- strength (tell r 'get-strength)))))
                     other-rules))
                 (other-rule (stochastic-pick other-rules other-weights)))
            (vprintf "Chose a rule for unification:~n")
@@ -237,7 +237,7 @@
                ((and (null? x1) (null? x2)) results)
                ((or (null? x1) (null? x2)) (fail))
                ((and (list? x1) (list? x2))
-                (walk (1st x1) (1st x2) (walk (rest x1) (rest x2) results)))
+                (walk (first x1) (first x2) (walk (rest x1) (rest x2) results)))
                ((or (list? x1) (list? x2)) (fail))
                ((and (symbol? x1) (symbol? x2)) (if (eq? x1 x2) results (fail)))
                ((eq? x1 'string) (if (eq? x2 plato-group) results (fail)))
@@ -250,7 +250,7 @@
 (define verbatim-rule-clause-list?
   (lambda (rc-list)
     (and (= (length rc-list) 1)
-         (verbatim-clause? (1st rc-list)))))
+         (verbatim-clause? (first rc-list)))))
 
 
 (define compare-rule-clause-lists
@@ -287,7 +287,7 @@
 
 (define get-vertical-theme-pattern-to-clamp
   (lambda (unifying-pattern)
-    (let* ((theme-type (1st unifying-pattern))
+    (let* ((theme-type (first unifying-pattern))
            (pattern-entries (rest unifying-pattern))
            (get-probability (retention-probability pattern-entries))
            (final-pattern-entries
@@ -313,10 +313,10 @@
 (define retention-probability
   (lambda (pattern-entries)
     (lambda (entry)
-      (if (eq? (1st entry) plato-string-position-category)
+      (if (eq? (first entry) plato-string-position-category)
        1
-       (* (% (cd (1st entry)))
-          (% (if (eq? (2nd entry) plato-identity) 50 100)))))))
+       (* (% (cd (first entry)))
+          (% (if (eq? (second entry) plato-identity) 50 100)))))))
 
 
 ;; The following two heuristics improve the chances that a useful unifying theme 
@@ -335,9 +335,9 @@
     (let ((StrPos-entry (assq plato-string-position-category pattern-entries))
           (Dir-entry (assq plato-direction-category pattern-entries)))
       (if (and (exists? StrPos-entry)
-           (exists? (2nd StrPos-entry))
+           (exists? (second StrPos-entry))
            (not (exists? Dir-entry)))
-       (cons (list plato-direction-category (2nd StrPos-entry)) pattern-entries)
+       (cons (list plato-direction-category (second StrPos-entry)) pattern-entries)
        pattern-entries))))
 
 (define replace-bond-category-entry
@@ -347,6 +347,6 @@
       (if (exists? BondCtgy-entry)
        (if (exists? GroupCtgy-entry)
          (remq BondCtgy-entry pattern-entries)
-         (cons (list plato-group-category (2nd BondCtgy-entry))
+         (cons (list plato-group-category (second BondCtgy-entry))
            (remq BondCtgy-entry pattern-entries)))
        pattern-entries))))

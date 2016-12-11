@@ -24,7 +24,9 @@
 
 (define demo
   (lambda (problem)
-    (tell *control-panel* 'run-new-problem problem)))
+    (if *gui*
+      (tell *control-panel* 'run-new-problem problem)
+      (run problem))))
 
 ;; Type (demo run1) to run the first demo, etc.
 

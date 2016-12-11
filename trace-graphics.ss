@@ -83,11 +83,11 @@
     (let* ((width
             (if (null? optional-args)
               %default-trace-width%
-              (1st optional-args)))
+              (first optional-args)))
            (height
              (if (< (length optional-args) 2)
                %default-trace-height%
-               (2nd optional-args)))
+               (second optional-args)))
            (window (new-trace-window width height)))
       (tell window 'initialize)
       window)))
@@ -109,7 +109,7 @@
              (next-x event-spacing)
              (center-y 1/2))
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'trace-window)
              (add-event (event)
@@ -124,10 +124,10 @@
                         (snag snag-event-pexp-info)))
                      (event-pexp-info
                       (get-event-pexp-info graphics-window event next-x center-y))
-                     (normal-pexp (1st event-pexp-info))
-                     (highlight-pexp (2nd event-pexp-info))
-                     (event-width (3rd event-pexp-info))
-                     (event-height (4th event-pexp-info))
+                     (normal-pexp (first event-pexp-info))
+                     (highlight-pexp (second event-pexp-info))
+                     (event-width (third event-pexp-info))
+                     (event-height (fourth event-pexp-info))
                      (x1 next-x)
                      (x2 (+ next-x event-width))
                      (y1 (- center-y (* 1/2 event-height)))
@@ -334,7 +334,7 @@
                constituent-objects
                descriptors)))
       (apply string-append
-       (cons (1st descriptor-strings)
+       (cons (first descriptor-strings)
          (adjacency-map
            (lambda (x y) (format "-~a" y))
            descriptor-strings))))))

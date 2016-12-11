@@ -39,15 +39,15 @@
                    'clamp-type? 'manual-clamp)))
       (if (< (length clamps) 3)
        (vprintf "Didn't notice any recurring clamps...~n")
-       (let ((clamp-type (tell (1st clamps) 'get-clamp-type))
+       (let ((clamp-type (tell (first clamps) 'get-clamp-type))
              (jootsing-probability (get-clamp-jootsing-probability clamps)))
          (vprintf "Hmm...I'm beginning to notice a clamping pattern...~n")
          (stochastic-if* jootsing-probability
            (vprintf "Jootsing from ~as...~n" clamp-type)
            (case clamp-type
-             (rule-codelet-clamp (joots-from-rule-codelet-clamps clamps))
-             (snag-response-clamp (joots-from-snag-response-clamps clamps))
-             (justify-clamp (joots-from-justify-clamps clamps)))
+             ((rule-codelet-clamp) (joots-from-rule-codelet-clamps clamps))
+             ((snag-response-clamp) (joots-from-snag-response-clamps clamps))
+             ((justify-clamp) (joots-from-justify-clamps clamps)))
            (fizzle))
          (vprintf "Jootsing from clamps failed...~n"))))
     ;; Check for snags:
@@ -60,12 +60,12 @@
              (snag-theme-patterns (tell-all snags 'get-snag-theme-pattern))
              (theme-overlap-table
                (map (lambda (equivalent-entries)
-                     (list (1st equivalent-entries)
-                      (100* (/ (length equivalent-entries) num-of-snags))))
+                     (list (first equivalent-entries)
+                      ($100* (/ (length equivalent-entries) num-of-snags))))
                 (partition
                   theme-pattern-entries-equal?
                   (flatmap entries snag-theme-patterns))))
-             (max-theme-overlap (maximum (map 2nd theme-overlap-table)))
+             (max-theme-overlap (maximum (map second theme-overlap-table)))
              (jootsing-probability
                (* (% max-theme-overlap) (% (min 100 (* 10 num-of-snags))))))
        (vprintf "Hmm...I'm beginning to notice a snag pattern...~n")
@@ -74,7 +74,7 @@
        (vprintf "Number of snags = ~a~n" num-of-snags)
        (vprintf "Snag jootsing probability = ~a~n"
          (round-to-100ths jootsing-probability))
-       (stochastic-if* (1- jootsing-probability)
+       (stochastic-if* ($1- jootsing-probability)
          (vprintf "Jootsing from snags failed. Fizzling.~n")
          (fizzle))
        (if* (not (tell *trace* 'permission-to-clamp?))
@@ -89,10 +89,10 @@
               (chosen-pattern-entries
                (stochastic-filter
                  (lambda (entry)
-                   (let* ((overlap (2nd (assoc entry theme-overlap-table)))
+                   (let* ((overlap (second (assoc entry theme-overlap-table)))
                           (snag-descriptions-for-theme
                             (filter-meth snag-object-descriptions
-                             'description-type? (1st entry)))
+                             'description-type? (first entry)))
                           (average-description-depth
                             (average (tell-all snag-descriptions-for-theme
                                       'get-conceptual-depth)))
@@ -121,11 +121,11 @@
 
 (define get-clamp-jootsing-probability
   (lambda (clamps)
-    (let ((clamp-type (tell (1st clamps) 'get-clamp-type))
+    (let ((clamp-type (tell (first clamps) 'get-clamp-type))
           (num-of-clamps (length clamps)))
       (let* ((elapsed-time-weights
               (map (lambda (clamp)
-                    (100* (/ (tell clamp 'get-time) *codelet-count*)))
+                    ($100* (/ (tell clamp 'get-time) *codelet-count*)))
                clamps))
              (average-progress
                (round (weighted-average
@@ -133,12 +133,12 @@
                        elapsed-time-weights)))
              (clamp-type-factor
                (case clamp-type
-                (justify-clamp
+                ( (justify-clamp)
                   (if (tell (tell *trace* 'get-last-event 'any) 'type? 'clamp) 1 0))
-                (snag-response-clamp 1)
-                (rule-codelet-clamp 0.5)))
+                ( (snag-response-clamp) 1)
+                ( (rule-codelet-clamp) 0.5)))
              (jootsing-probability
-               (* (1- (% average-progress))
+               (* ($1- (% average-progress))
                 (% (min 100 (* 10 num-of-clamps)))
                 clamp-type-factor)))
        (vprintf "progress values (last clamp first):  ~a~n"
@@ -155,8 +155,8 @@
   (lambda (event-type)
     (let* ((all-recent-events
             (case event-type
-              (snag (tell *trace* 'get-new-events-since-last 'answer))
-              (clamp (tell *trace* 'get-all-events))))
+              ((snag) (tell *trace* 'get-new-events-since-last 'answer))
+              ((clamp) (tell *trace* 'get-all-events))))
            (equivalent-event-sets
              (partition
                (lambda (ev1 ev2) (tell ev1 'equal? ev2))
@@ -188,8 +188,8 @@
 
 (define joots-from-justify-clamps
   (lambda (clamps)
-    (let ((top-rule (tell (1st clamps) 'get-rule 'top))
-          (bottom-rule (tell (1st clamps) 'get-rule 'bottom)))
+    (let ((top-rule (tell (first clamps) 'get-rule 'top))
+          (bottom-rule (tell (first clamps) 'get-rule 'bottom)))
       (if* (tell *memory* 'answer-present?
             (tell *answer-string* 'get-letter-categories)
             top-rule bottom-rule)
@@ -204,20 +204,20 @@
        (if* (not (exists? result))
          (vprintf "Can't give up. Couldn't translate rule. Fizzling.~n")
          (fizzle))
-       (let* ((translated-rule (1st result))
-              (supporting-vertical-bridges (2nd result))
-              (slippage-log (3rd result))
-              (vertical-mapping-supporting-groups (4th result))
+       (let* ((translated-rule (first result))
+              (supporting-vertical-bridges (second result))
+              (slippage-log (third result))
+              (vertical-mapping-supporting-groups (fourth result))
          ;; Workspace-strings (if any) have already been filtered out:
-              (top-rule-ref-objects (5th result))
-              (translated-rule-ref-objects (6th result))
+              (top-rule-ref-objects (fifth result))
+              (translated-rule-ref-objects (sixth result))
               (unjustified-slippages
                (get-unifying-slippages translated-rule bottom-rule)))
          (if* (null? unjustified-slippages)
            (vprintf "No unjustified slippages. Posting answer-justifier.~n")
            (post-codelet* urgency: %extremely-high-urgency% answer-justifier)
            (fizzle))
-         (stochastic-if* (1- (/ 1 (length unjustified-slippages)))
+         (stochastic-if* ($1- (/ 1 (length unjustified-slippages)))
            (vprintf "Too many unjustified slippages. Fizzling.~n")
            (fizzle))
     ;; Time to give up:
@@ -298,8 +298,8 @@
              (fizzle))
            (let ((clamp-probability
                   (if %justify-mode%
-                    (1- (% (min max-top-rule-quality max-bottom-rule-quality)))
-                    (1- (% max-top-rule-quality)))))
+                    ($1- (% (min max-top-rule-quality max-bottom-rule-quality)))
+                    ($1- (% max-top-rule-quality)))))
              (vprintf "max top-rule quality = ~a~n" max-top-rule-quality)
              (vprintf "max bottom-rule quality = ~a~n" max-bottom-rule-quality)
              (vprintf "Clamp probability = ~a~n" (round-to-100ths clamp-probability))

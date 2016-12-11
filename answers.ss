@@ -137,7 +137,7 @@
   (lambda (dimension pattern/s)
     (cond
       ((null? pattern/s) #f)
-      ((symbol? (1st pattern/s)) (assq dimension (entries pattern/s)))
+      ((symbol? (first pattern/s)) (assq dimension (entries pattern/s)))
       (else (assq dimension (flatmap entries pattern/s))))))
 
 
@@ -192,7 +192,7 @@
           ;; StringPos and Direction themes should agree if possible:
                      (list
                       plato-string-position-category
-                      (2nd (get-entry plato-direction-category important-cm-patterns)))
+                      (second (get-entry plato-direction-category important-cm-patterns)))
           ;; Otherwise check for a dominant StringPos theme:
                      (let ((dominant-StringPos-theme
                             (assq plato-string-position-category
@@ -230,8 +230,8 @@
        (lambda (cm)
          (let ((entry (list (tell cm 'get-CM-type) (tell cm 'get-label))))
            (or (member-equal? entry (entries theme-pattern))
-               (and (eq? (1st entry) plato-bond-category)
-                (member-equal? (list plato-group-category (2nd entry))
+               (and (eq? (first entry) plato-bond-category)
+                (member-equal? (list plato-group-category (second entry))
                   (entries theme-pattern))))))
        all-concept-mappings))))
 
@@ -268,8 +268,8 @@
   (lambda (conj l)
     (cond
       ((null? l) "")
-      ((= (length l) 1) (1st l))
-      ((= (length l) 2) (format "~a, ~a ~a" (1st l) conj (2nd l)))
+      ((= (length l) 1) (first l))
+      ((= (length l) 2) (format "~a, ~a ~a" (first l) conj (second l)))
       (else (apply string-append
              (append
               (map (lambda (x) (format "~a, " x)) (all-but-last 1 l))
@@ -366,18 +366,18 @@
                 ((or (not (exists? GroupCtgy-theme))
                      (member-equal? GroupCtgy-theme unjustified-themes))
                  "")
-                ((eq? (2nd GroupCtgy-theme) plato-identity)
+                ((eq? (second GroupCtgy-theme) plato-identity)
                  "groups of the same type ")
-                ((eq? (2nd GroupCtgy-theme) plato-opposite)
+                ((eq? (second GroupCtgy-theme) plato-opposite)
                  "symmetric predecessor and successor groups ")
-                ((eq? (2nd GroupCtgy-theme) diff)
+                ((eq? (second GroupCtgy-theme) diff)
                  "different kinds of groups "))
               (cond
-                ((eq? (2nd StringPos-theme) plato-identity)
+                ((eq? (second StringPos-theme) plato-identity)
                  "going in the same direction")
-                ((eq? (2nd StringPos-theme) plato-opposite)
+                ((eq? (second StringPos-theme) plato-opposite)
                  "going in opposite directions")
-                ((eq? (2nd StringPos-theme) diff)
+                ((eq? (second StringPos-theme) diff)
                  "neither going in the same nor in opposite directions"))
               (caveat StringPos-theme))
              #f)
@@ -387,11 +387,11 @@
              (format "~asee~a ~a as ~a~a~a"
               prep verb-ending strings
               (cond
-                ((eq? (2nd GroupCtgy-theme) plato-identity)
+                ((eq? (second GroupCtgy-theme) plato-identity)
                  "groups of the same type")
-                ((eq? (2nd GroupCtgy-theme) plato-opposite)
+                ((eq? (second GroupCtgy-theme) plato-opposite)
                  "symmetric predecessor and successor groups")
-                ((eq? (2nd GroupCtgy-theme) diff)
+                ((eq? (second GroupCtgy-theme) diff)
                  "different kinds of groups"))
               (if (exists? BondFacet-theme)
                 (string-append
@@ -416,8 +416,8 @@
              (format "~asee~a alphabetic-position ~a between ~a~a"
               prep verb-ending
               (cond
-                ((eq? (2nd AlphaPos-theme) plato-identity) "sameness")
-                ((eq? (2nd AlphaPos-theme) plato-opposite) "symmetry"))
+                ((eq? (second AlphaPos-theme) plato-identity) "sameness")
+                ((eq? (second AlphaPos-theme) plato-opposite) "symmetry"))
               (if (or (exists? StringPos-theme) the-strings?)
                 "the strings"
                 strings)
@@ -483,7 +483,7 @@
      ;; These are all the _types_ of ideas, justified or not, that underlie
      ;; both answers:
            (common-dimensions
-             (map 1st common-themes))
+             (map first common-themes))
      ;; These are all the _types_ of ideas, justified or not, that are common
      ;; to both answers, but about which the answers "disagree".  Example: one
      ;; answer based on StringPos:iden and the other based on StringPos:opp
@@ -491,8 +491,8 @@
              (remq-elements
                common-dimensions
                (intersect
-                (map 1st all-themes1)
-                (map 1st all-themes2))))
+                (map first all-themes1)
+                (map first all-themes2))))
      ;; These ideas, justified or not, underlie answer1 only:
            (answer1-only-themes
              (remove-elements common-themes all-themes1))
@@ -504,14 +504,14 @@
      ;; has StringPos:opp, StringPos:iden is one of answer1's differing themes:
            (differing-themes1
              (filter
-               (lambda (theme) (member? (1st theme) differing-dimensions))
+               (lambda (theme) (member? (first theme) differing-dimensions))
                all-themes1))
      ;; These are the ideas, justified or not, that answer2 "disagrees" with
      ;; answer1 about.  Example: if answer1 has StringPos:iden and answer2
      ;; has StringPos:opp, StringPos:opp is one of answer2's differing themes:
            (differing-themes2
              (filter
-               (lambda (theme) (member? (1st theme) differing-dimensions))
+               (lambda (theme) (member? (first theme) differing-dimensions))
                all-themes2))
      ;; These ideas, justified or not, underlie answer1 but are completely
      ;; absent from answer2.  The answers do not even "disagree" about
@@ -605,7 +605,7 @@
            (num-rule-differences
              (if (exists? rule-differences)
                (length (filter-out
-                        (lambda (nodes) (= (cd (1st nodes)) (cd (2nd nodes))))
+                        (lambda (nodes) (= (cd (first nodes)) (cd (second nodes))))
                         rule-differences))
                -1))
            (rule-differences?
@@ -893,8 +893,8 @@
 
 (define theme-abstractness
   (lambda (theme)
-    (let* ((dimension (1st theme))
-           (relation (2nd theme))
+    (let* ((dimension (first theme))
+           (relation (second theme))
            (dimension-abstractness (cd dimension))
            (relation-abstractness
              (cond
@@ -930,7 +930,7 @@
   (lambda ()
     (let ((top-strength (tell *workspace* 'get-mapping-strength 'top))
           (vertical-strength (tell *workspace* 'get-mapping-strength 'vertical)))
-      (stochastic-if* (1- (^3 (* (% top-strength) (% vertical-strength))))
+      (stochastic-if* ($1- (^3 (* (% top-strength) (% vertical-strength))))
        (say "Mappings are not strong enough. Fizzling.")
        (fizzle))
       (say "Trying to translate a rule...")
@@ -948,7 +948,7 @@
        (vprint rule)
        (let ((degree-of-support (tell rule 'get-degree-of-support)))
          (say "Degree of support is " (round degree-of-support))
-         (stochastic-if* (1- (% degree-of-support))
+         (stochastic-if* ($1- (% degree-of-support))
            (say "Not enough support for chosen rule. Fizzling.")
            (fizzle)))
        (if* (not (tell rule 'currently-works?))
@@ -961,12 +961,12 @@
          (if* (not (exists? result))
            (say "Couldn't translate chosen rule. Fizzling.")
            (fizzle))
-         (let ((translated-rule (1st result))
-               (supporting-vertical-bridges (2nd result))
-               (slippage-log (3rd result))
-               (vertical-mapping-supporting-groups (4th result))
-               (rule-ref-objects (5th result))
-               (translated-rule-ref-objects (6th result)))
+         (let ((translated-rule (first result))
+               (supporting-vertical-bridges (second result))
+               (slippage-log (third result))
+               (vertical-mapping-supporting-groups (fourth result))
+               (rule-ref-objects (fifth result))
+               (translated-rule-ref-objects (sixth result)))
            (say "Rule translated. Building an answer...")
       ;; result ::= #f | ({<object-transform> | <string-transform>} ...)
       ;; <object-transform> ::= (<ref-object> (<transform> ...))
@@ -1038,11 +1038,11 @@
            (letter-categories (tell string1 'generate-image-letters))
            (string-type
              (case (tell string1 'get-string-type)
-               (initial 'modified)
-               (target 'answer)))
+               ((initial) 'modified)
+               ((target) 'answer)))
            (string2 (new-workspace-string string-type letter-categories))
-           (object-transforms (filter-out (compose workspace-string? 1st) result))
-           (string-transform (select (compose workspace-string? 1st) result))
+           (object-transforms (filter-out (compose workspace-string? first) result))
+           (string-transform (select (compose workspace-string? first) result))
            (image1 (tell string1 'get-image)))
       (tell string2 'mark-as-translated)
       (tell image1 'do-walk 'leaf-walk
@@ -1074,8 +1074,8 @@
 (define attach-length-to-appropriate-groups
   (lambda (object-transforms)
     (for* each ot in object-transforms do
-      (let* ((object (1st ot))
-             (transforms (2nd ot))
+      (let* ((object (first ot))
+             (transforms (second ot))
              (instantiated-object (tell object 'get-instantiated-image-object))
              (Length-transform (assq plato-length transforms))
              (BondFacet-transform (assq plato-bond-facet transforms)))
@@ -1087,7 +1087,7 @@
              (attach-length-description object))
            (attach-length-description instantiated-object))
          (if* (and (exists? BondFacet-transform)
-               (eq? (2nd BondFacet-transform) plato-length))
+               (eq? (second BondFacet-transform) plato-length))
            (for* each subobject in (tell instantiated-object 'get-constituent-objects)
              do (attach-length-description subobject))))))))
 
@@ -1097,21 +1097,21 @@
     (let* ((unmapped-string-subobjects
             (if (exists? string-transform)
               (remq-elements
-               (map 1st object-transforms)
-               (tell (1st string-transform) 'get-constituent-objects))
+               (map first object-transforms)
+               (tell (first string-transform) 'get-constituent-objects))
               '()))
            (instantiated-object-transforms
              (filter
                (lambda (ot)
-                (exists? (tell (1st ot) 'get-instantiated-image-object)))
+                (exists? (tell (first ot) 'get-instantiated-image-object)))
                object-transforms))
            (horizontal-bridges
              (append
                (map (lambda (ot)
                      (make-horizontal-bridge
-                      (1st ot)
-                      (tell (1st ot) 'get-instantiated-image-object)
-                      (2nd ot)))
+                      (first ot)
+                      (tell (first ot) 'get-instantiated-image-object)
+                      (second ot)))
                 instantiated-object-transforms)
                (map (lambda (subobject)
                      (make-horizontal-bridge
@@ -1203,14 +1203,14 @@
           (coattail-slippage-table '())
           (slippage-bridges '()))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'slippage-log)
            (print ()
              (printf "~nTranslation direction: ~a~n"
               (case rule-type
-                (top "top-to-bottom")
-                (bottom "bottom-to-top")))
+                ((top) "top-to-bottom")
+                ((bottom) "bottom-to-top")))
              (printf "Directly-applied slippages:~n")
              (if (null? directly-applied-slippages)
               (printf "  None~n")
@@ -1221,19 +1221,19 @@
               (printf "  None~n")
               (for* each entry in coattail-slippage-table do
                 (printf "  ~a induced by ~a~n"
-                  (tell (1st entry) 'print-name)
-                  (tell (2nd entry) 'print-name))))
+                  (tell (first entry) 'print-name)
+                  (tell (second entry) 'print-name))))
              (printf "~n"))
            (get-directly-applied-slippages () directly-applied-slippages)
-           (get-coattail-slippages () (map 1st coattail-slippage-table))
-           (get-coattail-inducing-slippages () (map 2nd coattail-slippage-table))
+           (get-coattail-slippages () (map first coattail-slippage-table))
+           (get-coattail-inducing-slippages () (map second coattail-slippage-table))
            (get-applied-slippages ()
              (remq-duplicates
               (append
                 directly-applied-slippages
                 (tell self 'get-coattail-inducing-slippages))))
            (coattail-inducing-slippage? (slippage)
-             (ormap (lambda (x) (eq? slippage (2nd x)))
+             (ormap (lambda (x) (eq? slippage (second x)))
               coattail-slippage-table))
            (get-slippage-bridges () (remq-duplicates slippage-bridges))
            (get-bridge (slippage)
@@ -1284,23 +1284,23 @@
       (let* ((rule-type (tell rule 'get-rule-type))
              (translation-direction
                (case rule-type
-                (top 'top-to-bottom)
-                (bottom 'bottom-to-top)))
+                ((top) 'top-to-bottom)
+                ((bottom) 'bottom-to-top)))
              (from-string
                (case rule-type
-                (top *initial-string*)
-                (bottom *target-string*)))
+                ((top) *initial-string*)
+                ((bottom) *target-string*)))
              (to-string
                (case rule-type
-                (top *target-string*)
-                (bottom *initial-string*)))
+                ((top) *target-string*)
+                ((bottom) *initial-string*)))
              (rule-clauses (tell rule 'get-rule-clauses))
              (slippage-log (make-slippage-log rule-type))
              (fail (lambda () (return #f)))
              (result
                (map (translate-rule-clause from-string to-string slippage-log fail)
                 rule-clauses))
-             (translated-clauses (map-compress 1st result)))
+             (translated-clauses (map-compress first result)))
        (if (not (andmap valid-rule-clause? translated-clauses))
          #f
          (let* ((translated-rule
@@ -1352,13 +1352,13 @@
     (lambda (rule-clause)
       (if (verbatim-clause? rule-clause)
        (list rule-clause '())
-       (let* ((object-descriptions (2nd rule-clause))
+       (let* ((object-descriptions (second rule-clause))
               (result (map (translate-object-description
                             from-string to-string slippage-log fail)
                        object-descriptions))
-              (translated-object-descriptions (map 1st result))
-              (applicable-object-description-slippages (flatmap 2nd result))
-              (enclosing-slippages (remq-duplicates (flatmap 3rd result)))
+              (translated-object-descriptions (map first result))
+              (applicable-object-description-slippages (flatmap second result))
+              (enclosing-slippages (remq-duplicates (flatmap third result)))
               (possible-transform-slippages
                (append applicable-object-description-slippages enclosing-slippages))
               (ignored-dimensions
@@ -1370,16 +1370,16 @@
                  (lambda (s) (member? (tell s 'get-CM-type) ignored-dimensions))
                  possible-transform-slippages))
               (translator
-               (case (1st rule-clause)
-                 (extrinsic
+               (case (first rule-clause)
+                 ( (extrinsic)
                    (apply-to-dimension applicable-transform-slippages slippage-log))
-                 (intrinsic
+                 ( (intrinsic)
                    (apply-to-change applicable-transform-slippages slippage-log))))
               (translated-rule-clause
                (list
-                 (1st rule-clause)
+                 (first rule-clause)
                  translated-object-descriptions
-                 (map translator (3rd rule-clause))))
+                 (map translator (third rule-clause))))
               (all-applicable-slippages
                (append
                  applicable-object-description-slippages
@@ -1401,7 +1401,7 @@
       (extrinsic (object-descriptions dimensions)
        (if (and (member? plato-object-category dimensions)
                 (not (= (length object-descriptions) 1))
-            (all-same? (map 1st object-descriptions)))
+            (all-same? (map first object-descriptions)))
          (let ((new-dimensions (remq plato-object-category dimensions)))
            (if (null? new-dimensions)
              #f
@@ -1409,9 +1409,9 @@
          rule-clause))
       (intrinsic (object-descriptions changes)
        (let ((ObjCtgy:self-change (select-change plato-object-category 'self changes))
-             (object-type (1st (1st object-descriptions))))
+             (object-type (first (first object-descriptions))))
          (if (and (exists? ObjCtgy:self-change)
-              (eq? (3rd ObjCtgy:self-change) object-type))
+              (eq? (third ObjCtgy:self-change) object-type))
            (let ((new-changes (remq ObjCtgy:self-change changes)))
              (if (null? new-changes)
               #f
@@ -1462,8 +1462,8 @@
                       (apply append
                        (tell-all vertical-bridges
                          (case translation-direction
-                           (down 'get-symmetric-slippages)
-                           (up 'get-non-symmetric-slippages)))))
+                           ((down) 'get-symmetric-slippages)
+                           ((up) 'get-non-symmetric-slippages)))))
                     (applicable-object-description-slippages
                       (filter-out
                        (lambda (s)
@@ -1475,8 +1475,8 @@
                        applicable-object-description-slippages
                        object-description
                        slippage-log))
-                    (enclosing-group1 (1st all-enclosing-groups1))
-                    (enclosing-group2 (1st all-enclosing-groups2))
+                    (enclosing-group1 (first all-enclosing-groups1))
+                    (enclosing-group2 (first all-enclosing-groups2))
                     (enclosing-bridge
                       (if (and (exists? enclosing-group1)
                            (exists? enclosing-group2)
@@ -1499,8 +1499,8 @@
 
 (define whole-string-object-description?
   (lambda (object-description)
-    (or (eq? (1st object-description) 'string)
-        (eq? (3rd object-description) plato-whole))))
+    (or (eq? (first object-description) 'string)
+        (eq? (third object-description) plato-whole))))
       
 
 (define translate-whole-string-object-description
@@ -1513,9 +1513,9 @@
 (define apply-to-change
   (lambda (slippages slippage-log)
     (lambda (change)
-      (list (1st change)
-       (tell (2nd change) 'apply-slippages slippages slippage-log)
-       (tell (3rd change) 'apply-slippages slippages slippage-log)))))
+      (list (first change)
+       (tell (second change) 'apply-slippages slippages slippage-log)
+       (tell (third change) 'apply-slippages slippages slippage-log)))))
 
 
 (define apply-to-dimension
@@ -1526,33 +1526,33 @@
 
 (define apply-to-object-description
   (lambda (slippages object-description slippage-log)
-    (list (if (eq? (1st object-description) 'string)
-           (1st object-description)
-           (tell (1st object-description) 'apply-slippages slippages slippage-log))
-          (tell (2nd object-description) 'apply-slippages slippages slippage-log)
-     (tell (3rd object-description) 'apply-slippages slippages slippage-log))))
+    (list (if (eq? (first object-description) 'string)
+           (first object-description)
+           (tell (first object-description) 'apply-slippages slippages slippage-log))
+          (tell (second object-description) 'apply-slippages slippages slippage-log)
+     (tell (third object-description) 'apply-slippages slippages slippage-log))))
 
 
 (define valid-rule-clause?
   (lambda (rule-clause)
     (or (verbatim-clause? rule-clause)
         (and (extrinsic-clause? rule-clause)
-         (andmap valid-object-description? (2nd rule-clause))
-         (or (> (length (2nd rule-clause)) 1)
-             (not (eq? (1st (1st (2nd rule-clause))) plato-letter))))
+         (andmap valid-object-description? (second rule-clause))
+         (or (> (length (second rule-clause)) 1)
+             (not (eq? (first (first (second rule-clause))) plato-letter))))
      (and (intrinsic-clause? rule-clause)
-          (valid-object-description? (1st (2nd rule-clause)))
-          (andmap valid-change? (3rd rule-clause))))))
+          (valid-object-description? (first (second rule-clause)))
+          (andmap valid-change? (third rule-clause))))))
 
 
 (define valid-object-description?
   (lambda (object-description)
-    (eq? (tell (3rd object-description) 'get-category)
-         (2nd object-description))))
+    (eq? (tell (third object-description) 'get-category)
+         (second object-description))))
 
 
 (define valid-change?
   (lambda (change)
-    (or (platonic-relation? (3rd change))
-        (eq? (tell (3rd change) 'get-category) (2nd change)))))
+    (or (platonic-relation? (third change))
+        (eq? (tell (third change) 'get-category) (second change)))))
 

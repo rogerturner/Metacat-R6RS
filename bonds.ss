@@ -40,7 +40,7 @@
            (right-string-pos (tell right-object 'get-right-string-pos))
            (bond-importance (if (exists? direction) 50 100)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'bond)
            (print ()
@@ -59,9 +59,9 @@
               (tell string 'generic-name))
              (if* (< (tell self 'get-proposal-level) %built%)
               (printf " (~a)" (case (tell self 'get-proposal-level)
-                               (0 "new")
-                               (1 "proposed")
-                               (2 "evaluated"))))
+                               ((0) "new")
+                               ((1) "proposed")
+                               ((2) "evaluated"))))
              (newline))
            (get-string () string)
            (get-from-object () from-object)
@@ -115,8 +115,8 @@
                               (tell other-bond 'get-direction)))
                            (incompatible?
                             (case bridge-orientation
-                              (horizontal incompatible-horizontal-CMs?)
-                              (vertical incompatible-vertical-CMs?))))
+                              ((horizontal) incompatible-horizontal-CMs?)
+                              ((vertical) incompatible-vertical-CMs?))))
                        (if (incompatible? bond-direction-CM string-position-CM)
                          bridge
                          #f))))))))
@@ -340,7 +340,7 @@
   (lambda (proposed-bond)
     (tell proposed-bond 'update-strength)
     (let ((strength (tell proposed-bond 'get-strength)))
-      (stochastic-if* (1- (temp-adjusted-probability (% strength)))
+      (stochastic-if* ($1- (temp-adjusted-probability (% strength)))
        (say "Bond not strong enough. Fizzling.")
        (tell (tell proposed-bond 'get-string) 'delete-proposed-bond proposed-bond)
        (fizzle))

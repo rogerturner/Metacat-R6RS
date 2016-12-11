@@ -109,7 +109,7 @@
       (show vp)
       (send top raise)
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'graphics-window)
            (get-vp () vp)
@@ -340,23 +340,23 @@
       ;; The baseline offset point is at position (0, OFFSET) in the
       ;; character's pixel matrix (for left text justification).
            (get-character-bounding-box (char font text-origin)
-                   (let* ((x (1st text-origin))
-                          (y (2nd text-origin))
+                   (let* ((x (first text-origin))
+                          (y (second text-origin))
                           (size (tell font 'get-pixel-size char))
-                          (width (1st size))
-                          (height (2nd size))
-                          (baseline (3rd size)))
+                          (width (first size))
+                          (height (second size))
+                          (baseline (third size)))
                     `((,(+ x (* width-per-pixel -1))
                        ,(+ y (* height-per-pixel (- (- baseline) 1))))
                       (,(+ x (* width-per-pixel (+ width 1)))
                        ,(+ y (* height-per-pixel (- (+ height 1) baseline)))))))
       ;; char is a one-character string
            (get-character-width (char font)
-             (* width-per-pixel (1st (tell font 'get-pixel-size char))))
+             (* width-per-pixel (first (tell font 'get-pixel-size char))))
            (get-character-height (char font)
-             (* height-per-pixel (2nd (tell font 'get-pixel-size char))))
+             (* height-per-pixel (second (tell font 'get-pixel-size char))))
            (get-text-offset (font)
-             (* height-per-pixel (3rd (tell font 'get-pixel-size "M"))))
+             (* height-per-pixel (third (tell font 'get-pixel-size "M"))))
            (get-string-width (text-string font)
              (* width-per-pixel (tell font 'get-pixel-width text-string)))
            (get-string-height (font)
@@ -398,7 +398,7 @@
                visible-w visible-h canvas-h bg-color)))
       (tell graphics-window 'reposition-vertical-scrollbar)
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'scrollable-text-window)
            (get-font () font)
@@ -508,7 +508,7 @@
        (filter-out
          (lambda (s) (string=? s ""))
          (reverse (cons current-line previous-lines)))
-       (let* ((next-word (1st words-left))
+       (let* ((next-word (first words-left))
               (word-length (tell g 'get-string-width next-word font)))
          (cond
            ((< word-length space-left)
@@ -1062,8 +1062,8 @@
            (right-line (- right overhang))
            (coord-transform
             (lambda (p)
-              (let ((x-prime (- (* (1st p) (cos theta)) (* (2nd p) (sin theta))))
-                    (y-prime (+ (* (2nd p) (cos theta)) (* (1st p) (sin theta)))))
+              (let ((x-prime (- (* (first p) (cos theta)) (* (second p) (sin theta))))
+                    (y-prime (+ (* (second p) (cos theta)) (* (first p) (sin theta)))))
                `(,(+ x x-prime) ,(+ y y-prime)))))
            (points
             `((,left ,half-arrow-width) (,right-line ,half-arrow-width)

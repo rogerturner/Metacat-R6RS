@@ -29,7 +29,7 @@
           (within-clamp-period? #f)
           (within-snag-period? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'temporal-trace)
            (print ()
@@ -136,26 +136,26 @@
                 (tell last-clamp 'update-progress-achieved progress-achieved)
                 (tell *comment-window* 'add-comment
                   (case (tell last-clamp 'get-clamp-type)
-                    (rule-codelet-clamp
+                    ((rule-codelet-clamp)
                      (list
                        "Well, my latest effort to think up new rules resulted in"
                        (format " ~a progress."
                          (clamp-progress-amount-phrase progress-achieved))
                        (format "  Guess it was ~a effort, in retrospect."
                          (clamp-progress-adjective-phrase progress-achieved))))
-                    (snag-response-clamp
+                    ((snag-response-clamp)
                      (list
                        (format "Looks like I made ~a headway in coming up with"
                          (clamp-progress-amount-phrase progress-achieved))
                        " new ideas."))
-                    (justify-clamp
+                    ((justify-clamp)
                      (list
                        "Looks like that last brilliant idea I had resulted in "
                        (format "~a progress."
                          (clamp-progress-amount-phrase progress-achieved))
                        (format "  Guess it was ~a idea, in retrospect."
                          (clamp-progress-adjective-phrase progress-achieved))))
-                    (manual-clamp
+                    ((manual-clamp)
                      (list
                        "That last suggestion of yours resulted in "
                        (format "~a progress."
@@ -165,10 +165,10 @@
                   (list ;; non-eliza-mode
                     (format "Unclamping patterns.  Progress achieved by ~a clamp = ~a."
                      (case (tell last-clamp 'get-clamp-type)
-                       (rule-codelet-clamp "rule-codelet")
-                       (snag-response-clamp "snag-response")
-                       (justify-clamp "justify")
-                       (manual-clamp "manual"))
+                       ((rule-codelet-clamp) "rule-codelet")
+                       ((snag-response-clamp) "snag-response")
+                       ((justify-clamp) "justify")
+                       ((manual-clamp) "manual"))
                      progress-achieved)))
                 (tell last-clamp 'deactivate)))
              'done)
@@ -248,7 +248,7 @@
           (bounding-box-x2 #f)
           (bounding-box-y2 #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'generic-event)
            (print-name ()
@@ -338,7 +338,7 @@
     (let ((generic-event (make-generic-event 'answer))
           (answer-description #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'answer-event)
            (print-name () (format "[Answer ~a]" (tell answer-string 'print-name)))
@@ -370,19 +370,19 @@
            (get-answer-letters () (tell answer-string 'get-letter-categories))
            (get-rule (rule-type)
              (case rule-type
-              (top top-rule)
-              (bottom bottom-rule)))
+              ((top) top-rule)
+              ((bottom) bottom-rule)))
            (get-supporting-bridges (type)
              (case type
-              (top (tell top-rule 'get-supporting-horizontal-bridges))
-              (vertical supporting-vertical-bridges)
-              (bottom (tell bottom-rule 'get-supporting-horizontal-bridges))))
+              ((top) (tell top-rule 'get-supporting-horizontal-bridges))
+              ((vertical) supporting-vertical-bridges)
+              ((bottom) (tell bottom-rule 'get-supporting-horizontal-bridges))))
            (get-slippage-log () slippage-log)
            (get-supporting-groups () supporting-groups)
            (get-rule-ref-objects (rule-type)
              (case rule-type
-              (top top-rule-ref-objects)
-              (bottom bottom-rule-ref-objects)))
+              ((top) top-rule-ref-objects)
+              ((bottom) bottom-rule-ref-objects)))
            (unjustified? () (not (null? unjustified-slippages)))
            (get-unjustified-slippages () unjustified-slippages)
            (get-answer-description () answer-description)
@@ -392,12 +392,12 @@
            (get-absolute-quality ()
              (round (weighted-average
                      (list (tell top-rule 'get-quality)
-                      (100- (tell self 'get-temperature)))
+                      ($100- (tell self 'get-temperature)))
                      (list 60 40))))
            (get-relative-quality ()
              (round (weighted-average
                      (list (tell top-rule 'get-relative-quality)
-                      (100- (tell self 'get-temperature)))
+                      ($100- (tell self 'get-temperature)))
                      (list 60 40))))
            (get-quality () (tell self 'get-absolute-quality))
            (get-strength () (tell self 'get-quality))
@@ -543,7 +543,7 @@
                 0)))
            (progress-achieved 0))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'clamp-event)
            (print-name () "[Clamp]")
@@ -571,8 +571,8 @@
            (get-rules () rules)
            (get-rule (rule-type)
              (case rule-type
-              (top (select-meth rules 'type? 'top))
-              (bottom (select-meth rules 'type? 'bottom))))
+              ((top) (select-meth rules 'type? 'top))
+              ((bottom) (select-meth rules 'type? 'bottom))))
            (get-unifying-slippages () unifying-slippages)
            (get-clamp-type () clamp-type)
            (clamp-type? (type) (eq? type clamp-type))
@@ -591,19 +591,19 @@
            (activate ()
              (tell *comment-window* 'add-comment
               (case clamp-type
-                (rule-codelet-clamp
+                ( (rule-codelet-clamp)
                   (list "I'll just have to try a little harder..."))
-                (snag-response-clamp
+                ( (snag-response-clamp)
                   (list
                     "All right, I've had enough of this!  "
                     "Let's try something different for a change..."))
-                (justify-clamp
+                ( (justify-clamp)
                   (list
                     (format "Aha!  I have ~a idea..."
                      (if (> (tell *trace* 'get-num-of-events 'clamp) 1)
                        "another"
                        "an"))))
-                (manual-clamp
+                ( (manual-clamp)
                   (list
                     (format "Thank you for ~a interesting suggestion!  "
                      (if (> (tell *trace* 'get-num-of-clamps 'manual-clamp) 1)
@@ -612,10 +612,10 @@
                     "Let me think about it...")))
               (list ;; non-eliza-mode
                 (case clamp-type
-                  (rule-codelet-clamp "Clamping rule-codelet pattern...")
-                  (snag-response-clamp "Clamping negative theme pattern...")
-                  (justify-clamp "Clamping theme patterns...")
-                  (manual-clamp "Manually clamping patterns..."))))
+                  ((rule-codelet-clamp) "Clamping rule-codelet pattern...")
+                  ((snag-response-clamp) "Clamping negative theme pattern...")
+                  ((justify-clamp) "Clamping theme patterns...")
+                  ((manual-clamp) "Manually clamping patterns..."))))
              (tell *trace* 'undo-snag-condition)
         ;; Rules
              (if* (not (null? rules))
@@ -675,7 +675,7 @@
              (tell *themespace* 'thematic-pressure-off)
              (for* each pattern in clamped-theme-patterns do
               (impose-theme-pattern pattern)
-              (tell *themespace* 'thematic-pressure-on (1st pattern)))
+              (tell *themespace* 'thematic-pressure-on (first pattern)))
         ;; Display concept-patterns:
              (tell *slipnet-window* 'display-patterns
               clamped-concept-patterns
@@ -708,7 +708,7 @@
           (print-name (format "(~a)" (tell slipnode 'get-short-name)))
           (concept-pattern (list 'concepts (list slipnode %max-activation%))))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'concept-activation-event)
            (print-name () print-name)
@@ -755,9 +755,9 @@
            (print-name
              (format "~a:~a"
                (case bridge-type
-                (top "T")
-                (vertical "V")
-                (bottom "B"))
+                ((top) "T")
+                ((vertical) "V")
+                ((bottom) "B"))
                (tell cm 'print-name)))
            (slippage? (tell cm 'slippage?))
            (theme-pattern
@@ -767,7 +767,7 @@
            (cm-strength (tell cm 'get-strength))
            (concept-pattern (tell cm 'get-concept-pattern)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'concept-mapping-event)
            (print-name () print-name)
@@ -852,7 +852,7 @@
           (group-strength (tell group 'get-strength))
           (concept-pattern (tell group 'get-concept-pattern)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'group-event)
            (print-name () print-name)
@@ -939,18 +939,18 @@
            (rule-type (tell rule 'get-rule-type))
            (print-name
              (case rule-type
-               (top "[Top Rule]")
-               (bottom "[Bottom Rule]")))
+               ((top) "[Top Rule]")
+               ((bottom) "[Bottom Rule]")))
            (supporting-bridges (tell rule 'get-supporting-horizontal-bridges))
            (reference-objects
              (filter-out workspace-string?
                (case rule-type
-                (top (tell *initial-string* 'get-all-reference-objects rule))
-                (bottom (tell *target-string* 'get-all-reference-objects rule)))))
+                ((top) (tell *initial-string* 'get-all-reference-objects rule))
+                ((bottom) (tell *target-string* 'get-all-reference-objects rule)))))
            (relative-quality (tell rule 'get-relative-quality))
            (concept-pattern (tell rule 'get-concept-pattern)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'rule-event)
            (print-name () print-name)
@@ -983,11 +983,11 @@
              (tell *slipnet-window* 'display-patterns
               (list concept-pattern)
               (case rule-type
-                (top %top-rule-event-concept-pattern-color%)
-                (bottom %bottom-rule-event-concept-pattern-color%))
+                ((top) %top-rule-event-concept-pattern-color%)
+                ((bottom) %bottom-rule-event-concept-pattern-color%))
               (case rule-type
-                (top "Top Rule Concepts")
-                (bottom "Bottom Rule Concepts")))
+                ((top) "Top Rule Concepts")
+                ((bottom) "Bottom Rule Concepts")))
              (if* %verbose%
     ;; Display relative quality:
               (printf "~n----------------------------------------------------------~n")
@@ -1016,18 +1016,18 @@
              (for* each object in reference-objects do
               (tell *workspace-window* 'display-in-color object
                 (case rule-type
-                  (top %top-bridge-color%)
-                  (bottom %bottom-bridge-color%))))
+                  ((top) %top-bridge-color%)
+                  ((bottom) %bottom-bridge-color%))))
               ;; Highlight supporting bridges:
              (tell *workspace-window* 'highlight-bridges
               (case rule-type
-                (top %top-bridge-color%)
-                (bottom %bottom-bridge-color%))
+                ((top) %top-bridge-color%)
+                ((bottom) %bottom-bridge-color%))
               supporting-bridges)
              (tell *workspace-window* 'display-rule rule
               (case rule-type
-                (top %top-rule-color%)
-                (bottom %bottom-rule-color%))))
+                ((top) %top-rule-color%)
+                ((bottom) %bottom-rule-color%))))
            (else (delegate msg generic-event))))))))
 
 
@@ -1055,7 +1055,7 @@
   (lambda (failure-result rule translated-rule supporting-vertical-bridges
            slippage-log rule-ref-objects)
     (let* ((generic-event (make-generic-event 'snag))
-           (snag-type (1st failure-result))
+           (snag-type (first failure-result))
            (snag-objects
              (record-case failure-result
                (SWAP (objects dim) objects)
@@ -1076,7 +1076,7 @@
                 0)))
            (progress-achieved 0))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'snag-event)
            (print-name () "[Snag]")
@@ -1084,9 +1084,9 @@
              (print generic-event)
              (printf "~a-snag involving object~a:~n"
               (case snag-type
-                (swap "Swap")
-                (conflict "Conflict")
-                (change "Change"))
+                ((swap) "Swap")
+                ((conflict) "Conflict")
+                ((change) "Change"))
               (if (eq? snag-type 'change) "" "s"))
              (for* each object in snag-objects do
               (print object)))
@@ -1103,7 +1103,7 @@
                 (format "no ~a swap is possible between ~a in ~a"
                   (tell dimension 'get-lowercase-name)
                   (punctuate (map snag-object-phrase objects))
-                  (tell (tell (1st objects) 'get-string) 'print-name)))
+                  (tell (tell (first objects) 'get-string) 'print-name)))
               (CONFLICT (object1 dimension1 object2 dimension2)
                 (format "changing ~a of ~a conflicts with changing ~a of ~a in ~a"
                   (format "the ~a" (tell dimension1 'get-lowercase-name))
@@ -1113,29 +1113,29 @@
                   (tell (tell object1 'get-string) 'print-name)))
               (CHANGE (object transform)
                 (let ((string (tell object 'get-string)))
-                  (if (eq? (1st transform) plato-group-category)
+                  (if (eq? (first transform) plato-group-category)
                     (format "reversing the starting and ending ~a of ~a ~a"
-                     (tell (3rd transform) 'get-lowercase-name)
+                     (tell (third transform) 'get-lowercase-name)
                      (snag-object-phrase object)
                      (format "is not possible in ~a"
                        (tell string 'print-name)))
                     (format "changing the ~a of ~a to ~a is not possible in ~a"
-                     (tell (1st transform) 'get-lowercase-name)
+                     (tell (first transform) 'get-lowercase-name)
                      (snag-object-phrase object)
-                     (if (platonic-relation? (2nd transform))
-                       (format "its ~a" (tell (2nd transform) 'get-lowercase-name))
-                       (format "`~a'" (tell (2nd transform) 'get-lowercase-name)))
+                     (if (platonic-relation? (second transform))
+                       (format "its ~a" (tell (second transform) 'get-lowercase-name))
+                       (format "`~a'" (tell (second transform) 'get-lowercase-name)))
                      (tell string 'print-name)))))))
            (get-failure-result () failure-result)
            (get-rule (rule-type)
              (case rule-type
-              (top rule)
-              (bottom translated-rule)))
+              ((top) rule)
+              ((bottom) translated-rule)))
            (get-supporting-bridges (bridge-type)
         ;; Snags have no supporting bottom bridges since translated-rule failed
              (case bridge-type
-              (top (tell rule 'get-supporting-horizontal-bridges))
-              (vertical supporting-vertical-bridges)))
+              ((top) (tell rule 'get-supporting-horizontal-bridges))
+              ((vertical) supporting-vertical-bridges)))
            (get-slippage-log () slippage-log)
            (get-rule-ref-objects () rule-ref-objects)
            (get-snag-type () snag-type)
@@ -1348,7 +1348,7 @@
 (define concept-activation-importance
   (lambda (slipnode previous-activation new-activation)
     (let ((delta (- new-activation previous-activation)))
-      (100* (* (% (abs delta)) (% (cd slipnode)))))))
+      ($100* (* (% (abs delta)) (% (cd slipnode)))))))
 
 (define group-importance
   (lambda (group flipped?)
@@ -1414,31 +1414,31 @@
 
 (define theme-pattern?
   (lambda (pattern)
-    (member? (1st pattern) '(top-bridge vertical-bridge bottom-bridge))))
+    (member? (first pattern) '(top-bridge vertical-bridge bottom-bridge))))
 
 (define concept-pattern?
   (lambda (pattern)
-    (eq? (1st pattern) 'concepts)))
+    (eq? (first pattern) 'concepts)))
 
 (define codelet-pattern?
   (lambda (pattern)
-    (eq? (1st pattern) 'codelets)))
+    (eq? (first pattern) 'codelets)))
 
 (define same-pattern-type?
   (lambda (pattern1 pattern2)
-    (eq? (1st pattern1) (1st pattern2))))
+    (eq? (first pattern1) (first pattern2))))
 
 (define pattern-type-present?
   (lambda (pattern patterns)
-    (exists? (assq (1st pattern) patterns))))
+    (exists? (assq (first pattern) patterns))))
 
 (define negate-theme-pattern-entry
   (lambda (entry)
     (let ((negative-activation
            (if (= (length entry) 3)
-             (- (3rd entry))
+             (- (third entry))
              (- %max-theme-activation%))))
-      (list (1st entry) (2nd entry) negative-activation))))
+      (list (first entry) (second entry) negative-activation))))
 
 ;; These functions ignore positive/negative theme activations (if any),
 ;; slipnode activations, and codelet urgencies:
@@ -1453,51 +1453,51 @@
 
 (define theme-patterns-equal?
   (lambda (pattern1 pattern2)
-    (and (eq? (1st pattern1) (1st pattern2))
+    (and (eq? (first pattern1) (first pattern2))
          (sets-equal-pred?
           theme-pattern-entries-equal?
           (entries pattern1) (entries pattern2)))))
 
 (define theme-pattern-entries-equal?
   (lambda (entry1 entry2)
-    (and (eq? (1st entry1) (1st entry2))
-         (eq? (2nd entry1) (2nd entry2)))))
+    (and (eq? (first entry1) (first entry2))
+         (eq? (second entry1) (second entry2)))))
 
 (define concept-patterns-equal?
   (lambda (pattern1 pattern2)
     (sets-equal?
-      (map 1st (entries pattern1))
-      (map 1st (entries pattern2)))))
+      (map first (entries pattern1))
+      (map first (entries pattern2)))))
 
 (define codelet-patterns-equal?
   (lambda (pattern1 pattern2)
     (sets-equal?
-      (map 1st (entries pattern1))
-      (map 1st (entries pattern2)))))
+      (map first (entries pattern1))
+      (map first (entries pattern2)))))
 
 (define entries rest)
 
 (define print-pattern
   (lambda (pattern)
-    (printf "(~a" (1st pattern))
-    (case (1st pattern)
-      (concepts
+    (printf "(~a" (first pattern))
+    (case (first pattern)
+      ((concepts)
        (for* each entry in (entries pattern) do
          (printf "~n  (~a ~a)"
-           (tell (1st entry) 'get-short-name)
-           (2nd entry))))
+           (tell (first entry) 'get-short-name)
+           (second entry))))
       ((top-bridge vertical-bridge bottom-bridge)
        (for* each entry in (entries pattern) do
         (printf "~n  (~a ~a~a)"
-          (tell (1st entry) 'get-short-name)
-          (relation-name (2nd entry))
-          (if (= (length entry) 3) (format " ~a" (3rd entry)) ""))))
-      (codelets
+          (tell (first entry) 'get-short-name)
+          (relation-name (second entry))
+          (if (= (length entry) 3) (format " ~a" (third entry)) ""))))
+      ((codelets)
        (for* each entry in (entries pattern) do
          (printf "~n  (~a ~a)"
-           (tell (1st entry) 'get-codelet-type-name)
-           (let ((name (urgency-name (2nd entry))))
-             (if (exists? name) name (2nd entry)))))))
+           (tell (first entry) 'get-codelet-type-name)
+           (let ((name (urgency-name (second entry))))
+             (if (exists? name) name (second entry)))))))
     (printf ")~n")))
   
 ;;----------------------------------------------------------------------
@@ -1509,9 +1509,9 @@
       (remove-duplicates
        (flatmap
          (lambda (entry)
-           (let ((dim (1st entry))
-                 (rel (2nd entry))
-                 (act (if (= (length entry) 3) (3rd entry) %max-theme-activation%)))
+           (let ((dim (first entry))
+                 (rel (second entry))
+                 (act (if (= (length entry) 3) (third entry) %max-theme-activation%)))
              (cons (list dim %max-activation%)
               (if (eq? rel plato-opposite)
                 (list (list rel (if (> act 0) %max-activation% 0)))
@@ -1523,16 +1523,16 @@
 
 (define impose-theme-pattern
   (lambda (theme-pattern)
-    (let ((theme-type (1st theme-pattern)))
+    (let ((theme-type (first theme-pattern)))
       (for* each entry in (entries theme-pattern) do
-       (let ((dim (1st entry))
-             (rel (2nd entry))
-             (act (if (= (length entry) 3) (3rd entry) %max-theme-activation%)))
+       (let ((dim (first entry))
+             (rel (second entry))
+             (act (if (= (length entry) 3) (third entry) %max-theme-activation%)))
          (tell *themespace* 'set-theme-activation theme-type dim rel act))))))
 
 (define clamp-theme-pattern
   (lambda (theme-pattern)
-    (let ((theme-type (1st theme-pattern)))
+    (let ((theme-type (first theme-pattern)))
       (tell *themespace* 'delete-theme-type theme-type)
       (impose-theme-pattern theme-pattern)
       (tell *themespace* 'freeze-theme-type theme-type)
@@ -1540,7 +1540,7 @@
 
 (define unclamp-theme-pattern
   (lambda (theme-pattern)
-    (let ((theme-type (1st theme-pattern)))
+    (let ((theme-type (first theme-pattern)))
       (tell *themespace* 'unfreeze-theme-type theme-type)
       (tell *themespace* 'thematic-pressure-off theme-type))))
 
@@ -1550,14 +1550,14 @@
 (define clamp-concept-pattern
   (lambda (concept-pattern)
     (for* each entry in (entries concept-pattern) do
-      (let ((node (1st entry))
-            (act (2nd entry)))
+      (let ((node (first entry))
+            (act (second entry)))
        (tell node 'clamp act)))))
 
 (define unclamp-concept-pattern
   (lambda (concept-pattern)
     (for* each entry in (entries concept-pattern) do
-      (tell (1st entry) 'unfreeze))))
+      (tell (first entry) 'unfreeze))))
 
 ;;----------------------------------------------------------------------
 ;; Codelet-patterns
@@ -1566,7 +1566,7 @@
   (lambda (urgency codelet-patterns)
     (let* ((all-specified-pattern-entries (flatmap entries codelet-patterns))
            (all-specified-codelet-types
-             (remq-duplicates (map 1st all-specified-pattern-entries)))
+             (remq-duplicates (map first all-specified-pattern-entries)))
            (unspecified-codelet-types
              (remq-elements all-specified-codelet-types *codelet-types*))
            (complement-pattern-entries
@@ -1586,14 +1586,14 @@
 (define clamp-codelet-pattern
   (lambda (codelet-pattern)
     (for* each entry in (entries codelet-pattern) do
-      (let ((codelet-type (1st entry))
-            (urgency (2nd entry)))
+      (let ((codelet-type (first entry))
+            (urgency (second entry)))
        (tell codelet-type 'clamp urgency)))))
 
 (define unclamp-codelet-pattern
   (lambda (codelet-pattern)
     (for* each entry in (entries codelet-pattern) do
-      (tell (1st entry) 'unclamp))))
+      (tell (first entry) 'unclamp))))
 
 ;; not all of these codelet-patterns are used
 

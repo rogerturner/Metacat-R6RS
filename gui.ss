@@ -666,7 +666,7 @@
             (problem #f))
   ;; control panel object:
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'control-panel)
              (problem-exists? () (exists? problem))
@@ -689,14 +689,14 @@
                 (cond
                   ((= (length tokens) 5) tokens)
                   ((= (length tokens) 3) `(,@tokens #f ,(random-seed)))
-                  ((symbol? (4th tokens)) `(,@tokens ,(random-seed)))
-                  ((number? (4th tokens))
-                   `(,(1st tokens) ,(2nd tokens) ,(3rd tokens) #f ,(4th tokens)))))
-              (set! %justify-mode% (exists? (4th problem)))
+                  ((symbol? (fourth tokens)) `(,@tokens ,(random-seed)))
+                  ((number? (fourth tokens))
+                   `(,(first tokens) ,(second tokens) ,(third tokens) #f ,(fourth tokens)))))
+              (set! %justify-mode% (exists? (fourth problem)))
               (tell self 'display
                 (format " ~a -> ~a; ~a -> ~a       seed:  ~a "
-                  (1st problem) (2nd problem) (3rd problem)
-                  (if %justify-mode% (4th problem) '?) (5th problem)))
+                  (first problem) (second problem) (third problem)
+                  (if %justify-mode% (fourth problem) '?) (fifth problem)))
               (send command-line delete-all)
               (unhighlight-menu-items demos-menu))
              (init-new-problem (tokens step-mode?)
@@ -855,7 +855,7 @@
                 (let ((theme-types-to-clamp
                        (if clamp-patterns? edited-theme-types '())))
                   (for* each state in saved-theme-states do
-                    (let ((theme-type (1st (1st state))))
+                    (let ((theme-type (first (first state))))
                      (if* (not (member? theme-type theme-types-to-clamp))
                        (tell *themespace* 'restore-state state))))
                   (if* (not (null? theme-types-to-clamp))
@@ -1006,20 +1006,20 @@
 (define get-demos-button
   (lambda (main-menu)
     (if (eq? *platform* 'macintosh)
-      (1st (send main-menu get-menu-items))
-      (2nd (send main-menu get-menu-items)))))
+      (first (send main-menu get-menu-items))
+      (second (send main-menu get-menu-items)))))
 
 (define get-options-button
   (lambda (main-menu)
     (if (eq? *platform* 'macintosh)
-      (3rd (send main-menu get-menu-items))
-      (4th (send main-menu get-menu-items)))))
+      (third (send main-menu get-menu-items))
+      (fourth (send main-menu get-menu-items)))))
 
 (define get-clearmem-button
   (lambda (main-menu)
     (if (eq? *platform* 'macintosh)
-      (1st (send (send (3rd (send main-menu get-menu-items)) get-menu) get-menu-items))
-      (6th (send main-menu get-menu-items)))))
+      (first (send (send (third (send main-menu get-menu-items)) get-menu) get-menu-items))
+      (sixth (send main-menu get-menu-items)))))
 
 (define create-options-menu
   (lambda items
@@ -1063,7 +1063,7 @@
               (font: %gui-menu-item-font%)
               (background-color: %gui-menu-background-color%))))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'window-controller)
            (get-menu-item () menu-item)

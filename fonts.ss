@@ -82,7 +82,7 @@
   (lambda (face size style)
     (let ((font (make-fixed-font face size style)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'mfont)
            (resize (new-size)
@@ -113,7 +113,7 @@
 ;;	  (printf "            to ~s~n" (get-actual-font-values font))
          'done))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'fixed-font)
            (print ()

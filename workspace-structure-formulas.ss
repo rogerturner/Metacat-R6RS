@@ -26,14 +26,14 @@
        ((= group-length 1) 1)
        (else (temp-adjusted-probability
               (expt 0.5 (* (^3 group-length)
-                         (% (100- (tell plato-length 'get-activation)))))))))))
+                         (% ($100- (tell plato-length 'get-activation)))))))))))
 
 
 (define single-letter-group-probability
   (lambda (group)
     (let ((exponent (case (tell group 'get-num-of-local-supporting-groups)
-                     (1 4)
-                     (2 2)
+                     ((1) 4)
+                     ((2) 2)
                      (else 1))))
       (temp-adjusted-probability
        (expt (* (% (tell group 'get-local-support))
@@ -51,7 +51,7 @@
                groups)))
       (if (zero? num-of-groups)
        0
-       (100* (/ num-of-described-groups num-of-groups))))))
+       ($100* (/ num-of-described-groups num-of-groups))))))
 
 
 (define description-type-support
@@ -63,5 +63,5 @@
                (lambda (object)
                 (tell object 'description-type-present? description-type))
                objects))
-           (local-support (100* (/ num-of-described-objects num-of-objects))))
+           (local-support ($100* (/ num-of-described-objects num-of-objects))))
       (round (average local-support (tell description-type 'get-activation))))))

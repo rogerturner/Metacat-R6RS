@@ -68,7 +68,7 @@
            (spanning-group-x2 #f)
            (spanning-group-y2 #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'workspace-string)
            (print-name () print-name)
@@ -324,13 +324,13 @@
                     (total-raw-importance
                       (sum (tell-all objects 'get-raw-importance))))
               (if (= total-raw-importance 0)
-                (let ((importance (100* (/ 1 (length objects)))))
+                (let ((importance ($100* (/ 1 (length objects)))))
                   (for* each object in objects do
                     (tell object 'update-relative-importance importance)))
                 (for* each object in objects do
                   (let ((raw-importance (tell object 'get-raw-importance)))
                     (tell object 'update-relative-importance
-                     (100* (/ raw-importance total-raw-importance))))))
+                     ($100* (/ raw-importance total-raw-importance))))))
               'done))
            (update-average-intra-string-unhappiness ()
              (set! average-intra-string-unhappiness
@@ -372,8 +372,8 @@
                                  (eq? (tell right-bond get-category-method-name)
                                    category))))
                          non-spanning-objects)))
-                  (100* (/ num-of-bonded-objects
-                         (sub1 (length non-spanning-objects))))))))
+                  ($100* (/ num-of-bonded-objects
+                          (sub1 (length non-spanning-objects))))))))
            (get-bond-category-relevance (bond-category)
              (tell self 'get-relevance 'get-bond-category bond-category))
            (get-direction-relevance (direction)
@@ -423,13 +423,13 @@
               (apply append
                 (map (lambda (od)
                       (tell self 'get-object-description-ref-objects od))
-                  (2nd rule-clause)))))
+                  (second rule-clause)))))
            (whole-group? ()
              (exists? (select-meth group-list 'descriptor-present? plato-whole)))
            (get-object-description-ref-objects (object-description)
-             (let ((object-type (1st object-description))
-                   (description-type (2nd object-description))
-                   (descriptor (3rd object-description)))
+             (let ((object-type (first object-description))
+                   (description-type (second object-description))
+                   (descriptor (third object-description)))
               (if (eq? object-type 'string)
       ;; In abc->aaa, if group [abc] doesn't exist when a rule is created, rule
       ;; will will be CHANGE (string <StrPos> <whole>) (subobjs <LetCat> <a>)
@@ -480,16 +480,16 @@
               (set! left-right-bond-table new-left-right-bond-table)
               (set! proposed-bond-table new-proposed-bond-table)
               (case string-type
-                (initial
+                ( (initial)
                   (tell *workspace* 'reallocate-top-bridges-storage)
                   (tell *workspace* 'reallocate-vertical-bridges-storage))
-                (modified
+                ( (modified)
                   (tell *workspace* 'reallocate-top-bridges-storage))
-                (target
+                ( (target)
                   (tell *workspace* 'reallocate-vertical-bridges-storage)
                   (if* %justify-mode%
                     (tell *workspace* 'reallocate-bottom-bridges-storage)))
-                (answer
+                ( (answer)
                   (if* (not translated?)
                     (tell *workspace* 'reallocate-bottom-bridges-storage)))))
              'done)

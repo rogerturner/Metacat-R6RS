@@ -23,15 +23,15 @@
       ((= prob 0.0) 0.0)
       ((<= prob 0.5)
        (let ((low-prob-factor (max 1.0 (truncate (abs (log10 prob))))))
-        (min 0.5 (+ prob (* (% (10- (sqrt (100- *temperature*))))
-                          (- (expt 10 (1- low-prob-factor)) prob))))))
+        (min 0.5 (+ prob (* (% ($10- (sqrt ($100- *temperature*))))
+                          (- (expt 10 ($1- low-prob-factor)) prob))))))
       ((> prob 0.5)
-       (max 0.5 (1- (+ (1- prob) (* (% (10- (sqrt (100- *temperature*)))) prob))))))))
+       (max 0.5 ($1- (+ ($1- prob) (* (% ($10- (sqrt ($100- *temperature*)))) prob))))))))
 
 
 (define temp-adjusted-values
   (lambda (value-list)
-    (let ((exponent (+ (/ (100- *temperature*) 30) 0.5)))
+    (let ((exponent (+ (/ ($100- *temperature*) 30) 0.5)))
       (map (lambda (value) (round (expt value exponent))) value-list))))
 
 

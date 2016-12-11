@@ -41,7 +41,7 @@
     (let ((verbatim-images #f)
           (verbatim? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'string-image)
            (get-sub-images ()
@@ -110,7 +110,7 @@
           (swapped-image #f)
           (instantiated-object #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'image)
            (print ()
@@ -181,7 +181,7 @@
                      (if (eq? direction plato-left)
                       (tell-all (reverse sub-images) 'get-instantiated-object)
                       (tell-all sub-images 'get-instantiated-object)))
-                    (left-object (1st ordered-objects))
+                    (left-object (first ordered-objects))
                     (right-object (last ordered-objects))
                     (bond-category
                       (if (eq? bond-facet plato-letter-category)

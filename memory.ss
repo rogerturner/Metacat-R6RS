@@ -23,7 +23,7 @@
           (snag-descriptions '())
           (all-descriptions '()))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'memory)
            (print ()
@@ -138,7 +138,7 @@
            (answer-description-pexp (lambda z #f))
            (this-run *this-run*))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'answer-description)
            (print-name ()
@@ -209,7 +209,7 @@
            (compare (new-answer)
              (let* ((distance (calculate-answer-distance self new-answer))
                     (new-activation
-                      (100- (100* (min 1 (/ distance %distance-threshold%))))))
+                      ($100- ($100* (min 1 (/ distance %distance-threshold%))))))
               (tell self 'update-activation new-activation)
               (if* (> new-activation 0)
                 (tell *comment-window* 'add-comment
@@ -305,7 +305,7 @@
            (snag-description-pexp (lambda z #f))
            (this-run *this-run*))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'snag-description)
            (print-name ()
@@ -447,11 +447,11 @@
     (let* ((snag-theme-pattern
        ;; Retain only the dominant themes:
             (cons 'vertical-bridge
-              (map 1st (filter-out
-                        (lambda (cluster) (> (length cluster) 1))
-                        (partition
-                          (lambda (entry1 entry2) (eq? (1st entry1) (1st entry2)))
-                          (entries (tell snag-event 'get-snag-theme-pattern)))))))
+              (map first (filter-out
+                          (lambda (cluster) (> (length cluster) 1))
+                          (partition
+                            (lambda (entry1 entry2) (eq? (first entry1) (first entry2)))
+                            (entries (tell snag-event 'get-snag-theme-pattern)))))))
            (rule (tell snag-event 'get-rule 'top))
            (translated-rule (tell snag-event 'get-rule 'bottom))
            (theme-supporting-bridges
@@ -515,24 +515,24 @@
                (intersect-themes
                 all-themes1 all-themes2))
              (common-dimensions
-               (map 1st common-themes))
+               (map first common-themes))
              (differing-dimensions
                (remq-elements
                 common-dimensions
                 (intersect
-                  (map 1st all-themes1)
-                  (map 1st all-themes2))))
+                  (map first all-themes1)
+                  (map first all-themes2))))
              (answer1-only-themes
                (remove-elements common-themes all-themes1))
              (answer2-only-themes
                (remove-elements common-themes all-themes2))
              (differing-themes1
                (filter
-                (lambda (theme) (member? (1st theme) differing-dimensions))
+                (lambda (theme) (member? (first theme) differing-dimensions))
                 all-themes1))
              (differing-themes2
                (filter
-                (lambda (theme) (member? (1st theme) differing-dimensions))
+                (lambda (theme) (member? (first theme) differing-dimensions))
                 all-themes2))
              (unique-themes1
                (remove-elements differing-themes1 answer1-only-themes))
@@ -560,7 +560,7 @@
              (num-rule-differences
                (if (exists? rule-differences)
                 (length (filter-out
-                         (lambda (nodes) (= (cd (1st nodes)) (cd (2nd nodes))))
+                         (lambda (nodes) (= (cd (first nodes)) (cd (second nodes))))
                          rule-differences))
                 -1))
              (rule1-abstractness (tell answer1 'get-top-rule-abstractness))

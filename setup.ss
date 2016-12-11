@@ -33,7 +33,6 @@
 (define *temperature-window* (lambda z #f))
 (define *EEG* (lambda z #f))
 (define *EEG-window* (lambda z #f))
-(define *control-panel* (lambda z #f))
 
 ;; Default configuration:
 (define %eliza-mode% #t)
@@ -51,7 +50,7 @@
 
 (define setup
   (lambda args
-    (if* *gui*
+    (if *gui*
       (if (null? args)
         (setup-gui)
         (setup-gui args)))
@@ -231,12 +230,12 @@
        (lambda (buffer tokens chars)
          (cond
            ((null? chars) (reverse tokens))
-           ((char-noise? (1st chars))
+           ((char-noise? (first chars))
             (consume-noise buffer tokens (rest chars)))
-           ((char-alphabetic? (1st chars))
-            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
-           ((char-numeric? (1st chars))
-            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
+           ((char-alphabetic? (first chars))
+            (consume-letters (cons (first chars) buffer) tokens (rest chars)))
+           ((char-numeric? (first chars))
+            (consume-digits (cons (first chars) buffer) tokens (rest chars)))
            (else 'error))))
       (define consume-letters
        (lambda (buffer tokens chars)
@@ -244,11 +243,11 @@
            ((null? chars)
             (let ((new-token (string->symbol (list->string (reverse buffer)))))
               (reverse (cons new-token tokens))))
-           ((char-noise? (1st chars))
+           ((char-noise? (first chars))
             (let ((new-token (string->symbol (list->string (reverse buffer)))))
               (consume-noise '() (cons new-token tokens) (rest chars))))
-           ((char-alphabetic? (1st chars))
-            (consume-letters (cons (1st chars) buffer) tokens (rest chars)))
+           ((char-alphabetic? (first chars))
+            (consume-letters (cons (first chars) buffer) tokens (rest chars)))
            (else 'error))))
       (define consume-digits
        (lambda (buffer tokens chars)
@@ -256,11 +255,11 @@
            ((null? chars)
             (let ((new-token (string->number (list->string (reverse buffer)))))
               (reverse (cons new-token tokens))))
-           ((char-noise? (1st chars))
+           ((char-noise? (first chars))
             (let ((new-token (string->number (list->string (reverse buffer)))))
               (consume-noise '() (cons new-token tokens) (rest chars))))
-           ((char-numeric? (1st chars))
-            (consume-digits (cons (1st chars) buffer) tokens (rest chars)))
+           ((char-numeric? (first chars))
+            (consume-digits (cons (first chars) buffer) tokens (rest chars)))
            (else 'error))))
       (consume-noise '() '() chars))))
 

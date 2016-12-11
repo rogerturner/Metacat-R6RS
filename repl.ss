@@ -1,15 +1,17 @@
 (define run              ;; String ->
   (lambda (input)
-     (let ((tokens (tokenize-string input)))
+     (let ( (tokens 
+              (cond [(string? input) (tokenize-string input)]
+                    [ else input])))
        (if (valid-token-list? tokens)
          (let ((problem
                  (cond
                    ((= (length tokens) 5) tokens)
                    ((= (length tokens) 3) `(,@tokens #f ,(random-seed)))
-                   ((symbol? (4th tokens)) `(,@tokens ,(random-seed)))
-                   ((number? (4th tokens))
-                    `(,(1st tokens) ,(2nd tokens) ,(3rd tokens) #f ,(4th tokens))))))
-           (set! %justify-mode% (exists? (4th problem)))
+                   ((symbol? (fourth tokens)) `(,@tokens ,(random-seed)))
+                   ((number? (fourth tokens))
+                    `(,(first tokens) ,(second tokens) ,(third tokens) #f ,(fourth tokens))))))
+           (set! %justify-mode% (exists? (fourth problem)))
            (if* (andmap symbol? tokens)
              (randomize))
            (apply init-mcat problem)
@@ -19,7 +21,7 @@
 (define make-comment-reporter
   (lambda ()
     (lambda msg
-      (let ((self (1st msg)))
+      (let ((self (first msg)))
         (record-case (rest msg)
           (new-problem (initial-sym modified-sym target-sym answer-sym)
             (tell self 'add-comment

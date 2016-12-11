@@ -67,7 +67,7 @@
           (top-rule-possible? #f)
           (bottom-rule-possible? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'workspace)
            (initialize (initial modified target answer)
@@ -147,9 +147,9 @@
               (if %justify-mode% (tell answer-string 'get-all-groups) '())))
            (get-bridges (bridge-type)
              (case bridge-type
-              (top top-bridge-list)
-              (bottom bottom-bridge-list)
-              (vertical vertical-bridge-list)))
+              ((top) top-bridge-list)
+              ((bottom) bottom-bridge-list)
+              ((vertical) vertical-bridge-list)))
            (get-all-bridges ()
              (append top-bridge-list bottom-bridge-list vertical-bridge-list))
            (get-objects ()
@@ -160,26 +160,26 @@
               (if %justify-mode% (tell answer-string 'get-objects) '())))
            (get-other-string (string bridge-orientation)
              (case (tell string 'get-string-type)
-              (initial
+              ( (initial)
                 (case bridge-orientation
-                  (horizontal modified-string)
-                  (vertical target-string)))
-              (modified initial-string)
-              (target
+                  ((horizontal) modified-string)
+                  ((vertical) target-string)))
+              ( (modified) initial-string)
+              ( (target)
                 (case bridge-orientation
-                  (horizontal answer-string)
-                  (vertical initial-string)))
-              (answer target-string)))
+                  ((horizontal) answer-string)
+                  ((vertical) initial-string)))
+              ( (answer) target-string)))
            (get-possible-bridge-objects (bridge-type)
              (apply append
               (case bridge-type
-                (top (tell-all top-strings 'get-objects))
-                (bottom (tell-all bottom-strings 'get-objects))
-                (vertical (tell-all vertical-strings 'get-objects)))))
+                ((top) (tell-all top-strings 'get-objects))
+                ((bottom) (tell-all bottom-strings 'get-objects))
+                ((vertical) (tell-all vertical-strings 'get-objects)))))
            (get-activity ()
              (let ((average-age
                     (tell self 'get-youngest-structures-average-age)))
-              (100- (100* (min 1.0 (/ average-age %expiration-period%))))))
+              ($100- ($100* (min 1.0 (/ average-age %expiration-period%))))))
            (get-youngest-structures-average-age ()
              (let* ((structures (tell self 'get-structures))
                     (youngest-structures
@@ -205,11 +205,11 @@
                 (map vector->list
                   (vector->list
                     (case bridge-type
-                     (top proposed-top-bridge-table)
-                     (vertical proposed-vertical-bridge-table)
-                     (bottom (if %justify-mode%
-                              proposed-bottom-bridge-table
-                              '#()))))))))
+                     ((top) proposed-top-bridge-table)
+                     ((vertical) proposed-vertical-bridge-table)
+                     ((bottom) (if %justify-mode%
+                                 proposed-bottom-bridge-table
+                                 '#()))))))))
            (get-all-proposed-bridges ()
              (remq-duplicates
               (flatten
@@ -247,14 +247,14 @@
                           (proposed-bridges
                             (remq bridge
                              (case (tell bridge 'get-bridge-type)
-                               (top (table-ref proposed-top-bridge-table i j))
-                               (bottom (table-ref proposed-bottom-bridge-table i j))
-                               (vertical (table-ref proposed-vertical-bridge-table i j)))))
+                               ((top) (table-ref proposed-top-bridge-table i j))
+                               ((bottom) (table-ref proposed-bottom-bridge-table i j))
+                               ((vertical) (table-ref proposed-vertical-bridge-table i j)))))
                           (built-bridge
                             (case (tell bridge 'get-bridge-type)
-                             (top (vector-ref top-bridges i))
-                             (bottom (vector-ref bottom-bridges i))
-                             (vertical (vector-ref vertical-bridges i)))))
+                             ((top) (vector-ref top-bridges i))
+                             ((bottom) (vector-ref bottom-bridges i))
+                             ((vertical) (vector-ref vertical-bridges i)))))
                     (if (and (exists? built-bridge)
                              (not (eq? built-bridge bridge))
                          (eq? (tell built-bridge 'get-object1)
@@ -270,19 +270,19 @@
                    (bridge-orientation (tell bridge 'get-orientation))
                    (bridge-list
                     (case bridge-type
-                      (top top-bridge-list)
-                      (bottom bottom-bridge-list)
-                      (vertical vertical-bridge-list)))
+                      ((top) top-bridge-list)
+                      ((bottom) bottom-bridge-list)
+                      ((vertical) vertical-bridge-list)))
                    (string1
                     (case bridge-type
-                      (top initial-string)
-                      (bottom target-string)
-                      (vertical initial-string)))
+                      ((top) initial-string)
+                      ((bottom) target-string)
+                      ((vertical) initial-string)))
                    (string2
                     (case bridge-type
-                      (top modified-string)
-                      (bottom answer-string)
-                      (vertical target-string))))
+                      ((top) modified-string)
+                      ((bottom) answer-string)
+                      ((vertical) target-string))))
               (if (member? bridge bridge-list)
                 bridge
                 (let ((equivalent-object1
@@ -318,21 +318,21 @@
            (add-bridge (bridge)
              (let ((i (tell (tell bridge 'get-object1) 'get-id-num)))
               (case (tell bridge 'get-bridge-type)
-                (top
+                ( (top)
                   (vector-set! top-bridges i bridge)
                   (set! top-bridge-list (cons bridge top-bridge-list)))
-                (bottom
+                ( (bottom)
                   (vector-set! bottom-bridges i bridge)
                   (set! bottom-bridge-list (cons bridge bottom-bridge-list)))
-                (vertical
+                ( (vertical)
                   (vector-set! vertical-bridges i bridge)
                   (set! vertical-bridge-list (cons bridge vertical-bridge-list)))))
              'done)
            (add-proposed-bridge (proposed-bridge)
              (let* ((table (case (tell proposed-bridge 'get-bridge-type)
-                            (top proposed-top-bridge-table)
-                            (bottom proposed-bottom-bridge-table)
-                            (vertical proposed-vertical-bridge-table)))
+                            ((top) proposed-top-bridge-table)
+                            ((bottom) proposed-bottom-bridge-table)
+                            ((vertical) proposed-vertical-bridge-table)))
                     (i (tell (tell proposed-bridge 'get-object1) 'get-id-num))
                     (j (tell (tell proposed-bridge 'get-object2) 'get-id-num))
                     (bridge-list (table-ref table i j)))
@@ -341,21 +341,21 @@
            (delete-bridge (bridge)
              (let ((i (tell (tell bridge 'get-object1) 'get-id-num)))
               (case (tell bridge 'get-bridge-type)
-                (top
+                ( (top)
                   (set! top-bridge-list (remq bridge top-bridge-list))
                   (vector-set! top-bridges i #f))
-                (bottom
+                ( (bottom)
                   (set! bottom-bridge-list (remq bridge bottom-bridge-list))
                   (vector-set! bottom-bridges i #f))
-                (vertical
+                ( (vertical)
                   (set! vertical-bridge-list (remq bridge vertical-bridge-list))
                   (vector-set! vertical-bridges i #f))))
              'done)
            (delete-proposed-bridge (proposed-bridge)
              (let* ((table (case (tell proposed-bridge 'get-bridge-type)
-                            (top proposed-top-bridge-table)
-                            (bottom proposed-bottom-bridge-table)
-                            (vertical proposed-vertical-bridge-table)))
+                            ((top) proposed-top-bridge-table)
+                            ((bottom) proposed-bottom-bridge-table)
+                            ((vertical) proposed-vertical-bridge-table)))
                     (i (tell (tell proposed-bridge 'get-object1) 'get-id-num))
                     (j (tell (tell proposed-bridge 'get-object2) 'get-id-num))
                     (bridge-list (table-ref table i j)))
@@ -394,12 +394,12 @@
              'done)
            (delete-proposed-structure (struc)
              (case (tell struc 'object-type)
-              (bond
+              ( (bond)
                 (tell (tell struc 'get-string) 'delete-proposed-bond struc))
-              (group
+              ( (group)
                 (tell (tell struc 'get-string) 'delete-proposed-group struc)
                 (if* %workspace-graphics% (group-graphics 'erase struc)))
-              (bridge
+              ( (bridge)
                 (tell self 'delete-proposed-bridge struc)
                 (if* %workspace-graphics%
                   (bridge-graphics 'erase struc))))
@@ -431,8 +431,8 @@
              (append top-rule-list bottom-rule-list))
            (get-rules (rule-type)
              (case rule-type
-              (top top-rule-list)
-              (bottom bottom-rule-list)))
+              ((top) top-rule-list)
+              ((bottom) bottom-rule-list)))
            (get-all-supported-rules ()
              (filter-meth (tell self 'get-all-rules) 'supported?))
            (get-supported-rules (rule-type)
@@ -449,8 +449,8 @@
               (else '())))
            (rule-possible? (rule-type)
              (case rule-type
-              (top top-rule-possible?)
-              (bottom bottom-rule-possible?)))
+              ((top) top-rule-possible?)
+              ((bottom) bottom-rule-possible?)))
            (check-if-rules-possible ()
              (set! top-rule-possible?
               (subset?
@@ -478,14 +478,14 @@
               'equal? rule))
            (add-rule (rule)
              (case (tell rule 'get-rule-type)
-              (top (set! top-rule-list (cons rule top-rule-list)))
-              (bottom (set! bottom-rule-list (cons rule bottom-rule-list))))
+              ((top) (set! top-rule-list (cons rule top-rule-list)))
+              ((bottom) (set! bottom-rule-list (cons rule bottom-rule-list))))
              'done)
       ;; unused:
            (delete-rule (rule)
              (case (tell rule 'get-rule-type)
-              (top (set! top-rule-list (remq rule top-rule-list)))
-              (bottom (set! bottom-rule-list (remq rule bottom-rule-list))))
+              ((top) (set! top-rule-list (remq rule top-rule-list)))
+              ((bottom) (set! bottom-rule-list (remq rule bottom-rule-list))))
              'done)
       ;; Themes:
       ;;
@@ -503,9 +503,9 @@
            (get-average-intra-string-unhappiness () average-intra-string-unhappiness)
            (get-average-inter-string-unhappiness (bridge-type)
              (case bridge-type
-              (top average-top-inter-string-unhappiness)
-              (bottom average-bottom-inter-string-unhappiness)
-              (vertical average-vertical-inter-string-unhappiness)))
+              ((top) average-top-inter-string-unhappiness)
+              ((bottom) average-bottom-inter-string-unhappiness)
+              ((vertical) average-vertical-inter-string-unhappiness)))
            (get-max-inter-string-unhappiness ()
              (if %justify-mode%
               (max average-top-inter-string-unhappiness
@@ -516,9 +516,9 @@
            (get-average-unhappiness () average-unhappiness)
            (get-mapping-strength (bridge-type)
              (case bridge-type
-              (top top-mapping-strength)
-              (bottom bottom-mapping-strength)
-              (vertical vertical-mapping-strength)))
+              ((top) top-mapping-strength)
+              ((bottom) bottom-mapping-strength)
+              ((vertical) vertical-mapping-strength)))
            (get-min-mapping-strength ()
              (if %justify-mode%
               (min top-mapping-strength
@@ -529,9 +529,9 @@
            (maximal-mapping? (bridge-type)
              (let ((strings
                     (case bridge-type
-                     (top (list initial-string modified-string))
-                     (vertical (list initial-string target-string))
-                     (bottom (list target-string answer-string)))))
+                     ((top) (list initial-string modified-string))
+                     ((vertical) (list initial-string target-string))
+                     ((bottom) (list target-string answer-string)))))
               (sets-equal?
                 (remq-duplicates
                   (apply append
@@ -584,13 +584,13 @@
                     (tell-all all-objects 'get-average-unhappiness)
                     (tell-all all-objects 'get-relative-importance))))
               (let ((raw-top-strength
-                     (100- average-top-inter-string-unhappiness))
+                     ($100- average-top-inter-string-unhappiness))
                     (raw-bottom-strength
                      (if %justify-mode%
-                       (100- average-bottom-inter-string-unhappiness)
+                       ($100- average-bottom-inter-string-unhappiness)
                        #f))
                     (raw-vertical-strength
-                     (100- average-vertical-inter-string-unhappiness)))
+                     ($100- average-vertical-inter-string-unhappiness)))
                 (set! top-mapping-strength
                   (cond
                     ((tell self 'spanning-bridge-exists? 'top)
@@ -599,7 +599,7 @@
                       (spanning-group-possible? modified-string))
                      (round (* 1/2 raw-top-strength)))
                     ((tell self 'maximal-mapping? 'top)
-                     (100* (tanh (* 1/40 raw-top-strength))))
+                     ($100* (tanh (* 1/40 raw-top-strength))))
                     (else raw-top-strength)))
                 (if* %justify-mode%
                   (set! bottom-mapping-strength
@@ -610,7 +610,7 @@
                            (spanning-group-possible? answer-string))
                       (round (* 1/2 raw-bottom-strength)))
                      ((tell self 'maximal-mapping? 'bottom)
-                      (100* (tanh (* 1/40 raw-bottom-strength))))
+                      ($100* (tanh (* 1/40 raw-bottom-strength))))
                      (else raw-bottom-strength))))
                 (set! vertical-mapping-strength
                   (cond
@@ -620,7 +620,7 @@
                       (spanning-group-possible? target-string))
                      (round (* 1/2 raw-vertical-strength)))
                     ((tell self 'maximal-mapping? 'vertical)
-                     (100* (tanh (* 1/40 raw-vertical-strength))))
+                     ($100* (tanh (* 1/40 raw-vertical-strength))))
                     (else raw-vertical-strength))))))
            (get-rough-num-of-unrelated-objects ()
              (rough-num-of-objects (count unrelated? (tell self 'get-objects))))
@@ -707,13 +707,13 @@
 (define unmapped?
   (lambda (object)
     (case (tell object 'which-string)
-      (initial (not (tell object 'mapped? 'both)))
-      (modified (not (tell object 'mapped? 'horizontal)))
-      (target
+      ((initial) (not (tell object 'mapped? 'both)))
+      ((modified) (not (tell object 'mapped? 'horizontal)))
+      ((target)
        (if %justify-mode%
          (not (tell object 'mapped? 'both))
          (not (tell object 'mapped? 'vertical))))
-      (answer (not (tell object 'mapped? 'horizontal))))))
+      ((answer) (not (tell object 'mapped? 'horizontal))))))
 
 
 (define *workspace* (make-workspace))

@@ -40,7 +40,7 @@
            (graphics-pexp #f)
            (graphics-text-coord #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'letter)
            (print-name () print-name)
@@ -95,7 +95,7 @@
           (horizontal-group-spanning-bridge-graphics-coord #f)
           (vertical-group-spanning-bridge-graphics-coord #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'workspace-object)
            (print ()
@@ -108,9 +108,9 @@
                        " (~a, not drawn)"
                        " (~a)")
                 (case (tell self 'get-proposal-level)
-                  (0 "new")
-                  (1 "proposed")
-                  (2 "evaluated"))))
+                  ((0) "new")
+                  ((1) "proposed")
+                  ((2) "evaluated"))))
              (newline))
            (get-id-num () id-num)
            (set-id-num (new-id) (set! id-num new-id) 'done)
@@ -119,19 +119,19 @@
            (get-graphics-x2 () graphics-x2)
            (get-graphics-y2 () graphics-y2)
            (set-graphics-coords (left-bottom right-top)
-                   (set! graphics-x1 (1st left-bottom))
-             (set! graphics-y1 (2nd left-bottom))
-             (set! graphics-x2 (1st right-top))
-             (set! graphics-y2 (2nd right-top))
+                   (set! graphics-x1 (first left-bottom))
+             (set! graphics-y1 (second left-bottom))
+             (set! graphics-x2 (first right-top))
+             (set! graphics-y2 (second right-top))
              'done)
            (get-bridge-graphics-coord (bridge-orientation)
              (case bridge-orientation
-              (horizontal horizontal-bridge-graphics-coord)
-              (vertical vertical-bridge-graphics-coord)))
+              ((horizontal) horizontal-bridge-graphics-coord)
+              ((vertical) vertical-bridge-graphics-coord)))
            (get-group-spanning-bridge-graphics-coord (bridge-orientation)
              (case bridge-orientation
-              (horizontal horizontal-group-spanning-bridge-graphics-coord)
-              (vertical vertical-group-spanning-bridge-graphics-coord)))
+              ((horizontal) horizontal-group-spanning-bridge-graphics-coord)
+              ((vertical) vertical-group-spanning-bridge-graphics-coord)))
            (set-bridge-graphics-coords (v h)
              (set! vertical-bridge-graphics-coord v)
              (set! horizontal-bridge-graphics-coord h)
@@ -156,8 +156,8 @@
            (get-enclosing-group () enclosing-group)
            (get-bridge (bridge-orientation)
              (case bridge-orientation
-              (horizontal horizontal-bridge)
-              (vertical vertical-bridge)))
+              ((horizontal) horizontal-bridge)
+              ((vertical) vertical-bridge)))
            (get-descriptions () descriptions)
            (get-all-descriptions ()
              (if (group? self)
@@ -178,9 +178,9 @@
            (unclamp-salience () (set! salience-clamped? #f) 'done)
            (mapped? (orientation)
              (case orientation
-              (vertical (exists? vertical-bridge))
-              (horizontal (exists? horizontal-bridge))
-              (both (and (exists? vertical-bridge) (exists? horizontal-bridge)))))
+              ((vertical) (exists? vertical-bridge))
+              ((horizontal) (exists? horizontal-bridge))
+              ((both) (and (exists? vertical-bridge) (exists? horizontal-bridge)))))
            (update-enclosing-group (new-group)
              (set! enclosing-group new-group)
              'done)
@@ -320,8 +320,8 @@
 
            (update-bridge (bridge-orientation new-bridge)
              (case bridge-orientation
-              (horizontal (set! horizontal-bridge new-bridge))
-              (vertical (set! vertical-bridge new-bridge)))
+              ((horizontal) (set! horizontal-bridge new-bridge))
+              ((vertical) (set! vertical-bridge new-bridge)))
              'done)
 
            (get-raw-importance () raw-importance)
@@ -329,14 +329,14 @@
            (get-intra-string-unhappiness () intra-string-unhappiness)
            (get-inter-string-unhappiness (bridge-orientation)
              (case bridge-orientation
-              (horizontal horizontal-inter-string-unhappiness)
-              (vertical vertical-inter-string-unhappiness)))
+              ((horizontal) horizontal-inter-string-unhappiness)
+              ((vertical) vertical-inter-string-unhappiness)))
            (get-average-unhappiness () average-unhappiness)
            (get-intra-string-salience () intra-string-salience)
            (get-inter-string-salience (bridge-orientation)
              (case bridge-orientation
-              (horizontal horizontal-inter-string-salience)
-              (vertical vertical-inter-string-salience)))
+              ((horizontal) horizontal-inter-string-salience)
+              ((vertical) vertical-inter-string-salience)))
            (get-average-salience () average-salience)
 
            (get-nesting-level ()
@@ -442,66 +442,66 @@
               (cond
                 ((tell self 'spans-whole-string?) 0)
                 ((exists? enclosing-group)
-                 (100- (tell enclosing-group 'get-strength)))
+                 ($100- (tell enclosing-group 'get-strength)))
                 (else
                   (let ((bonds (tell self 'get-incident-bonds)))
                     (cond
                      ((null? bonds) 100)
                      ((or (tell self 'leftmost-in-string?)
                           (tell self 'rightmost-in-string?))
-                      (100- (round (* 1/3 (tell (1st bonds) 'get-strength)))))
-                     (else (100- (round (* 1/6 (sum (tell-all bonds
-                                                     'get-strength)))))))))))
+                      ($100- (round (* 1/3 (tell (first bonds) 'get-strength)))))
+                     (else ($100- (round (* 1/6 (sum (tell-all bonds
+                                                      'get-strength)))))))))))
              'done)
 
            (update-inter-string-unhappiness ()
              (let ((horizontal-weakness
                     (cond
                      ((exists? horizontal-bridge)
-                      (100- (tell horizontal-bridge 'get-strength)))
+                      ($100- (tell horizontal-bridge 'get-strength)))
                      ((exists? enclosing-group)
                       (let ((h (tell enclosing-group 'get-bridge 'horizontal)))
                         (if (exists? h)
-                          (100- (* 1/2 (tell h 'get-strength)))
+                          ($100- (* 1/2 (tell h 'get-strength)))
                           100)))
                      (else 100)))
                    (vertical-weakness
                      (cond
                       ((exists? vertical-bridge)
-                       (100- (tell vertical-bridge 'get-strength)))
+                       ($100- (tell vertical-bridge 'get-strength)))
                       ((exists? enclosing-group)
                        (let ((v (tell enclosing-group 'get-bridge 'vertical)))
                          (if (exists? v)
-                           (100- (* 1/2 (tell v 'get-strength)))
+                           ($100- (* 1/2 (tell v 'get-strength)))
                            100)))
                       (else 100))))
               (case (tell string 'get-string-type)
-                (initial
+                ( (initial)
                   (set! horizontal-inter-string-unhappiness horizontal-weakness)
                   (set! vertical-inter-string-unhappiness vertical-weakness))
-                (modified
+                ( (modified)
                   (set! horizontal-inter-string-unhappiness horizontal-weakness))
-                (target
+                ( (target)
                   (set! vertical-inter-string-unhappiness vertical-weakness)
                   (if* %justify-mode%
                     (set! horizontal-inter-string-unhappiness horizontal-weakness)))
-                (answer
+                ( (answer)
                   (set! horizontal-inter-string-unhappiness horizontal-weakness))))
              'done)
 
            (update-average-unhappiness ()
              (set! average-unhappiness
               (round (case (tell string 'get-string-type)
-                      (initial
+                      ( (initial)
                         (average
                           intra-string-unhappiness
                           horizontal-inter-string-unhappiness
                           vertical-inter-string-unhappiness))
-                      (modified
+                      ( (modified)
                         (average
                           intra-string-unhappiness
                           horizontal-inter-string-unhappiness))
-                      (target
+                      ( (target)
                         (if %justify-mode%
                           (average
                             intra-string-unhappiness
@@ -510,8 +510,8 @@
                           (average
                             intra-string-unhappiness
                             vertical-inter-string-unhappiness)))
-                      (answer
-                       (average
+                      ( (answer)
+                        (average
                          intra-string-unhappiness
                          horizontal-inter-string-unhappiness)))))
              'done)
@@ -525,8 +525,8 @@
              (set! intra-string-salience
               (if salience-clamped?
                 100
-                (round (+ (80% intra-string-unhappiness)
-                        (20% relative-importance)))))
+                (round (+ ($80% intra-string-unhappiness)
+                        ($20% relative-importance)))))
              'done)
 
            (update-inter-string-salience ()
@@ -536,42 +536,42 @@
                 (set! vertical-inter-string-salience 100))
               ((tell string 'string-type? 'initial)
                (set! horizontal-inter-string-salience
-                 (round (+ (20% horizontal-inter-string-unhappiness)
-                         (80% relative-importance))))
+                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                         ($80% relative-importance))))
                (set! vertical-inter-string-salience
-                 (round (+ (20% vertical-inter-string-unhappiness)
-                         (80% relative-importance)))))
+                 (round (+ ($20% vertical-inter-string-unhappiness)
+                         ($80% relative-importance)))))
               ((tell string 'string-type? 'modified)
                (set! horizontal-inter-string-salience
-                 (round (+ (20% horizontal-inter-string-unhappiness)
-                         (80% relative-importance)))))
+                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                         ($80% relative-importance)))))
               ((tell string 'string-type? 'target)
                (set! vertical-inter-string-salience
-                 (round (+ (20% vertical-inter-string-unhappiness)
-                         (80% relative-importance))))
+                 (round (+ ($20% vertical-inter-string-unhappiness)
+                         ($80% relative-importance))))
                (if* %justify-mode%
                  (set! horizontal-inter-string-salience
-                   (round (+ (20% horizontal-inter-string-unhappiness)
-                           (80% relative-importance))))))
+                   (round (+ ($20% horizontal-inter-string-unhappiness)
+                           ($80% relative-importance))))))
               ((tell string 'string-type? 'answer)
                (set! horizontal-inter-string-salience
-                 (round (+ (20% horizontal-inter-string-unhappiness)
-                         (80% relative-importance))))))
+                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                         ($80% relative-importance))))))
              'done)
 
            (update-average-salience ()
              (set! average-salience
               (round (case (tell string 'get-string-type)
-                      (initial
+                      ( (initial)
                         (average
                           intra-string-salience
                           horizontal-inter-string-salience
                           vertical-inter-string-salience))
-                      (modified
+                      ( (modified)
                         (average
                           intra-string-salience
                           horizontal-inter-string-salience))
-                      (target
+                      ( (target)
                         (if %justify-mode%
                           (average
                             intra-string-salience
@@ -580,7 +580,7 @@
                           (average
                             intra-string-salience
                             vertical-inter-string-salience)))
-                      (answer
+                      ( (answer)
                         (average
                           intra-string-salience
                           horizontal-inter-string-salience)))))

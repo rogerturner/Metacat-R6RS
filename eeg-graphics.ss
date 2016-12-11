@@ -74,7 +74,7 @@
            (get-values #f)
            (next #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'EEG)
            (print ()
@@ -97,18 +97,18 @@
              (average
               (if (null? args)
                 (tell self 'get-previous-values value-index)
-                (tell self 'get-previous-values value-index (1st args)))))
+                (tell self 'get-previous-values value-index (first args)))))
            (get-max-variation (value-index . args)
              (let ((previous-values
                     (if (null? args)
                      (tell self 'get-previous-values value-index)
-                     (tell self 'get-previous-values value-index (1st args)))))
+                     (tell self 'get-previous-values value-index (first args)))))
               (abs (- (maximum previous-values) (minimum previous-values)))))
            (get-previous-values (value-index . args)
              (let ((spread-size
                     (if (null? args)
                      %EEG-buffer-size%
-                     (min (1st args) %EEG-buffer-size%)))
+                     (min (first args) %EEG-buffer-size%)))
                    (previous-values '()))
               (for* i from 1 to spread-size do
                 (set! previous-values
@@ -118,8 +118,8 @@
                     previous-values)))
               previous-values))
            (initialize ()
-             (set! initial-values (map 4th %EEG-table%))
-             (set! value-procs (map 6th %EEG-table%))
+             (set! initial-values (map fourth %EEG-table%))
+             (set! value-procs (map sixth %EEG-table%))
              (set! get-values (lambda () (map (lambda (f) (f)) value-procs)))
              (set! circular-array (make-vector %EEG-buffer-size% initial-values))
              (set! next 0)
@@ -131,11 +131,11 @@
     (let* ((width
             (if (null? optional-args)
               %EEG-window-width%
-              (1st optional-args)))
+              (first optional-args)))
            (height
              (if (< (length optional-args) 2)
                %EEG-window-height%
-               (2nd optional-args)))
+               (second optional-args)))
            (window (new-EEG-window width height)))
       (tell window 'initialize)
       window)))
@@ -143,7 +143,7 @@
 (define new-EEG-window
   (lambda (x-pixels y-pixels)
     (select-EEG-font x-pixels y-pixels)
-    (let* ((plot? 5th)
+    (let* ((plot? fifth)
            (graphics-window
              (make-horizontal-scrollable-graphics-window
                x-pixels y-pixels %virtual-EEG-length% %EEG-background-color%))
@@ -166,7 +166,7 @@
       (if* (exists? %EEG-window-title%)
        (tell graphics-window 'set-window-title %EEG-window-title%))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'EEG-window)
            (plot-current-values ()
@@ -190,7 +190,7 @@
               (format " ~a "
                 (punctuate
                   (filter-map plot?
-                    (lambda (entry) (format "~a (~a)" (2nd entry) (3rd entry)))
+                    (lambda (entry) (format "~a (~a)" (second entry) (third entry)))
                     %EEG-table%))))
              (tell graphics-window 'clear)
              (tell graphics-window 'draw
@@ -199,11 +199,11 @@
                          (text-justification center))
                  (text (,title-x ,title-y) ,title))
               'title)
-             (set! entries-to-plot (filter-map plot? 1st %EEG-table%))
-             (set! colors (filter-map plot? 3rd %EEG-table%))
+             (set! entries-to-plot (filter-map plot? first %EEG-table%))
+             (set! colors (filter-map plot? third %EEG-table%))
              (set! previous-points
               (filter-map plot?
-                (lambda (entry) `(0 ,(* (% (4th entry)) max-height)))
+                (lambda (entry) `(0 ,(* (% (fourth entry)) max-height)))
                 %EEG-table%))
              (set! num-cycles 0)
              (set! pexps '())

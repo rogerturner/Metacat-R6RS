@@ -40,7 +40,7 @@
     (let* ((width
             (if (null? optional-args)
               %default-coderack-width%
-              (1st optional-args)))
+              (first optional-args)))
            (window (new-coderack-window width)))
       (tell window 'initialize)
       window)))
@@ -85,7 +85,7 @@
       (if* (exists? %coderack-window-title%)
        (tell graphics-window 'set-window-title %coderack-window-title%))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'coderack-window)
            (get-display-state () display-state)
@@ -163,10 +163,10 @@
                      (label-pexp
                       (if (= (length labels) 1)
                         `(let-sgl ((font ,%coderack-codelet-type-font%))
-                           (text (,label-x ,mid-label-y) ,(1st labels)))
+                           (text (,label-x ,mid-label-y) ,(first labels)))
                         `(let-sgl ((font ,%coderack-codelet-type-font%))
-                           (text (,label-x ,top-label-y) ,(1st labels))
-                           (text (,label-x ,bot-label-y) ,(2nd labels)))))
+                           (text (,label-x ,top-label-y) ,(first labels))
+                           (text (,label-x ,bot-label-y) ,(second labels)))))
                      (slot-pexp
                       `(let-sgl ()
                          (line (0 ,top-y) (,slot-right ,top-y))
@@ -341,7 +341,7 @@
              (tell self 'blank-window title)
              (for* each pattern in codelet-patterns do
               (for* each entry in (rest pattern) do
-                (tell (1st entry) 'display-urgency (2nd entry))))
+                (tell (first entry) 'display-urgency (second entry))))
              (set! display-state 'pattern)
              'done)
            (restore-current-state ()

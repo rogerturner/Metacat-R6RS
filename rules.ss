@@ -80,8 +80,8 @@
            (extrinsic-rule-clauses (filter extrinsic-clause? rule-clauses))
            (bridge-theme-type
              (case rule-type
-               (top 'top-bridge)
-               (bottom 'bottom-bridge)))
+               ((top) 'top-bridge)
+               ((bottom) 'bottom-bridge)))
            (rule-clause-templates #f)
            (theme-pattern #f)
            (tagged-supporting-horizontal-bridges #f)
@@ -100,7 +100,7 @@
            (rule-graphics-center-coord #f)
            (rule-graphics-height #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'rule)
            (get-rule-type () rule-type)
@@ -145,7 +145,7 @@
              (set! tagged-supporting-horizontal-bridges
               (map get-tagged-supporting-horizontal-bridges templates))
              (set! supporting-horizontal-bridges
-              (apply append (map 2nd tagged-supporting-horizontal-bridges)))
+              (apply append (map second tagged-supporting-horizontal-bridges)))
              (for* each bridge in supporting-horizontal-bridges do
               (if* (tell bridge 'slippage-type-present? plato-length)
                 (let ((object1 (tell bridge 'get-object1))
@@ -201,11 +201,11 @@
              (set! intrinsic-quality (compute-rule-intrinsic-quality self))
              (set! quality (compute-rule-quality self))
              'done)
-           (get-verbatim-letter-categories () (2nd (1st rule-clauses)))
+           (get-verbatim-letter-categories () (second (first rule-clauses)))
            (identity? () (null? rule-clauses))
            (verbatim? ()
              (and (= (length rule-clauses) 1)
-              (verbatim-clause? (1st rule-clauses))))
+              (verbatim-clause? (first rule-clauses))))
            (literal? ()
              (and (not (tell self 'verbatim?)) (ormap literal-clause? rule-clauses)))
            (abstract? ()
@@ -223,23 +223,23 @@
            (currently-works? ()
              (let* ((string1
                      (case rule-type
-                      (top *initial-string*)
-                      (bottom *target-string*)))
+                      ((top) *initial-string*)
+                      ((bottom) *target-string*)))
                     (string2
                       (case rule-type
-                       (top *modified-string*)
-                       (bottom *answer-string*)))
+                       ((top) *modified-string*)
+                       ((bottom) *answer-string*)))
                     (result (apply-rule self string1 ignore-snag)))
               (and (exists? result)
                    (equal? (tell string1 'generate-image-letters)
                            (tell string2 'get-letter-categories)))))
            (equal? (rule) (rules-equal? self rule))
            (get-degree-of-support ()
-             (100* (product
-                    (map (lambda (b)
-                          (% (tell (tell *workspace* 'get-equivalent-bridge b)
-                              'get-strength)))
-                     supporting-horizontal-bridges))))
+             ($100* (product
+                     (map (lambda (b)
+                           (% (tell (tell *workspace* 'get-equivalent-bridge b)
+                               'get-strength)))
+                      supporting-horizontal-bridges))))
            (get-quality () quality)
            (get-relative-quality ()
              (let ((ranked-rules
@@ -247,7 +247,7 @@
                      (tell *workspace* 'get-rules rule-type))))
               (if (member? self ranked-rules)
                 (let ((rank (+ 1 (list-index ranked-rules self))))
-                  (100* (/ rank (length ranked-rules))))
+                  ($100* (/ rank (length ranked-rules))))
                 quality)))
            (get-uniformity () uniformity)
            (get-abstractness () abstractness)
@@ -280,7 +280,7 @@
                   (tell proposed-rule 'get-tagged-supporting-horizontal-bridges)))
               (set! supporting-horizontal-bridges
                 (remq-duplicates
-                  (apply append (map 2nd tagged-supporting-horizontal-bridges)))))
+                  (apply append (map second tagged-supporting-horizontal-bridges)))))
              (set! theme-pattern (tell proposed-rule 'get-theme-pattern))
              'done)
            (calculate-internal-strength () (tell self 'get-relative-quality))
@@ -288,7 +288,7 @@
            (else (delegate msg workspace-structure))))))))
 
 
-(define unsupported-self-change? 1st)
+(define unsupported-self-change? first)
 
 
 ;; This returns a list of the form (<boolean> (<bridge> ...)), where
@@ -308,7 +308,7 @@
     (record-case rule-clause-template
       (extrinsic (ref-objects dimensions)
        (if (= (length ref-objects) 1)
-         (list #f (tell (1st ref-objects) 'get-subobject-bridges 'horizontal))
+         (list #f (tell (first ref-objects) 'get-subobject-bridges 'horizontal))
          (list #f (tell-all ref-objects 'get-bridge 'horizontal))))
       (intrinsic (ref-object change-templates)
        (let* ((self-bridge
@@ -316,11 +316,11 @@
                  #f
                  (tell ref-object 'get-bridge 'horizontal)))
               (subobject-bridges
-               (if (ormap (lambda (ct) (eq? (1st ct) 'subobjects)) change-templates)
+               (if (ormap (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
                  (tell ref-object 'get-subobject-bridges 'horizontal)
                  '()))
               (change-self?
-               (ormap (lambda (ct) (eq? (1st ct) 'self)) change-templates))
+               (ormap (lambda (ct) (eq? (first ct) 'self)) change-templates))
               (supporting-bridges
                (if change-self?
                  (if (exists? self-bridge)
@@ -337,7 +337,7 @@
     (record-case rule-clause-template
       (extrinsic (ref-objects dimensions)
        (if (= (length ref-objects) 1)
-         (tell (1st ref-objects) 'get-subobject-bridges 'horizontal)
+         (tell (first ref-objects) 'get-subobject-bridges 'horizontal)
          (tell-all ref-objects 'get-bridge 'horizontal)))
       (intrinsic (ref-object change-templates)
        (let* ((self-bridge
@@ -345,11 +345,11 @@
                  #f
                  (tell ref-object 'get-bridge 'horizontal)))
               (subobject-bridges
-               (if (ormap (lambda (ct) (eq? (1st ct) 'subobjects)) change-templates)
+               (if (ormap (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
                  (tell ref-object 'get-subobject-bridges 'horizontal)
                  '()))
               (change-self?
-               (ormap (lambda (ct) (eq? (1st ct) 'self)) change-templates)))
+               (ormap (lambda (ct) (eq? (first ct) 'self)) change-templates)))
          (if change-self?
            (if (exists? self-bridge)
              (cons self-bridge subobject-bridges)
@@ -374,20 +374,20 @@
 
 (define rule-clauses-equal?
   (lambda (rc1 rc2)
-    (and (eq? (1st rc1) (1st rc2))
-         (= (length (2nd rc1)) (length (2nd rc2)))
+    (and (eq? (first rc1) (first rc2))
+         (= (length (second rc1)) (length (second rc2)))
      (if (verbatim-clause? rc1)
-       (equal? (2nd rc1) (2nd rc2))
-       (and (andmap object-descriptions-equal? (2nd rc1) (2nd rc2))
-            (equal? (3rd rc1) (3rd rc2)))))))
+       (equal? (second rc1) (second rc2))
+       (and (andmap object-descriptions-equal? (second rc1) (second rc2))
+            (equal? (third rc1) (third rc2)))))))
 
 (define object-descriptions-equal?
   (lambda (od1 od2)
-    (and (or (eq? (1st od1) (1st od2))
-          (and (or (eq? (1st od1) plato-group) (eq? (1st od1) 'string))
-               (or (eq? (1st od2) plato-group) (eq? (1st od2) 'string))))
-         (eq? (2nd od1) (2nd od2))
-     (eq? (3rd od1) (3rd od2)))))
+    (and (or (eq? (first od1) (first od2))
+          (and (or (eq? (first od1) plato-group) (eq? (first od1) 'string))
+               (or (eq? (first od2) plato-group) (eq? (first od2) 'string))))
+         (eq? (second od1) (second od2))
+     (eq? (third od1) (third od2)))))
 
 
 ;;--------------------------------- Rule Codelets --------------------------------------
@@ -400,8 +400,8 @@
       (let* ((rule-type (if %justify-mode% (random-pick '(top bottom)) 'top))
              (letter-categories
                (case rule-type
-                (top (tell *modified-string* 'get-letter-categories))
-                (bottom (tell *answer-string* 'get-letter-categories))))
+                ((top) (tell *modified-string* 'get-letter-categories))
+                ((bottom) (tell *answer-string* 'get-letter-categories))))
              (rule-clauses (list (list 'verbatim letter-categories)))
              (proposed-rule (make-rule rule-type rule-clauses)))
        (say "Proposing a verbatim " rule-type " rule...")
@@ -447,8 +447,8 @@
     (andmap
       (lambda (template)
        (if (intrinsic-clause? template)
-         (object-description-possible? (2nd template))
-         (andmap object-description-possible? (2nd template))))
+         (object-description-possible? (second template))
+         (andmap object-description-possible? (second template))))
       rule-clause-templates)))
 
 
@@ -465,7 +465,7 @@
       (fizzle))
     (tell proposed-rule 'update-strength)
     (let ((strength (tell proposed-rule 'get-strength)))
-      (stochastic-if* (1- (% strength))
+      (stochastic-if* ($1- (% strength))
        (say "Proposed rule not strong enough. Fizzling.")
        (fizzle))
       (tell proposed-rule 'update-proposal-level %evaluated%)
@@ -495,11 +495,11 @@
   (lambda (rule)
     (for* each clause in (tell rule 'get-rule-clauses) do
       (if* (not (verbatim-clause? clause))
-       (for* each object-description in (2nd clause) do
-         (tell (3rd object-description) 'activate-from-workspace))
+       (for* each object-description in (second clause) do
+         (tell (third object-description) 'activate-from-workspace))
        (if* (intrinsic-clause? clause)
-         (for* each change in (3rd clause) do
-           (tell (3rd change) 'activate-from-workspace)))))))
+         (for* each change in (third clause) do
+           (tell (third change) 'activate-from-workspace)))))))
 
 
 ;;-------------------------------- Rule Abstraction -----------------------------------
@@ -665,11 +665,11 @@
 
 (define get-left-enclosing-object
   (lambda (bridges)
-    (get-enclosing-object (tell (1st bridges) 'get-object1))))
+    (get-enclosing-object (tell (first bridges) 'get-object1))))
 
 (define get-right-enclosing-object
   (lambda (bridges)
-    (get-enclosing-object (tell (1st bridges) 'get-object2))))
+    (get-enclosing-object (tell (first bridges) 'get-object2))))
 
 (define get-enclosing-object
   (lambda (object)
@@ -723,13 +723,13 @@
 
 (define concept-mappings->schema
   (lambda (concept-mappings)
-    (let* ((cm-type (tell (1st concept-mappings) 'get-CM-type))
+    (let* ((cm-type (tell (first concept-mappings) 'get-CM-type))
            (labels (tell-all concept-mappings 'get-label))
            (descriptor1s (tell-all concept-mappings 'get-descriptor1))
            (descriptor2s (tell-all concept-mappings 'get-descriptor2))
-           (common-relation (if (all-same? labels) (1st labels) #f))
-           (common-descriptor1 (if (all-same? descriptor1s) (1st descriptor1s) #f))
-           (common-descriptor2 (if (all-same? descriptor2s) (1st descriptor2s) #f)))
+           (common-relation (if (all-same? labels) (first labels) #f))
+           (common-descriptor1 (if (all-same? descriptor1s) (first descriptor1s) #f))
+           (common-descriptor2 (if (all-same? descriptor2s) (first descriptor2s) #f)))
       (if (or (exists? common-relation) (exists? common-descriptor2))
        (list cm-type common-descriptor1 common-relation common-descriptor2)
        #f))))
@@ -744,10 +744,10 @@
       (if (exists? (schema-desc2 s)) (tell (schema-desc2 s) 'get-short-name) "*"))))
 
 
-(define schema-dim 1st)
-(define schema-desc1 2nd)
-(define schema-relation 3rd)
-(define schema-desc2 4th)
+(define schema-dim first)
+(define schema-desc1 second)
+(define schema-relation third)
+(define schema-desc2 fourth)
 
 
 ;;------------------------------------- Swaps -----------------------------------------
@@ -773,39 +773,39 @@
            (= (length from-descriptors) 2))
        (list
          (tell-all slippages 'get-object1)
-         (tell (1st slippages) 'get-CM-type)
+         (tell (first slippages) 'get-CM-type)
          from-descriptors)
        #f))))
 
 
 (define select-swap
   (lambda (dimension swaps)
-    (select (lambda (s) (eq? (2nd s) dimension)) swaps)))
+    (select (lambda (s) (eq? (second s) dimension)) swaps)))
 
 
-(define swap-objs 1st)
-(define swap-dim 2nd)
-(define swap-descs 3rd)
+(define swap-objs first)
+(define swap-dim second)
+(define swap-descs third)
 
 
 ;;-------------------------------------------------------------------------------------
 
 (define change-descriptions->rule-clause-template
   (lambda (change-descriptions)
-    (case (tell (1st change-descriptions) 'object-type)
-      (intrinsic-change-description
-       (let ((ref-object (tell (1st change-descriptions) 'get-reference-object))
-             (BondFacet-change (tell (1st change-descriptions) 'get-BondFacet-change))
+    (case (tell (first change-descriptions) 'object-type)
+      ((intrinsic-change-description)
+       (let ((ref-object (tell (first change-descriptions) 'get-reference-object))
+             (BondFacet-change (tell (first change-descriptions) 'get-BondFacet-change))
              (change-templates (tell-all change-descriptions 'make-change-template)))
          (if (exists? BondFacet-change)
            (list 'intrinsic ref-object (cons BondFacet-change change-templates))
            (list 'intrinsic ref-object change-templates))))
-      (extrinsic-change-description
+      ((extrinsic-change-description)
        (list 'extrinsic
          (if (ormap-meth change-descriptions 'subobjects-swap?)
-           (list (tell (1st change-descriptions) 'get-enclosing-object))
+           (list (tell (first change-descriptions) 'get-enclosing-object))
            (sort-by-method 'get-left-string-pos <
-             (tell (1st change-descriptions) 'get-reference-objects)))
+             (tell (first change-descriptions) 'get-reference-objects)))
          (tell-all change-descriptions 'get-dimension))))))
 
 
@@ -817,25 +817,25 @@
       (lambda (t1 t2)
        (or (and (intrinsic-clause? t1) (extrinsic-clause? t2))
            (and (extrinsic-clause? t1) (extrinsic-clause? t2)
-                (> (length (3rd t1)) (length (3rd t2))))
+                (> (length (third t1)) (length (third t2))))
            (and (intrinsic-clause? t1) (intrinsic-clause? t2)
-                (or (tell (2nd t2) 'nested-member? (2nd t1))
-                 (and (disjoint-objects? (2nd t1) (2nd t2))
-                      (< (tell (2nd t1) 'get-left-string-pos)
-                       (tell (2nd t2) 'get-left-string-pos)))))))
+                (or (tell (second t2) 'nested-member? (second t1))
+                 (and (disjoint-objects? (second t1) (second t2))
+                      (< (tell (second t1) 'get-left-string-pos)
+                       (tell (second t2) 'get-left-string-pos)))))))
       rule-clause-templates)))
 
 
 (define intrinsic-clause?
-  (lambda (rc) (eq? (1st rc) 'intrinsic)))
+  (lambda (rc) (eq? (first rc) 'intrinsic)))
 
 
 (define extrinsic-clause?
-  (lambda (rc) (eq? (1st rc) 'extrinsic)))
+  (lambda (rc) (eq? (first rc) 'extrinsic)))
 
 
 (define verbatim-clause?
-  (lambda (rc) (eq? (1st rc) 'verbatim)))
+  (lambda (rc) (eq? (first rc) 'verbatim)))
 
 
 (define literal-clause?
@@ -850,13 +850,13 @@
 
 (define literal-object-description?
   (lambda (object-description)
-    (member? (2nd object-description)
+    (member? (second object-description)
       (list plato-alphabetic-position-category plato-letter-category plato-length))))
 
 
 (define literal-change?
   (lambda (change)
-    (platonic-literal? (3rd change))))
+    (platonic-literal? (third change))))
 
 
 (define instantiate-rule-clause-template
@@ -889,9 +889,9 @@
 (define instantiate-change-template
   (lambda (object-description)
     (lambda (change-template)
-      (let* ((scope (1st change-template))
-             (dimension (2nd change-template))
-             (possible-descriptors (3rd change-template))
+      (let* ((scope (first change-template))
+             (dimension (second change-template))
+             (possible-descriptors (third change-template))
              (chosen-descriptor
                (stochastic-pick
                 possible-descriptors
@@ -903,9 +903,9 @@
     ;; This avoids rules such as "Change LettCtgy of object with
     ;; LettCtgy `c' to successor" by substituting the literal
     ;; descriptor (i.e., `d') for the relation:
-         (if (and (eq? dimension (2nd object-description))
+         (if (and (eq? dimension (second object-description))
               (platonic-relation? chosen-descriptor))
-           (tell (3rd object-description) 'get-related-node chosen-descriptor)
+           (tell (third object-description) 'get-related-node chosen-descriptor)
            chosen-descriptor))))))
       
 
@@ -924,10 +924,10 @@
 (define sort-change-templates
   (lambda (change-templates)
     (sort (lambda (ct1 ct2)
-           (or (and (eq? (1st ct1) 'self) (eq? (1st ct2) 'subobjects))
-               (and (eq? (1st ct1) (1st ct2))
-                (< (list-index *rule-dimension-order* (2nd ct1))
-                   (list-index *rule-dimension-order* (2nd ct2))))))
+           (or (and (eq? (first ct1) 'self) (eq? (first ct2) 'subobjects))
+               (and (eq? (first ct1) (first ct2))
+                (< (list-index *rule-dimension-order* (second ct1))
+                   (list-index *rule-dimension-order* (second ct2))))))
       change-templates)))
 
 
@@ -952,20 +952,20 @@
                  (make-intrinsic-change-description
                    obj 'self dimension #f #f
                    (if (eq? (tell obj 'get-descriptor-for dimension)
-                        (1st descriptors))
-                     (2nd descriptors)
-                     (1st descriptors))))
+                        (first descriptors))
+                     (second descriptors)
+                     (first descriptors))))
              reference-objects))
           (subobjects-swap? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'extrinsic-change-description)
            (print ()
              (printf "CD: Swap ~a of ~a~n"
               (tell dimension 'get-short-name)
               (apply string-append
-                (cons (tell (1st reference-objects) 'ascii-name)
+                (cons (tell (first reference-objects) 'ascii-name)
                   (map (lambda (obj) (format ", ~a" (tell obj 'ascii-name)))
                     (rest reference-objects))))))
            (intrinsic? () #f)
@@ -982,7 +982,7 @@
              (sets-equal? reference-objects (tell ec 'get-reference-objects)))
            (common-reference-object? (ic)
              (member? (tell ic 'get-reference-object) reference-objects))
-           (get-enclosing-object () (get-enclosing-object (1st reference-objects)))
+           (get-enclosing-object () (get-enclosing-object (first reference-objects)))
            (subobjects-swap? () subobjects-swap?)
            (mark-as-subobjects-swap-if-possible ()
              (if* (sets-equal?
@@ -1001,7 +1001,7 @@
               #f
               (get-enclosing-object reference-object))))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'intrinsic-change-description)
            (print ()
@@ -1120,7 +1120,7 @@
 
 ;; Rule-abstraction Heuristics
 ;; ---------------------------
-;; (see pages 110-113 of my PhD thesis for an explanation of all this)
+;; (see pages 1$10-113 of my PhD thesis for an explanation of all this)
 ;;
 ;; (intrinsic-implies-intrinsic? ic1 ic2) is true iff intrinsic change ic2 is already
 ;; implicit in intrinsic change ic1. The possible cases are described below:
@@ -1273,7 +1273,7 @@
                    (abort #f))))
               (string-position-swaps
                (filter
-                 (lambda (x) (eq? (1st x) plato-string-position-category))
+                 (lambda (x) (eq? (first x) plato-string-position-category))
                  extrinsic-transforms))
               (extrinsic-object-transform-pairs
                (remq-elements string-position-swaps extrinsic-transforms))
@@ -1290,11 +1290,11 @@
              (abort #f)))
          (let ((transforms-grouped-by-object
                 (sort (lambda (ot1 ot2)
-                       (> (tell (1st ot1) 'get-nesting-level)
-                          (tell (1st ot2) 'get-nesting-level)))
-                  (map (lambda (p) (list (1st (1st p)) (map 2nd p)))
+                       (> (tell (first ot1) 'get-nesting-level)
+                          (tell (first ot2) 'get-nesting-level)))
+                  (map (lambda (p) (list (first (first p)) (map second p)))
                     (partition
-                     (lambda (ot1 ot2) (eq? (1st ot1) (1st ot2)))
+                     (lambda (ot1 ot2) (eq? (first ot1) (first ot2)))
                      all-object-transform-pairs))))
                (fail (lambda (object)
                       (lambda (transform)
@@ -1308,12 +1308,12 @@
       ;; in the rule, including all StrPosCtgy changes.  Deepest-level objects
       ;; are transformed first ("inside-out" order).
            (for* each l in transforms-grouped-by-object do
-             (let ((object (1st l))
-                   (transforms (2nd l)))
+             (let ((object (first l))
+                   (transforms (second l)))
               (apply-transforms transforms (tell object 'get-image) (fail object))))
            (for* each swap in string-position-swaps do
-             (let ((object1 (2nd swap))
-                   (object2 (3rd swap)))
+             (let ((object1 (second swap))
+                   (object2 (third swap)))
               (apply-string-position-swap object1 object2)))
            transforms-grouped-by-object))))))
 
@@ -1323,7 +1323,7 @@
     (let ((equivalent-change-descriptions
            (map (lambda (ot)
                  (make-intrinsic-change-description
-                   (1st ot) 'self (1st (2nd ot)) #f #f (2nd (2nd ot))))
+                   (first ot) 'self (first (second ot)) #f #f (second (second ot))))
              object-transform-pairs)))
       (pairwise-map
        (lambda (ic1 ic2)
@@ -1343,8 +1343,8 @@
     (let ((ordered-transforms
            (sort (apply-before? (tell image 'get-length)) transforms)))
       (for* each transform in ordered-transforms do
-       (if (eq? (1st transform) plato-group-category)
-         (let* ((medium (2nd (assq plato-bond-facet transforms)))
+       (if (eq? (first transform) plato-group-category)
+         (let* ((medium (second (assq plato-bond-facet transforms)))
                 (GroupCtgy-transform (list plato-group-category plato-opposite medium)))
            (transform-image image GroupCtgy-transform (fail GroupCtgy-transform)))
          (transform-image image transform (fail transform)))))))
@@ -1365,38 +1365,38 @@
 
 (define transform-image
   (lambda (image transform fail)
-    (let ((dimension (1st transform))
-          (descriptor (2nd transform)))
+    (let ((dimension (first transform))
+          (descriptor (second transform)))
       (case (tell dimension 'get-name-symbol)
-       (plato-object-category
+       ( (plato-object-category)
          (if (eq? descriptor plato-letter)
            (tell image 'letter fail)
            (tell image 'group fail)))
-       (plato-letter-category
+       ( (plato-letter-category)
          (tell image 'new-start-letter descriptor fail))
-       (plato-length
+       ( (plato-length)
          (tell image 'new-length descriptor fail))
-       (plato-direction-category
+       ( (plato-direction-category)
          (tell image 'reverse-direction fail))
-       (plato-group-category
-         (tell image 'reverse-medium (3rd transform) fail))
-       (plato-alphabetic-position-category
+       ( (plato-group-category)
+         (tell image 'reverse-medium (third transform) fail))
+       ( (plato-alphabetic-position-category)
          (tell image 'new-alpha-position-category descriptor fail))
   ;; BondFacet "transforms" have no effect:
-       (plato-bond-facet 'done)
+       ( (plato-bond-facet) 'done)
   ;; StrPosCtgy swaps are handled separately:
-       (plato-string-position-category 'done)))))
+       ( (plato-string-position-category) 'done)))))
 
 
 (define apply-before?
   (lambda (platonic-image-length)
     (lambda (t1 t2)
-      (or (eq? (1st t1) plato-group-category)
-       (eq? (2nd t1) plato-letter)
-       (and (eq? (1st t1) plato-length)
-            (change-length-first? (2nd t1) platonic-image-length))
-       (and (eq? (1st t2) plato-length)
-            (not (change-length-first? (2nd t2) platonic-image-length)))))))
+      (or (eq? (first t1) plato-group-category)
+       (eq? (second t1) plato-letter)
+       (and (eq? (first t1) plato-length)
+            (change-length-first? (second t1) platonic-image-length))
+       (and (eq? (first t2) plato-length)
+            (not (change-length-first? (second t2) platonic-image-length)))))))
 
 
 (define apply-string-position-swap
@@ -1423,15 +1423,15 @@
             (let* ((reference-objects
                     (tell string 'get-reference-objects rule-clause))
                    (denoted-objects
-                     (if (= (length (2nd rule-clause)) 1)
+                     (if (= (length (second rule-clause)) 1)
                       (apply append
                         (tell-all reference-objects 'get-constituent-objects))
                       reference-objects))
-                   (dimensions (3rd rule-clause)))
+                   (dimensions (third rule-clause)))
               (cond
                ((< (length denoted-objects) 2) '())
                ((not (pairwise-andmap disjoint-objects? denoted-objects))
-                (fail denoted-objects (1st dimensions)))
+                (fail denoted-objects (first dimensions)))
                (else (apply append
                       (map (get-dimension-transforms denoted-objects fail)
                         dimensions))))))
@@ -1444,7 +1444,7 @@
       (if (eq? dimension plato-string-position-category)
        (if (> (length denoted-objects) 2)
          (fail denoted-objects dimension)
-         (StrPosCtgy-transforms (1st denoted-objects) (2nd denoted-objects)))
+         (StrPosCtgy-transforms (first denoted-objects) (second denoted-objects)))
        (let ((denoted-object-descriptors
     ;; If a Length swap is attempted for a group without a Length
     ;; description, then one is attached (if possible), since this
@@ -1466,10 +1466,10 @@
            (let ((swap-descriptors (remq-duplicates denoted-object-descriptors)))
              (if (> (length swap-descriptors) 2)
               (fail denoted-objects dimension)
-              (let ((swap-descriptor1 (1st swap-descriptors))
+              (let ((swap-descriptor1 (first swap-descriptors))
                     (swap-descriptor2 (if (null? (rest swap-descriptors))
-                                       (1st swap-descriptors)
-                                       (2nd swap-descriptors))))
+                                       (first swap-descriptors)
+                                       (second swap-descriptors))))
                 (map (lambda (object descriptor)
                       (list object
                         (list dimension
@@ -1522,11 +1522,11 @@
     (apply append
       (map (lambda (rule-clause)
             (let* ((ref-objects (tell string 'get-reference-objects rule-clause))
-                   (changes (3rd rule-clause))
+                   (changes (third rule-clause))
                    (self-transforms
-                     (filter-map (lambda (c) (eq? (1st c) 'self)) rest changes))
+                     (filter-map (lambda (c) (eq? (first c) 'self)) rest changes))
                    (subobject-transforms
-                     (filter-map (lambda (c) (eq? (1st c) 'subobjects)) rest changes)))
+                     (filter-map (lambda (c) (eq? (first c) 'subobjects)) rest changes)))
               (if (null? subobject-transforms)
                (cross-product ref-objects self-transforms)
                (let ((all-subobjects
@@ -1559,15 +1559,15 @@
              (changes
                (filter-out
                 (lambda (c)
-                  (or (eq? (2nd c) plato-object-category)
-                      (eq? (2nd c) plato-bond-facet)))
-                (flatmap 3rd intrinsic-clauses)))
+                  (or (eq? (second c) plato-object-category)
+                      (eq? (second c) plato-bond-facet)))
+                (flatmap third intrinsic-clauses)))
              (changes-grouped-by-dimension
                (partition
-                (lambda (c1 c2) (eq? (2nd c1) (2nd c2)))
+                (lambda (c1 c2) (eq? (second c1) (second c2)))
                 changes))
              (all-intrinsic-object-descriptions
-               (flatmap 2nd intrinsic-clauses))
+               (flatmap second intrinsic-clauses))
              (intrinsic-clauses-uniformity
                (if (null? intrinsic-clauses)
                 1
@@ -1580,7 +1580,7 @@
                (if (null? extrinsic-clauses)
                 1
                 (average (map (compose ^3 object-description-uniformity)
-                          (map 2nd extrinsic-clauses)))))
+                          (map second extrinsic-clauses)))))
              (clause-type-uniformity
                (/ (max (count intrinsic-clause? rule-clauses)
                    (count extrinsic-clause? rule-clauses))
@@ -1593,7 +1593,7 @@
                   clause-type-uniformity)
                 (list 5 5 1)))
              (adjusted-uniformity (exp (* 4 (- raw-uniformity 1)))))
-       (100* adjusted-uniformity)))))
+       ($100* adjusted-uniformity)))))
 
 
 (define compute-rule-abstractness
@@ -1604,42 +1604,42 @@
        ((tell rule 'verbatim?) 0)
        (else
          (let* ((object-descriptions
-                 (apply append (map 2nd (tell rule 'get-rule-clauses))))
+                 (apply append (map second (tell rule 'get-rule-clauses))))
                 (intrinsic-changes
-                  (apply append (map 3rd (tell rule 'get-intrinsic-rule-clauses))))
+                  (apply append (map third (tell rule 'get-intrinsic-rule-clauses))))
                 (swap-dimensions
-                  (apply append (map 3rd (tell rule 'get-extrinsic-rule-clauses))))
+                  (apply append (map third (tell rule 'get-extrinsic-rule-clauses))))
                 (average-object-description-type-depth
-                  (average (tell-all (map 2nd object-descriptions)
+                  (average (tell-all (map second object-descriptions)
                             'get-conceptual-depth)))
                 (average-change-descriptor-depth
-                  (average (tell-all (map 3rd intrinsic-changes)
+                  (average (tell-all (map third intrinsic-changes)
                             'get-conceptual-depth)))
                 (average-swap-dimension-depth
                   (average (tell-all swap-dimensions 'get-conceptual-depth))))
-           (100* (adjust-depth (average
-                                (filter-out zero?
-                                  (list
-                                    average-object-description-type-depth
-                                    average-change-descriptor-depth
-                                    average-swap-dimension-depth)))))))))))
+           ($100* (adjust-depth (average
+                                 (filter-out zero?
+                                   (list
+                                     average-object-description-type-depth
+                                     average-change-descriptor-depth
+                                     average-swap-dimension-depth)))))))))))
 
 
 (define compute-rule-succinctness
   (lambda (rule)
     (if (or (tell rule 'identity?) (tell rule 'verbatim?))
       100
-      (100* (/ 4 (+ 3 (sum (map (lambda (rule-clause)
-                                 (cond
-                                   ((intrinsic-clause? rule-clause) 1)
-                                   ((> (length (2nd rule-clause)) 1) 2)
-                                   (else 1)))
-                            (tell rule 'get-rule-clauses)))))))))
+      ($100* (/ 4 (+ 3 (sum (map (lambda (rule-clause)
+                                  (cond
+                                    ((intrinsic-clause? rule-clause) 1)
+                                    ((> (length (second rule-clause)) 1) 2)
+                                    (else 1)))
+                             (tell rule 'get-rule-clauses)))))))))
 
 
 (define object-description-uniformity
   (lambda (object-descriptions)
-    (let ((description-types (map 2nd object-descriptions)))
+    (let ((description-types (map second object-descriptions)))
       (/ (maximum (map length (partition eq? description-types)))
        (length description-types)))))
 
@@ -1649,7 +1649,7 @@
 
 (define change-abstractness-uniformity
   (lambda (changes)
-    (let ((descriptors (map 3rd changes)))
+    (let ((descriptors (map third changes)))
       (* 2 (abs (- (/ (count platonic-relation? descriptors)
                     (length descriptors)) 1/2))))))
 
@@ -1665,15 +1665,15 @@
               (intrinsic-clauses (tell rule 'get-intrinsic-rule-clauses))
               (extrinsic-clauses (tell rule 'get-extrinsic-rule-clauses))
               (object-description-types
-               (map 2nd (apply append (map 2nd rule-clauses))))
+               (map second (apply append (map second rule-clauses))))
               (object-description-depth-factor
                ((sigmoid 3 30)
                 (average (tell-all object-description-types 'get-conceptual-depth))))
               (changes
                (filter-out
-                 (lambda (c) (eq? (2nd c) plato-object-category))
-                 (apply append (map 3rd intrinsic-clauses))))
-              (change-descriptors (map 3rd changes))
+                 (lambda (c) (eq? (second c) plato-object-category))
+                 (apply append (map third intrinsic-clauses))))
+              (change-descriptors (map third changes))
               (change-descriptor-abstractness
                (if (null? change-descriptors)
                  1
@@ -1681,10 +1681,10 @@
                     (length change-descriptors))))
               (changes-grouped-by-dimension
                (partition
-                 (lambda (c1 c2) (eq? (2nd c1) (2nd c2)))
+                 (lambda (c1 c2) (eq? (second c1) (second c2)))
                  changes))
               (intrinsic-object-descriptions
-               (apply append (map 2nd intrinsic-clauses)))
+               (apply append (map second intrinsic-clauses)))
               (intrinsic-clauses-uniformity
                (if (null? intrinsic-clauses)
                  1
@@ -1696,14 +1696,14 @@
                (if (null? extrinsic-clauses)
                  1
                  (average (map (compose ^3 object-description-uniformity)
-                           (map 2nd extrinsic-clauses)))))
+                           (map second extrinsic-clauses)))))
               (raw-uniformity
                (average intrinsic-clauses-uniformity extrinsic-clauses-uniformity))
               (cohesion-factor (exp (* 5 (- raw-uniformity 1)))))
-         (100* (* cohesion-factor
-                (average
-                  object-description-depth-factor
-                  change-descriptor-abstractness))))))))
+         ($100* (* cohesion-factor
+                 (average
+                   object-description-depth-factor
+                   change-descriptor-abstractness))))))))
 
 
 ;;------------------------------ English Transcription -------------------------------
@@ -1714,8 +1714,8 @@
   (lambda (rule-type rule-clauses)
     (let* ((string
             (case rule-type
-              (top *initial-string*)
-              (bottom *target-string*)))
+              ((top) *initial-string*)
+              ((bottom) *target-string*)))
            (clause-strings
              (if (null? rule-clauses)
                (list "Don't change anything")
@@ -1761,9 +1761,9 @@
        (extrinsic (object-descriptions dimensions)
          (list (get-swap-phrase object-descriptions dimensions string)))
        (intrinsic (object-descriptions changes)
-         (let* ((plural? (plural-object-phrase? (1st object-descriptions) string))
+         (let* ((plural? (plural-object-phrase? (first object-descriptions) string))
                 (object-phrase
-                  (get-object-phrase (1st object-descriptions) plural? string))
+                  (get-object-phrase (first object-descriptions) plural? string))
                 (ObjCtgy/Length/LettCtgy-phrases
                   (get-ObjCtgy/Length/LettCtgy-change-phrases
                     object-phrase plural? changes))
@@ -1809,22 +1809,22 @@
 (define get-dimension-phrase
   (lambda (dimension plural?)
     (case (tell dimension 'get-name-symbol)
-      (plato-direction-category (if plural? "directions" "direction"))
-      (plato-group-category (if plural? "group-types" "group-type"))
-      (plato-alphabetic-position-category
+      ((plato-direction-category) (if plural? "directions" "direction"))
+      ((plato-group-category) (if plural? "group-types" "group-type"))
+      ((plato-alphabetic-position-category)
        (if plural? "alphabetic-positions" "alphabetic-position"))
-      (plato-letter-category (if plural? "letter-categories" "letter-category"))
-      (plato-length (if plural? "lengths" "length"))
-      (plato-object-category (if plural? "object-types" "object-type"))
-      (plato-string-position-category (if plural? "positions" "position")))))
+      ((plato-letter-category) (if plural? "letter-categories" "letter-category"))
+      ((plato-length) (if plural? "lengths" "length"))
+      ((plato-object-category) (if plural? "object-types" "object-type"))
+      ((plato-string-position-category) (if plural? "positions" "position")))))
 
 
 (define punctuate
   (lambda (l)
     (cond
       ((null? l) "")
-      ((= (length l) 1) (1st l))
-      ((= (length l) 2) (format "~a and ~a" (1st l) (2nd l)))
+      ((= (length l) 1) (first l))
+      ((= (length l) 2) (format "~a and ~a" (first l) (second l)))
       (else (apply string-append
              (append
               (map (lambda (x) (format "~a, " x)) (all-but-last 1 l))
@@ -1833,8 +1833,8 @@
 
 (define get-object-phrase
   (lambda (object-description plural? string)
-    (let ((object-type (1st object-description))
-          (object-descriptor (3rd object-description)))
+    (let ((object-type (first object-description))
+          (object-descriptor (third object-description)))
       (cond
        ((or (eq? object-type 'string) (eq? object-descriptor plato-whole))
         (if (tell string 'whole-group?) "whole group" "string"))
@@ -1860,9 +1860,9 @@
 (define get-change-phrase
   (lambda (object-phrase plural? BondFacet-change)
     (lambda (change)
-      (let ((scope (1st change))
-            (dimension (2nd change))
-            (descriptor (3rd change)))
+      (let ((scope (first change))
+            (dimension (second change))
+            (descriptor (third change)))
        (cond
          ((eq? dimension plato-direction-category)
           (format "Reverse ~a of ~a~a"
@@ -1873,8 +1873,8 @@
           (if (eq? scope 'self)
             (format "Reverse starting and ending ~a of ~a"
               (cond
-               ((eq? (3rd BondFacet-change) plato-letter-category) "letter-categories")
-               ((eq? (3rd BondFacet-change) plato-length) "lengths"))
+               ((eq? (third BondFacet-change) plato-letter-category) "letter-categories")
+               ((eq? (third BondFacet-change) plato-length) "lengths"))
               object-phrase)
             (format "Reverse starting and ending points of all objects in ~a"
               object-phrase)))
@@ -1890,8 +1890,8 @@
 
 (define ObjCtgy/Length-change?
   (lambda (c)
-    (or (eq? (2nd c) plato-object-category)
-     (eq? (2nd c) plato-length))))
+    (or (eq? (second c) plato-object-category)
+     (eq? (second c) plato-length))))
 
 
 ; Form of ObjCtgy/Length/LettCtgy-change-phrases for all possible combinations of
@@ -2019,14 +2019,14 @@
       (if (not (exists? ObjCtgy-change))
        changes
        (let ((same-scope-LettCtgy-change
-              (select-change plato-letter-category (1st ObjCtgy-change) changes))
+              (select-change plato-letter-category (first ObjCtgy-change) changes))
              (same-scope-Length-change
-              (select-change plato-length (1st ObjCtgy-change) changes)))
+              (select-change plato-length (first ObjCtgy-change) changes)))
          (if (and (exists? same-scope-LettCtgy-change)
-              (platonic-literal? (3rd same-scope-LettCtgy-change))
+              (platonic-literal? (third same-scope-LettCtgy-change))
               (or (not (exists? same-scope-Length-change))
-                  (platonic-literal? (3rd same-scope-Length-change))
-                  (eq? (3rd ObjCtgy-change) plato-letter)))
+                  (platonic-literal? (third same-scope-Length-change))
+                  (eq? (third ObjCtgy-change) plato-letter)))
            (remq same-scope-LettCtgy-change changes)
            changes))))))
 
@@ -2035,7 +2035,7 @@
   (lambda (dimension scope changes)
     (let ((change (select-change dimension scope changes)))
       (if (exists? change)
-       (3rd change)
+       (third change)
        #f))))
 
 
@@ -2044,8 +2044,8 @@
     (select
       (lambda (c)
        (if (exists? scope)
-         (and (eq? (1st c) scope) (eq? (2nd c) dimension))
-         (eq? (2nd c) dimension)))
+         (and (eq? (first c) scope) (eq? (second c) dimension))
+         (eq? (second c) dimension)))
       changes)))
 
 
@@ -2134,37 +2134,37 @@
          (tell-all letter-categories 'get-lowercase-name)))
       (intrinsic (object-descriptions changes)
        (printf "CHANGE ~a~n"
-         (format-object-description (1st object-descriptions)))
+         (format-object-description (first object-descriptions)))
        (for* each change in changes do
          (printf "   (~a ~a ~a)~n"
-           (1st change)
-           (format-slipnode (2nd change))
-           (format-slipnode (3rd change)))))
+           (first change)
+           (format-slipnode (second change))
+           (format-slipnode (third change)))))
       (extrinsic (object-descriptions dimensions)
        (printf "SWAP ~a of~n"
          (apply string-append
-           (cons (format-slipnode (1st dimensions))
+           (cons (format-slipnode (first dimensions))
              (map (lambda (dim) (format ", ~a" (format-slipnode dim)))
               (rest dimensions)))))
        (if (= (length object-descriptions) 1)
          (printf "   subobjects ~a~n"
-           (format-object-description (1st object-descriptions)))
+           (format-object-description (first object-descriptions)))
          (for* each obj-desc in object-descriptions do
            (printf "   ~a~n" (format-object-description obj-desc))))))))
 
 (define format-change-template
   (lambda (ct)
     (format "(~a ~a ~a)"
-      (1st ct)
-      (format-slipnode (2nd ct))
-      (map format-slipnode (3rd ct)))))
+      (first ct)
+      (format-slipnode (second ct))
+      (map format-slipnode (third ct)))))
 
 (define format-object-description
   (lambda (od)
     (format "(~a ~a ~a)"
-      (if (eq? (1st od) 'string) 'string (format-slipnode (1st od)))
-      (format-slipnode (2nd od))
-      (format-slipnode (3rd od)))))
+      (if (eq? (first od) 'string) 'string (format-slipnode (first od)))
+      (format-slipnode (second od))
+      (format-slipnode (third od)))))
 
 (define format-slipnode
   (lambda (node)

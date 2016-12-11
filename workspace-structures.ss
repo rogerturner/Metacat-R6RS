@@ -26,7 +26,7 @@
           (graphics-pexp #f)
           (drawn? #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'workspace-structure)
            (drawn? () drawn?)
@@ -38,7 +38,7 @@
            (get-age () (- *codelet-count* time-stamp))
            (get-enclosing-group () enclosing-group)
            (get-strength () strength)
-           (get-weakness () (100- (expt strength 0.95)))
+           (get-weakness () ($100- (expt strength 0.95)))
            (get-proposal-level () proposal-level)
            (proposed? () (< proposal-level %built%))
            (update-proposal-level (new-level)
@@ -53,14 +53,14 @@
                     (intrinsic-strength
                       (weighted-average
                        (list internal-strength external-strength)
-                       (list internal-strength (100- internal-strength))))
+                       (list internal-strength ($100- internal-strength))))
                     (compatibility (tell self 'get-thematic-compatibility))
                     (thematic-weight (abs compatibility)))
               (set! strength
                 (round
                   (weighted-average
                     (list (if (> compatibility 0) 100 0) intrinsic-strength)
-                    (list thematic-weight (1- thematic-weight))))))
+                    (list thematic-weight ($1- thematic-weight))))))
              'done)
       ;; For structures that lack their own local method:
            (get-thematic-compatibility () 0)

@@ -37,8 +37,8 @@
   (lambda (object1 object2 concept-mappings)
     (let* ((bridge-type
             (case (tell object1 'which-string)
-              (initial 'top)
-              (target 'bottom)))
+              ((initial) 'top)
+              ((target) 'bottom)))
            (theme-type (bridge-type->theme-type bridge-type))
            (workspace-structure (make-workspace-structure))
      ;; bond-CMs = BondCtgy and BondFacet concept-mappings only
@@ -68,7 +68,7 @@
               (tell object2 'get-group-spanning-bridge-graphics-coord 'horizontal))
              (else (tell object2 'get-bridge-graphics-coord 'horizontal)))))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'bridge)
            (get-bridge-type () bridge-type)
@@ -87,9 +87,9 @@
                        " (~a, not drawn)"
                        " (~a)")
                 (case (tell self 'get-proposal-level)
-                  (0 "new")
-                  (1 "proposed")
-                  (2 "evaluated"))))
+                  ((0) "new")
+                  ((1) "proposed")
+                  ((2) "evaluated"))))
              (newline)
              (for* each cm in all-concept-mappings do
               (printf "     ")
@@ -106,9 +106,9 @@
                        " (~a, not drawn)"
                        " (~a)")
                 (case (tell self 'get-proposal-level)
-                  (0 "new")
-                  (1 "proposed")
-                  (2 "evaluated"))))
+                  ((0) "new")
+                  ((1) "proposed")
+                  ((2) "evaluated"))))
              (newline))
            (spanning-bridge? () spanning-bridge?)
            (group-spanning-bridge? () group-spanning-bridge?)
@@ -239,8 +239,8 @@
            (supports-theme-pattern? (pattern)
              (cross-product-ormap
               (lambda (entry cm)
-                (and (eq? (tell cm 'get-CM-type) (1st entry))
-                     (eq? (tell cm 'get-label) (2nd entry))))
+                (and (eq? (tell cm 'get-CM-type) (first entry))
+                     (eq? (tell cm 'get-label) (second entry))))
               (entries pattern)
               (remove-whole/single-concept-mappings
                 all-concept-mappings)))
@@ -445,7 +445,7 @@
            (concept-mapping-list-coord #f)
            (bridge-label-number #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'bridge)
            (get-bridge-type () bridge-type)
@@ -465,9 +465,9 @@
                         " (~a, not drawn)"
                         " (~a)")
                  (case (tell self 'get-proposal-level)
-                   (0 "new")
-                   (1 "proposed")
-                   (2 "evaluated"))))
+                   ((0) "new")
+                   ((1) "proposed")
+                   ((2) "evaluated"))))
               ((and %workspace-graphics% (not group-spanning-bridge?))
                (printf " (#~a)" bridge-label-number)))
              (newline)
@@ -486,9 +486,9 @@
                        " (~a, not drawn)"
                        " (~a)")
                 (case (tell self 'get-proposal-level)
-                  (0 "new")
-                  (1 "proposed")
-                  (2 "evaluated"))))
+                  ((0) "new")
+                  ((1) "proposed")
+                  ((2) "evaluated"))))
              (newline))
            (spanning-bridge? () spanning-bridge?)
            (group-spanning-bridge? () group-spanning-bridge?)
@@ -643,8 +643,8 @@
            (supports-theme-pattern? (pattern)
              (cross-product-ormap
               (lambda (entry cm)
-                (and (eq? (tell cm 'get-CM-type) (1st entry))
-                     (eq? (tell cm 'get-label) (2nd entry))))
+                (and (eq? (tell cm 'get-CM-type) (first entry))
+                     (eq? (tell cm 'get-label) (second entry))))
               (entries pattern)
               (remove-whole/single-concept-mappings
                 all-concept-mappings)))
@@ -900,19 +900,19 @@
               '(top vertical)))
            (bridge-type-weights
              (map (lambda (bridge-type)
-                   (100- (tell *workspace* 'get-mapping-strength bridge-type)))
+                   ($100- (tell *workspace* 'get-mapping-strength bridge-type)))
                bridge-types))
            (bridge-type
              (stochastic-pick bridge-types bridge-type-weights))
            (bridge-orientation (bridge-type->orientation bridge-type))
            (strings
              (case bridge-type
-               (top *top-strings*)
-               (bottom *bottom-strings*)
-               (vertical *vertical-strings*)))
-           (object1 (tell (1st strings) 'choose-object
+               ((top) *top-strings*)
+               ((bottom) *bottom-strings*)
+               ((vertical) *vertical-strings*)))
+           (object1 (tell (first strings) 'choose-object
                      'get-inter-string-salience bridge-orientation))
-           (object2 (tell (2nd strings) 'choose-object
+           (object2 (tell (second strings) 'choose-object
                      'get-inter-string-salience bridge-orientation)))
       (say "Chose " bridge-type " objects "
        (tell object1 'ascii-name) " and " (tell object2 'ascii-name))
@@ -932,7 +932,7 @@
        (if* %verbose% (print possible-CMs))
        (say "Slippabilities: ")
        (say (map round-to-100ths slippabilities))
-       (stochastic-if* (product (map 1- slippabilities))
+       (stochastic-if* (product (map $1- slippabilities))
          (say "Couldn't make necessary slippages. Fizzling.")
          (fizzle))
   ;; Bridges that don't have at least one relevant distinguishing CM with
@@ -971,21 +971,21 @@
               '(top vertical)))
            (bridge-type-weights
              (map (lambda (bridge-type)
-                   (100- (tell *workspace* 'get-mapping-strength bridge-type)))
+                   ($100- (tell *workspace* 'get-mapping-strength bridge-type)))
                bridge-types))
            (bridge-type
              (stochastic-pick bridge-types bridge-type-weights))
            (bridge-orientation (bridge-type->orientation bridge-type))
            (strings
              (case bridge-type
-               (top *top-strings*)
-               (bottom *bottom-strings*)
-               (vertical *vertical-strings*)))
-           (object1 (tell (1st strings) 'choose-object 'get-relative-importance))
+               ((top) *top-strings*)
+               ((bottom) *bottom-strings*)
+               ((vertical) *vertical-strings*)))
+           (object1 (tell (first strings) 'choose-object 'get-relative-importance))
            (object1-description
             (tell object1 'choose-relevant-distinguishing-description-by-depth)))
       (say "Chose " (tell object1 'ascii-name) " in "
-       (tell (1st strings) 'generic-name) ".")
+       (tell (first strings) 'generic-name) ".")
       (if* (not (exists? object1-description))
        (say "No relevant distinguishing descriptions. Fizzling.")
        (fizzle))
@@ -1004,9 +1004,9 @@
                   (ormap
                     (lambda (d) (eq? (tell d 'get-descriptor) object2-descriptor))
                     (tell object 'get-relevant-descriptions)))
-                (tell (2nd strings) 'get-objects))))
+                (tell (second strings) 'get-objects))))
        (say "Chose description " object1-description)
-       (say "Looking for " (tell (2nd strings) 'generic-name)
+       (say "Looking for " (tell (second strings) 'generic-name)
          " object with descriptor " object2-descriptor)
        (if* (null? object2-candidates)
          (say "No object with proper descriptor. Fizzling.")
@@ -1026,7 +1026,7 @@
                 (slippabilities
                   (map (compose temp-adjusted-probability %)
                     (tell-all possible-CMs 'get-slippability))))
-           (stochastic-if* (product (map 1- slippabilities))
+           (stochastic-if* (product (map $1- slippabilities))
              (say "Couldn't make necessary slippages. Fizzling.")
              (fizzle))
       ;; Bridges that don't have at least one relevant distinguishing CM with
@@ -1097,8 +1097,8 @@
                      (tell obj2 'get-relevant-descriptions))))
            (proposed-bridge
              (case bridge-orientation
-               (horizontal (make-horizontal-bridge obj1 obj2 concept-mappings))
-               (vertical (make-vertical-bridge obj1 obj2 concept-mappings)))))
+               ((horizontal) (make-horizontal-bridge obj1 obj2 concept-mappings))
+               ((vertical) (make-vertical-bridge obj1 obj2 concept-mappings)))))
       (if* flip1? (tell proposed-bridge 'mark-flipped-group1 object1))
       (if* flip2? (tell proposed-bridge 'mark-flipped-group2 object2))
       (if* %workspace-graphics%
@@ -1163,7 +1163,7 @@
       (tell proposed-bridge 'update-strength)
       (let ((strength (tell proposed-bridge 'get-strength)))
        (say "Strength is " (round strength))
-       (stochastic-if* (1- (temp-adjusted-probability (% strength)))
+       (stochastic-if* ($1- (temp-adjusted-probability (% strength)))
          (say "Bridge not strong enough. Fizzling.")
          (tell *workspace* 'delete-proposed-bridge proposed-bridge)
          (if* %workspace-graphics%
@@ -1453,7 +1453,7 @@
   (lambda (bridge-type)
     (case bridge-type
       ((top bottom) 'horizontal)
-      (vertical 'vertical))))
+      ((vertical) 'vertical))))
 
 
 (define enclosing-bridge?
@@ -1496,8 +1496,8 @@
   (lambda (bridge-orientation object1 object1-descriptions object2 object2-descriptions)
     (cross-product-filter-map
       (case bridge-orientation
-       (horizontal (horizontal-mappable-descriptions? object1 object2))
-       (vertical (vertical-mappable-descriptions? object1 object2)))
+       ((horizontal) (horizontal-mappable-descriptions? object1 object2))
+       ((vertical) (vertical-mappable-descriptions? object1 object2)))
       (lambda (description1 description2)
        (make-concept-mapping
          object1

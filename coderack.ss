@@ -57,7 +57,7 @@
     (for-each-table-element* (table coderack-bin-number temperature) do
       (table-set! table coderack-bin-number temperature
        (round (expt (add1 coderack-bin-number)
-               (/ (+ (100- temperature) 10) 15.0)))))
+               (/ (+ ($100- temperature) 10) 15.0)))))
     table))
 
 
@@ -80,7 +80,7 @@
           (codelet-pattern-value #f)
           (coderack-window (lambda z #f)))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'codelet-type)
            (print ()
@@ -113,9 +113,9 @@
                    (cond
                     ((not %codelet-count-graphics%) graphics-labels)
                     ((= (length graphics-labels) 1)
-                     (list (format "~as" (1st graphics-labels))))
+                     (list (format "~as" (first graphics-labels))))
                     (else
-                      (list (1st graphics-labels) (format "~as" (2nd graphics-labels))))))
+                      (list (first graphics-labels) (format "~as" (second graphics-labels))))))
            (highlight (color)
              (tell coderack-window 'draw (get-highlight-pexp color) 'highlight)
              (if* %codelet-count-graphics%
@@ -190,7 +190,7 @@
         ;; First element of args is always the codelet urgency.  If codelet has
         ;; a proposed structure, it will always be the second element of args.
              (let* ((codelet-type self)
-                    (original-urgency (1st args))
+                    (original-urgency (first args))
                     (relative-urgency
                       (if urgency-clamped?
                        clamped-relative-urgency
@@ -202,11 +202,11 @@
          ;; descriptions aren't structures stored in the Workspace:
                     (proposed-structure-argument?
                       (and (not (null? codelet-arguments))
-                       (member? (tell (1st codelet-arguments) 'object-type)
+                       (member? (tell (first codelet-arguments) 'object-type)
                          '(bond group bridge))))
                     (time-stamp #f))
               (lambda msg
-                (let ((self (1st msg)))
+                (let ((self (first msg)))
                   (record-case (rest msg)
                     (object-type () 'codelet)
                     (print ()
@@ -214,10 +214,10 @@
                        codelet-type-name (round relative-urgency) time-stamp)
                      (if* (not (null? codelet-arguments))
                        (printf "Codelet argument:~%")
-                       (print (1st codelet-arguments))
+                       (print (first codelet-arguments))
                        (if* (= (length codelet-arguments) 2)
                          (printf "(scope is ~a).~%"
-                           (tell (2nd codelet-arguments) 'object-type)))))
+                           (tell (second codelet-arguments) 'object-type)))))
                     (run ()
                      (tell coderack-window 'set-last-codelet-type codelet-type)
                      (if* (and %coderack-graphics% *step-mode?* (= %step-cycles% 1))
@@ -238,7 +238,7 @@
                      (* (- *codelet-count* time-stamp)
                         (add1 (- (tell *coderack* 'get-highest-bin-urgency)
                                (tell coderack-bin 'get-urgency)))))
-                    (get-proposed-structure () (1st codelet-arguments))
+                    (get-proposed-structure () (first codelet-arguments))
                     (get-argument (n) (nth n codelet-arguments))
                     (get-coderack-bin () coderack-bin)
                     (get-index-in-bin () index-in-bin)
@@ -334,7 +334,7 @@
      ;; deferred-codelets should effectively always be '().
            (deferred-codelets '()))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'coderack)
            (print ()
@@ -481,32 +481,32 @@
           (% (tell *workspace* 'get-average-intra-string-unhappiness)))
          ((bottom-up-bridge-scout
             important-object-bridge-scout)
-          (% (100- (tell *workspace* 'get-min-mapping-strength))))
+          (% ($100- (tell *workspace* 'get-min-mapping-strength))))
          ((bottom-up-description-scout
             top-down-description-scout)
           (% (tell *workspace* 'get-average-unhappiness)))
-         (rule-scout
+         ( (rule-scout)
            (if (null? (tell *workspace* 'get-possible-rule-types))
              0.5
              1))
-         (answer-finder
+         ( (answer-finder)
            (if (tell *workspace* 'supported-rule-exists? 'top)
-             (% (100- *temperature*))
+             (% ($100- *temperature*))
              0))
-         (answer-justifier
+         ( (answer-justifier)
            (if (or (tell *workspace* 'supported-rule-exists? 'top)
                 (tell *workspace* 'supported-rule-exists? 'bottom))
-             (% (100- *temperature*))
+             (% ($100- *temperature*))
              0))
-         (breaker (% *temperature*))
-         (progress-watcher
+         ( (breaker) (% *temperature*))
+         ( (progress-watcher)
            (if (tell *themespace* 'thematic-pressure?) 1 0.25))
-         (jootser
+         ( (jootser)
            (if (or (tell *trace* 'within-snag-period?)
                 (tell *trace* 'within-clamp-period?))
              0.4
              0.1))
-         (thematic-bridge-scout
+         ( (thematic-bridge-scout)
            (let ((active-bridge-theme-types
                   (tell *themespace* 'get-active-bridge-theme-types)))
              (if (null? active-bridge-theme-types)
@@ -525,29 +525,29 @@
           top-down-bond-scout:category
           top-down-bond-scout:direction)
         (case (tell *workspace* 'get-rough-num-of-unrelated-objects)
-          (few 2) (some 4) (many 6)))
+          ((few) 2) ((some) 4) ((many) 6)))
        ((top-down-group-scout:category
           top-down-group-scout:direction
           group-scout:whole-string)
         (if (null? (tell *workspace* 'get-bonds))
           0
           (case (tell *workspace* 'get-rough-num-of-ungrouped-objects)
-            (few 1) (some 2) (many 3))))
+            ((few) 1) ((some) 2) ((many) 3))))
        ((bottom-up-bridge-scout
           important-object-bridge-scout)
         (case (tell *workspace* 'get-rough-num-of-unmapped-objects)
-          (few 2) (some 5) (many 6)))
+          ((few) 2) ((some) 5) ((many) 6)))
        ((bottom-up-description-scout
           top-down-description-scout) 2)
-       (rule-scout
+       ( (rule-scout)
          (max 1 (* 2 (length (tell *workspace* 'get-possible-rule-types)))))
-       (answer-finder 1)
-       (answer-justifier 1)
-       (breaker 1)
-       (thematic-bridge-scout
+       ( (answer-finder) 1)
+       ( (answer-justifier) 1)
+       ( (breaker) 1)
+       ( (thematic-bridge-scout)
          (round (* 10 (% (tell *workspace* 'get-max-inter-string-unhappiness)))))
-       (progress-watcher 2)
-       (jootser (if %justify-mode% 1 2))))))
+       ( (progress-watcher) 2)
+       ( (jootser) (if %justify-mode% 1 2))))))
 
 
 (define add-top-down-codelets
@@ -575,18 +575,18 @@
 (define bottom-up-urgency
   (lambda (codelet-type)
     (case (tell codelet-type 'get-codelet-type-name)
-      (answer-finder (100- *temperature*))
-      (answer-justifier (100- *temperature*))
-      (breaker %extremely-low-urgency%)
-      (progress-watcher %medium-urgency%)
-      (jootser %medium-urgency%)
+      ((answer-finder) ($100- *temperature*))
+      ((answer-justifier) ($100- *temperature*))
+      ((breaker) %extremely-low-urgency%)
+      ((progress-watcher) %medium-urgency%)
+      ((jootser) %medium-urgency%)
       (else %low-urgency%))))
 
 
 (define thematic-codelet-urgency
   (lambda (codelet-type)
     (case (tell codelet-type 'get-codelet-type-name)
-      (thematic-bridge-scout
+      ((thematic-bridge-scout)
        (tell *themespace* 'get-max-positive-theme-activation
          (tell *themespace* 'get-active-bridge-theme-types))))))
 
@@ -624,6 +624,7 @@
     (progress-watcher "Progress watcher")
     (jootser "Jootser")
     (breaker "Breaker")))
+    
 
 
 (define *thematic-codelet-types*

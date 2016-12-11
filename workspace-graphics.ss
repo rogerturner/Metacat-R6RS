@@ -92,7 +92,7 @@
     (let* ((width
             (if (null? optional-args)
               %default-workspace-width%
-              (1st optional-args)))
+              (first optional-args)))
            (window (new-workspace-window width)))
       (tell window 'initialize)
       window)))
@@ -161,14 +161,14 @@
                   (case op
                     (draw
                       (if* (not (null? optional-args))
-                       (set! *fg-color* (1st optional-args)))
+                       (set! *fg-color* (first optional-args)))
                       (tell graphics-window 'draw pexp)
                       (set! *fg-color* %default-fg-color%))
                     (erase
                       (tell graphics-window 'erase pexp))))
                 'done)))
        (lambda msg
-         (let ((self (1st msg)))
+         (let ((self (first msg)))
            (record-case (rest msg)
              (object-type () 'workspace-window)
 
@@ -382,7 +382,7 @@
                    (tell graphics-window 'draw
                      `(let-sgl ((background-color ,%bridge-label-background-color%)
                                 (text-mode image))
-                       ,(4th (tell object 'get-graphics-pexp))))))
+                       ,(fourth (tell object 'get-graphics-pexp))))))
                 (else (tell graphics-window 'draw (tell object 'get-graphics-pexp))))
               (set! *fg-color* %default-fg-color%)
               'done)
@@ -461,14 +461,14 @@
                              (bottom `(,next-x ,bottom-line))))
                          (bbox (tell graphics-window 'get-character-bounding-box
                                 print-name %letter-font% text-coord))
-                         (mid-x (* 1/2 (+ (1st (1st bbox)) (1st (2nd bbox)))))
-                         (top-y (+ (* -1/6 letter-height) (2nd (2nd bbox))))
-                         (bot-y (+ (* 1/6 letter-height) (2nd (1st bbox)))))
+                         (mid-x (* 1/2 (+ (first (first bbox)) (first (second bbox)))))
+                         (top-y (+ (* -1/6 letter-height) (second (second bbox))))
+                         (bot-y (+ (* 1/6 letter-height) (second (first bbox)))))
                     (tell letter 'set-graphics-pexp
                      `(let-sgl ((font ,%letter-font%))
                         (text ,text-coord ,print-name)))
                     (tell letter 'set-graphics-text-coord text-coord)
-                    (tell letter 'set-graphics-coords (1st bbox) (2nd bbox))
+                    (tell letter 'set-graphics-coords (first bbox) (second bbox))
                     (tell letter 'set-bridge-graphics-coords
                      (coord mid-x (case string-placement
                                    (top bot-y)
@@ -492,8 +492,8 @@
                          (+ letter-height
                             (* 2 (sub1 num-of-letters) y-enclosure-delta)))
                        (y-center
-                         (* 1/2 (+ (tell (1st letters) 'get-graphics-y1)
-                                 (tell (1st letters) 'get-graphics-y2))))
+                         (* 1/2 (+ (tell (first letters) 'get-graphics-y1)
+                                 (tell (first letters) 'get-graphics-y2))))
                        (spanning-group-x1 (- x-center (* 1/2 spanning-group-width)))
                        (spanning-group-y1 (- y-center (* 1/2 spanning-group-height)))
                        (spanning-group-x2 (+ x-center (* 1/2 spanning-group-width)))
@@ -744,7 +744,7 @@
                    (tell graphics-window 'draw
                      `(let-sgl ((background-color ,%bridge-label-background-color%)
                                 (text-mode image))
-                       ,(4th (tell object 'get-graphics-pexp))))))
+                       ,(fourth (tell object 'get-graphics-pexp))))))
                 (else (tell graphics-window 'draw (tell object 'get-graphics-pexp))))
               (set! *fg-color* %default-fg-color%)
               'done)
@@ -816,9 +816,9 @@
     (let* ((center-coord (tell rule 'get-rule-graphics-center-coord))
            (x-length 1/10)
            (y-length (* 3/2 (tell rule 'get-rule-graphics-height)))
-           (x1 (- (1st center-coord) (* 1/2 x-length)))
-           (y1 (- (2nd center-coord) (* 1/2 y-length)))
-           (x2 (+ (1st center-coord) (* 1/2 x-length)))
-           (y2 (+ (2nd center-coord) (* 1/2 y-length))))
+           (x1 (- (first center-coord) (* 1/2 x-length)))
+           (y1 (- (second center-coord) (* 1/2 y-length)))
+           (x2 (+ (first center-coord) (* 1/2 x-length)))
+           (y2 (+ (second center-coord) (* 1/2 y-length))))
       `(let-sgl ((line-width ,line-width))
         (line (,x1 ,y1) (,x2 ,y2) (,x1 ,y2) (,x2 ,y1))))))

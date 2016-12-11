@@ -29,7 +29,7 @@
 ;;    (set! *message* *last-message*)
 ;;    (printf "Last method was ~a method \"~a\"~%"
 ;;      (tell *object* 'object-type)    
-;;      (1st *message*))
+;;      (first *message*))
 ;;    (printf "(Check *object* and *message*). Good luck!~%")))
 
 (define compose
@@ -47,7 +47,7 @@
 
 (define tell
   (lambda args
-    (let ((object (1st args))
+    (let ((object (first args))
           (message args))
 ;; for debugging:
 ;;      (set! *last-object* object)
@@ -60,7 +60,7 @@
 (define report-error-and-halt
   (lambda (message object)
     (printf "Ooops: bad message \"~a\" sent to object of type ~a~%"
-      (2nd message)
+      (second message)
       (tell object 'object-type))
     (reset)))
 
@@ -70,7 +70,7 @@
 
 (define delegate
   (lambda args
-    (let ((message (1st args))
+    (let ((message (first args))
           (objects (rest args)))
       (continuation-point* return-immediately
        (for* each object in objects do
@@ -81,7 +81,7 @@
 
 (define delegate-to-all
   (lambda args
-    (let ((message (rest (1st args)))
+    (let ((message (rest (first args)))
           (objects (rest args)))
       (continuation-point* return-immediately
        (map (lambda (object)
@@ -155,7 +155,7 @@
 (define all-same?
   (lambda (l)
     (or (null? l)
-        (andmap (lambda (x) (eq? x (1st l))) l))))
+        (andmap (lambda (x) (eq? x (first l))) l))))
 
 (define compress
   (lambda (l) (filter exists? l)))
@@ -273,7 +273,7 @@
 
 (define make-table
   (lambda (row-dim column-dim . optional-args)
-    (let ((initial-value (if (null? optional-args) #f (1st optional-args)))
+    (let ((initial-value (if (null? optional-args) #f (first optional-args)))
           (table (make-vector row-dim)))
       (for-each-vector-element* (table i) do
        (vector-set! table i (make-vector column-dim initial-value)))
@@ -354,9 +354,9 @@
 (define average
   (lambda l
     (cond
-      ((null? (1st l)) 0)
-      ((and (null? (rest l)) (list? (1st l)))
-       (/ (sum (1st l)) (length (1st l))))
+      ((null? (first l)) 0)
+      ((and (null? (rest l)) (list? (first l)))
+       (/ (sum (first l)) (length (first l))))
       (else (/ (sum l) (length l))))))
 
 (define weighted-average
@@ -377,7 +377,7 @@
 
 (define list-index
   (lambda (l x)
-    (if (eq? (1st l) x)
+    (if (eq? (first l) x)
      0
      (add1 (list-index (rest l) x)))))
 
@@ -434,13 +434,13 @@
 ;; weights is a list of 6 real numbers.  w is a real number.
 ;; weights = |.....6.....|.2.|...4...|......7.....|.2.|...4...|
 ;;           .................. w = 17 ........^
-;; weighted-index returns 3 (the index of the 4th weight)
+;; weighted-index returns 3 (the index of the fourth weight)
 
 (define weighted-index
   (lambda (w weights)
-    (if (< w (1st weights))
+    (if (< w (first weights))
      0
-     (add1 (weighted-index (- w (1st weights)) (rest weights))))))
+     (add1 (weighted-index (- w (first weights)) (rest weights))))))
 
 ;; selection-list is a list of lists:  ((<weight> <obj> ...) ... )
 ;; stochastic-select picks an element stochastically, biased by the weights.
@@ -448,37 +448,37 @@
 
 (define stochastic-select
   (lambda (selection-list)
-    (let ((weight-sum (sum (map 1st selection-list))))
+    (let ((weight-sum (sum (map first selection-list))))
       (if (zero? weight-sum)
        (random-pick selection-list)
        (weighted-select (random (exact->inexact weight-sum)) selection-list)))))
 
 (define weighted-select
   (lambda (w selection-list)
-    (let ((first-element (1st selection-list)))
-      (if (< w (1st first-element))
+    (let ((first-element (first selection-list)))
+      (if (< w (first first-element))
        first-element
-       (weighted-select (- w (1st first-element)) (rest selection-list))))))
+       (weighted-select (- w (first first-element)) (rest selection-list))))))
 
 (define stochastic-filter
   (lambda (proc l)
     (cond
       ((null? l) '())
-      ((prob? (proc (1st l))) (cons (1st l) (stochastic-filter proc (rest l))))
+      ((prob? (proc (first l))) (cons (first l) (stochastic-filter proc (rest l))))
       (else (stochastic-filter proc (rest l))))))
 
-(define 100- (lambda (n) (- 100 n)))
+(define $100- (lambda (n) (- 100 n)))
 
-(define 10- (lambda (x) (- 10 x)))
+(define $10- (lambda (x) (- 10 x)))
 
-(define 1- (lambda (x) (- 1 x)))
+(define $1- (lambda (x) (- 1 x)))
 
-(define 100* (lambda (x) (round (* 100 x))))
+(define $100* (lambda (x) (round (* 100 x))))
 
 (define % (lambda (n) (/ n 100)))
-(define 20% (lambda (n) (* 1/5 n)))
-(define 40% (lambda (n) (* 2/5 n)))
-(define 80% (lambda (n) (* 4/5 n)))
+(define $20% (lambda (n) (* 1/5 n)))
+(define $40% (lambda (n) (* 2/5 n)))
+(define $80% (lambda (n) (* 4/5 n)))
 
 ;; Returns a sigmoid function f defined on the interval 0..100 with range 0..1,
 ;; where f(m) = 0.5 and beta specifies the steepness of the curve at m:
@@ -501,8 +501,8 @@
       ((walk (lambda (l leaves)
               (cond
                ((null? l) leaves)
-               ((list? (1st l)) (walk (1st l) (walk (rest l) leaves)))
-               (else (cons (1st l) (walk (rest l) leaves)))))))
+               ((list? (first l)) (walk (first l) (walk (rest l) leaves)))
+               (else (cons (first l) (walk (rest l) leaves)))))))
       (walk l '()))))
 
 (define select-longest-list
@@ -517,7 +517,7 @@
     (if (null? l)
       #f
       (let ((values (map proc l)))
-       (2nd (assv (apply min/max values) (map list values l)))))))
+       (second (assv (apply min/max values) (map list values l)))))))
 
 (define maximum
   (lambda (l)
@@ -531,7 +531,7 @@
   (lambda (predicate? l)
     (cond
       ((null? l) 0)
-      ((predicate? (1st l)) (add1 (count predicate? (rest l))))
+      ((predicate? (first l)) (add1 (count predicate? (rest l))))
       (else (count predicate? (rest l))))))
 
 (define adjacency-map
@@ -547,7 +547,7 @@
        (lambda (predicate? l)
         (cond
           ((null? l) #f)
-          ((predicate? (1st l)) (1st l))
+          ((predicate? (first l)) (first l))
           (else (select predicate? (rest l)))))))
     select))
 
@@ -557,7 +557,7 @@
   (lambda (pred? l)
     (cond
      ((null? l) '())
-     ((pred? (1st l)) (cons (1st l) (filter pred? (rest l))))
+     ((pred? (first l)) (cons (first l) (filter pred? (rest l))))
      (else (filter pred? (rest l))))))
 
 ;; filter-out removes exactly the elements of l which satisfy pred?
@@ -571,8 +571,8 @@
   (lambda (proc l)
     (cond
       ((null? l) '())
-      ((pair? (1st l)) (cons (map-leaves proc (1st l)) (map-leaves proc (rest l))))
-      (else (cons (proc (1st l)) (map-leaves proc (rest l)))))))
+      ((pair? (first l)) (cons (map-leaves proc (first l)) (map-leaves proc (rest l))))
+      (else (cons (proc (first l)) (map-leaves proc (rest l)))))))
 
 ;; filter-map first filters l according to pred?, then maps
 ;; proc to the elements of l that remain.
@@ -581,7 +581,7 @@
   (lambda (pred? proc l)
     (cond
       ((null? l) '())
-      ((pred? (1st l)) (cons (proc (1st l)) (filter-map pred? proc (rest l))))
+      ((pred? (first l)) (cons (proc (first l)) (filter-map pred? proc (rest l))))
       (else (filter-map pred? proc (rest l))))))
 
 ;; map-filter first maps proc to the elements of l, then filters
@@ -591,7 +591,7 @@
   (lambda (proc pred? l)
     (if (null? l)
       '()
-      (let ((value (proc (1st l))))
+      (let ((value (proc (first l))))
        (if (pred? value)
          (cons value (map-filter proc pred? (rest l)))
          (map-filter proc pred? (rest l)))))))
@@ -624,11 +624,11 @@
       ((f (lambda (l result)
            (if (null? l)
              result
-             (g (1st l) l2 (f (rest l) result)))))
+             (g (first l) l2 (f (rest l) result)))))
        (g (lambda (x l result)
            (cond
              ((null? l) result)
-             ((pred? x (1st l)) (cons (proc x (1st l)) (g x (rest l) result)))
+             ((pred? x (first l)) (cons (proc x (first l)) (g x (rest l) result)))
              (else (g x (rest l) result))))))
       (f l1 '()))))
 
@@ -638,11 +638,11 @@
       ((f (lambda (l result)
            (if (null? l)
              result
-             (g (1st l) l2 (f (rest l) result)))))
+             (g (first l) l2 (f (rest l) result)))))
        (g (lambda (x l result)
            (if (null? l)
              result
-             (let ((value (proc x (1st l))))
+             (let ((value (proc x (first l))))
               (if (pred? value)
                 (cons value (g x (rest l) result))
                 (g x (rest l) result)))))))
@@ -695,7 +695,7 @@
           (if (null? l)
             '()
             (append
-              (map (lambda (x) (proc (1st l) x)) (rest l))
+              (map (lambda (x) (proc (first l) x)) (rest l))
               (pairwise-map (rest l)))))))
       (pairwise-map l))))
 
@@ -705,7 +705,7 @@
       ((pairwise-do
         (lambda (l)
           (if* (not (null? l))
-            (for* each obj in (rest l) do (proc (1st l) obj))
+            (for* each obj in (rest l) do (proc (first l) obj))
             (pairwise-do (rest l))))))
       (pairwise-do l)
       'done)))
@@ -716,7 +716,7 @@
       ((pairwise-andmap
         (lambda (l)
           (or (null? l)
-              (and (andmap (lambda (x) (pred? (1st l) x)) (rest l))
+              (and (andmap (lambda (x) (pred? (first l) x)) (rest l))
                (pairwise-andmap (rest l)))))))
       (pairwise-andmap l))))
 
@@ -736,9 +736,9 @@
   (lambda (equiv-pred? l)
     (cond
      ((null? l) '())
-     ((null? (rest l)) (1st l))
+     ((null? (rest l)) (first l))
      (else (intersect-pred equiv-pred?
-            (1st l) (intersect-all-pred equiv-pred? (rest l)))))))
+            (first l) (intersect-all-pred equiv-pred? (rest l)))))))
 
 (define partition
   (lambda (pred? l)
@@ -746,14 +746,14 @@
               (lambda (l)
                (if (null? l)
                    '()
-                   (insert (1st l) (partition (rest l))))))
+                   (insert (first l) (partition (rest l))))))
              (insert
               (lambda (x l)
                (cond
                 ((null? l) (cons (list x) l))
-                ((andmap (lambda (y) (pred? x y)) (1st l))
-                 (cons (cons x (1st l)) (rest l)))
-                (else (cons (1st l) (insert x (rest l))))))))
+                ((andmap (lambda (y) (pred? x y)) (first l))
+                 (cons (cons x (first l)) (rest l)))
+                (else (cons (first l) (insert x (rest l))))))))
       (partition l))))
 
 ;; bounded-random-partition randomly partitions the elements of l into
@@ -774,16 +774,16 @@
         (lambda (x l)
           (cond
             ((null? l) (cons (list x) l))
-            ((and (< (length (1st l)) bound)
-              (andmap (lambda (y) (pred? x y)) (1st l)))
-             (cons (cons x (1st l)) (rest l)))
-            (else (cons (1st l) (insert x (rest l)))))))
+            ((and (< (length (first l)) bound)
+              (andmap (lambda (y) (pred? x y)) (first l)))
+             (cons (cons x (first l)) (rest l)))
+            (else (cons (first l) (insert x (rest l)))))))
        (remove-first
         (lambda (x l)
           (cond
             ((null? l) '())
-            ((eq? (1st l) x) (rest l))
-            (else (cons (1st l) (remove-first x (rest l))))))))
+            ((eq? (first l) x) (rest l))
+            (else (cons (first l) (remove-first x (rest l))))))))
       (partition l))))
 
 ;; force member? to return #t or #f
@@ -829,16 +829,16 @@
   (lambda (pred? elements l)
     (cond
       ((null? l) '())
-      ((member-pred? pred? (1st l) elements)
+      ((member-pred? pred? (first l) elements)
        (remove-elements-pred pred? elements (rest l)))
-      (else (cons (1st l) (remove-elements-pred pred? elements (rest l)))))))
+      (else (cons (first l) (remove-elements-pred pred? elements (rest l)))))))
 
 (define remq-elements
   (lambda (elements l)
     (cond
       ((null? l) '())
-      ((member? (1st l) elements) (remq-elements elements (rest l)))
-      (else (cons (1st l) (remq-elements elements (rest l)))))))
+      ((member? (first l) elements) (remq-elements elements (rest l)))
+      (else (cons (first l) (remq-elements elements (rest l)))))))
 
 (define remove-elements
   (lambda (elements l)
@@ -851,8 +851,8 @@
         (lambda (l)
           (cond
             ((null? l) '())
-            ((member-pred? pred? (1st l) (rest l)) (remove-duplicates (rest l)))
-            (else (cons (1st l) (remove-duplicates (rest l))))))))
+            ((member-pred? pred? (first l) (rest l)) (remove-duplicates (rest l)))
+            (else (cons (first l) (remove-duplicates (rest l))))))))
       remove-duplicates)))
 
 (define remq-duplicates
@@ -879,14 +879,14 @@
       ((or (letter? obj) (group? obj)) (tell obj 'ascii-name))
       (else (string->symbol (format "<~a>" (tell obj 'object-type)))))))
 
-(define 1st car)
-(define 2nd cadr)
-(define 3rd caddr)
-(define 4th cadddr)
-(define 5th (compose car cddddr))
-(define 6th (compose cadr cddddr))
-(define 7th (compose caddr cddddr))
-(define 8th (compose cadddr cddddr))
+(define first car)
+(define second cadr)
+(define third caddr)
+(define fourth cadddr)
+(define fifth (compose car cddddr))
+(define sixth (compose cadr cddddr))
+(define seventh (compose caddr cddddr))
+(define eighth (compose cadddr cddddr))
 (define rest cdr)
 (define coord make-rectangular)
 
@@ -894,7 +894,7 @@
   (lambda (n l)
     (if (zero? n)
       '()
-      (cons (1st l) (get-first (- n 1) (rest l))))))
+      (cons (first l) (get-first (- n 1) (rest l))))))
 
 (define sublist
   (lambda (l m n)
@@ -911,14 +911,14 @@
 (define last
   (lambda (l)
     (if (null? (rest l))
-      (1st l)
+      (first l)
       (last (rest l)))))
 
 (define all-but-last
   (lambda (n l)
     (if (= (length l) n)
       '()
-      (cons (1st l) (all-but-last n (rest l))))))
+      (cons (first l) (all-but-last n (rest l))))))
 
 (define x-coord real-part)
 (define y-coord imag-part)

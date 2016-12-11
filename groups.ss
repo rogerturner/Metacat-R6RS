@@ -74,7 +74,7 @@
      ;; This is mainly for efficiency, to avoid lots of searching
      ;; through descriptions every time a new group is created:
            (initial-letter-category
-             (tell (1st ordered-objects) 'get-descriptor-for plato-letter-category))
+             (tell (first ordered-objects) 'get-descriptor-for plato-letter-category))
            (bond-descriptions '())
            (bond-category (tell group-category 'get-related-node plato-bond-category))
            (group-length (length objects))
@@ -104,7 +104,7 @@
            (shrunk-singleton? #f)
            (shrunk-singleton-pexp #f))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'group)
            (print-name () print-name)
@@ -136,7 +136,7 @@
            (get-length-graphics-pexp () length-graphics-pexp)
            (get-letcat-graphics-pexp () letcat-graphics-pexp)
            (set-graphics-parameters ()
-             (let* ((left-letter (1st (tell left-object 'get-letters)))
+             (let* ((left-letter (first (tell left-object 'get-letters)))
                     (right-letter (last (tell right-object 'get-letters)))
                     (x1 (tell left-letter 'get-graphics-x1))
                     (y1 (tell left-letter 'get-graphics-y1))
@@ -191,7 +191,7 @@
                                   (letter-height
                                     (tell *workspace-window* 'get-character-height
                                      print-name %group-letter-category-font%)))
-                             (+ (* -1/8 letter-height) (2nd (2nd bbox)))))))
+                             (+ (* -1/8 letter-height) (second (second bbox)))))))
               (tell self 'set-graphics-coords `(,new-x1 ,new-y1) `(,new-x2 ,new-y2))
               (tell self 'set-bridge-graphics-coords
                 (coord mid-x (if (tell string 'top-string?) new-y1 top-y))
@@ -320,8 +320,8 @@
                               (tell other-bond 'get-direction)))
                            (incompatible?
                             (case bridge-orientation
-                              (horizontal incompatible-horizontal-CMs?)
-                              (vertical incompatible-vertical-CMs?))))
+                              ((horizontal) incompatible-horizontal-CMs?)
+                              ((vertical) incompatible-vertical-CMs?))))
                        (if (incompatible? group-direction-CM string-position-CM)
                          bridge
                          #f))))))))
@@ -404,7 +404,7 @@
                        ((= group-length 3) 60)
                        (else 90)))
                     (bond-factor-weight (expt bond-factor 0.98))
-                    (length-factor-weight (100- bond-factor-weight)))
+                    (length-factor-weight ($100- bond-factor-weight)))
               (round (weighted-average
                       (list bond-factor length-factor)
                       (list bond-factor-weight length-factor-weight)))))
@@ -459,7 +459,7 @@
          ((and (exists? initial-bond)
                (eq? (tell initial-bond 'get-bond-category) bond-category))
           (let* ((bonds (scan-bonds number-to-scan direction-to-scan initial-bond))
-                 (objects (cons (tell (1st bonds) 'get-left-object)
+                 (objects (cons (tell (first bonds) 'get-left-object)
                            (tell-all bonds 'get-right-object)))
                  (direction (tell initial-bond 'get-direction)))
             (propose-group objects bonds group-category direction)))
@@ -480,7 +480,7 @@
                   (singleton-group
                     (make-group string group-category plato-letter-category
                       singleton-direction object object objects bonds)))
-             (stochastic-if* (1- (single-letter-group-probability singleton-group))
+             (stochastic-if* ($1- (single-letter-group-probability singleton-group))
               (say "Local support not strong enough. Fizzling.")
               (fizzle))
              (propose-group objects bonds group-category singleton-direction))))))))
@@ -537,7 +537,7 @@
               (group-category
                (tell bond-category 'get-related-node plato-group-category))
               (bonds (scan-bonds number-to-scan direction-to-scan initial-bond))
-              (objects (cons (tell (1st bonds) 'get-left-object)
+              (objects (cons (tell (first bonds) 'get-left-object)
                         (tell-all bonds 'get-right-object))))
          (propose-group objects bonds group-category direction))))))
 
@@ -589,8 +589,8 @@
       (say "Strength of proposed group is " strength)
       (let ((evaluation-prob (group-evaluation-probability strength)))
        (say "Group evaluation probability of survival is "
-         (format "~a%" (round (100* evaluation-prob))))
-       (stochastic-if* (1- evaluation-prob)
+         (format "~a%" (round ($100* evaluation-prob))))
+       (stochastic-if* ($1- evaluation-prob)
          (say "Group not strong enough. Fizzling.")
          (tell (tell proposed-group 'get-string) 'delete-proposed-group proposed-group)
          (if* %workspace-graphics% (group-graphics 'erase proposed-group))
@@ -615,8 +615,8 @@
 
 (define group-evaluation-probability
   (lambda (x)
-    (+ (* (% *temperature*) (- (/ 2 (1+ (exp (/ (- x) 5)))) 1))
-       (* (1- (% *temperature*)) (% x)))))
+    (+ (* (% *temperature*) (- (/ 2 (+ 1 (exp (/ (- x) 5)))) 1))
+       (* ($1- (% *temperature*)) (% x)))))
 
 
 (define-codelet-procedure* group-builder
@@ -728,7 +728,7 @@
                  (let ((new-group
                         (make-group
                           string group-category plato-letter-category direction
-                          (1st letters) (last letters) letters letter-bonds)))
+                          (first letters) (last letters) letters letter-bonds)))
                    (if* (tell proposed-group 'description-type-present? plato-length)
                      (attach-length-description new-group))
                    (set! proposed-group new-group)))))
@@ -766,7 +766,7 @@
                  (let ((new-group
                         (make-group
                           string group-category plato-length direction
-                          (1st new-constituent-groups) (last new-constituent-groups)
+                          (first new-constituent-groups) (last new-constituent-groups)
                           new-constituent-groups group-bonds)))
                    (attach-length-description new-group)
                    (set! proposed-group new-group)))))
@@ -801,14 +801,14 @@
   (lambda (objects bonds group-category direction)
     (say "Proposing group:")
     (if* %verbose% (print objects))
-    (let* ((left-object (1st objects))
+    (let* ((left-object (first objects))
            (right-object (last objects))
            (string (tell left-object 'get-string))
            (bond-category (tell group-category 'get-related-node plato-bond-category))
            (group-bond-facet
              (if (null? bonds)
                plato-letter-category
-               (tell (1st bonds) 'get-bond-facet)))
+               (tell (first bonds) 'get-bond-facet)))
            (proposed-group
              (make-group
                string group-category group-bond-facet direction

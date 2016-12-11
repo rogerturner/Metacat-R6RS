@@ -40,7 +40,7 @@
     (let* ((width
             (if (null? optional-args)
              %default-temperature-width%
-             (1st optional-args)))
+             (first optional-args)))
            (window (new-temperature-window width)))
       (tell window 'initialize)
       window)))
@@ -72,7 +72,7 @@
       (if* (exists? %temperature-window-title%)
        (tell graphics-window 'set-window-title %temperature-window-title%))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'temperature-window)
            (initialize-parameters ()
@@ -155,8 +155,8 @@
 
 (define draw-thermometer
   (lambda (g bulb-center bulb-diameter)
-    (let* ((x (1st bulb-center))
-           (y (2nd bulb-center))
+    (let* ((x (first bulb-center))
+           (y (second bulb-center))
            (width (* 1/3 bulb-diameter))
            (bottom y)
            (top (+ y (* 17 width)))

@@ -19,7 +19,7 @@
 
 (define-codelet-procedure* breaker
   (lambda ()
-    (stochastic-if* (% (100- *temperature*))
+    (stochastic-if* (% ($100- *temperature*))
       (say "Temperature is too low. Fizzling.")
       (fizzle))
     (let ((breakable-structures
@@ -41,7 +41,7 @@
            (stochastic-if* (temp-adjusted-probability
                             (% (tell structure 'get-weakness)))
              (case (tell structure 'object-type)
-              (bond (break-bond structure))
-              (group (break-group structure))
-              (bridge (break-bridge structure)))))
+              ((bond) (break-bond structure))
+              ((group) (break-group structure))
+              ((bridge) (break-bridge structure)))))
        'done))))

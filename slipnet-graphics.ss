@@ -31,7 +31,7 @@
     (let* ((width
             (if (null? optional-args)
               %default-13x5-slipnet-width%
-              (1st optional-args)))
+              (first optional-args)))
            (window (new-slipnet-window slipnet-layout-table width)))
       (tell window 'initialize)
       window)))
@@ -76,7 +76,7 @@
        `(let-sgl ((text-justification center))
           ,@slipnode-labels-pexp))
       (lambda msg
-       (let ((self (1st msg)))
+       (let ((self (first msg)))
          (record-case (rest msg)
            (object-type () 'slipnet-window)
            (garbage-collect () (tell self 'update-graphics))
@@ -143,7 +143,7 @@
              (tell graphics-window 'delete 'activation)
              (for* each pattern in concept-patterns do
               (for* each entry in (rest pattern) do
-                (tell self 'display-activation (1st entry) (2nd entry) color))))
+                (tell self 'display-activation (first entry) (second entry) color))))
            (display-activation (node value color)
              (let ((center (tell node 'get-graphics-coord)))
               (tell graphics-window 'draw
