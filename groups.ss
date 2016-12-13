@@ -762,7 +762,7 @@
                              (build-bond new-bond)
                              new-bond)))
                         new-constituent-groups)))
-                 (group-graphics 'erase proposed-group)
+                 (if* %workspace-graphics% (group-graphics 'erase proposed-group))
                  (let ((new-group
                         (make-group
                           string group-category plato-length direction

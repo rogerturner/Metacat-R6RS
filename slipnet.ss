@@ -365,15 +365,6 @@
       (tell-all (tell node1 'get-lateral-sliplinks) 'get-to-node))))
 
 
-(define establish-link
-  (lambda (top-level-name from-node to-node link-type)
-    (let ((new-link (make-slipnet-link from-node to-node link-type)))
-      (define-top-level-value top-level-name new-link)
-      (tell from-node 'add-to-outgoing-links link-type new-link)
-      (tell to-node 'add-to-incoming-links new-link)
-      new-link)))
-
-
 (define update-slipnet-activations
   (lambda ()
     (for* each theme in (tell *themespace* 'get-all-active-themes) do
@@ -403,69 +394,81 @@
   (lambda (node)
     (and (above-threshold? node) (not (fully-active? node)))))
 
+;;----------------------------------------------------------------------------------
+;; Slipnet Nodes
+
+(define plato-a (make-slipnode 'plato-a "a" 10))
+(define plato-b (make-slipnode 'plato-b "b" 10))
+(define plato-c (make-slipnode 'plato-c "c" 10))
+(define plato-d (make-slipnode 'plato-d "d" 10))
+(define plato-e (make-slipnode 'plato-e "e" 10))
+(define plato-f (make-slipnode 'plato-f "f" 10))
+(define plato-g (make-slipnode 'plato-g "g" 10))
+(define plato-h (make-slipnode 'plato-h "h" 10))
+(define plato-i (make-slipnode 'plato-i "i" 10))
+(define plato-j (make-slipnode 'plato-j "j" 10))
+(define plato-k (make-slipnode 'plato-k "k" 10))
+(define plato-l (make-slipnode 'plato-l "l" 10))
+(define plato-m (make-slipnode 'plato-m "m" 10))
+(define plato-n (make-slipnode 'plato-n "n" 10))
+(define plato-o (make-slipnode 'plato-o "o" 10))
+(define plato-p (make-slipnode 'plato-p "p" 10))
+(define plato-q (make-slipnode 'plato-q "q" 10))
+(define plato-r (make-slipnode 'plato-r "r" 10))
+(define plato-s (make-slipnode 'plato-s "s" 10))
+(define plato-t (make-slipnode 'plato-t "t" 10))
+(define plato-u (make-slipnode 'plato-u "u" 10))
+(define plato-v (make-slipnode 'plato-v "v" 10))
+(define plato-w (make-slipnode 'plato-w "w" 10))
+(define plato-x (make-slipnode 'plato-x "x" 10))
+(define plato-y (make-slipnode 'plato-y "y" 10))
+(define plato-z (make-slipnode 'plato-z "z" 10))
+(define plato-one (make-slipnode 'plato-one "one" 30))
+(define plato-two (make-slipnode 'plato-two "two" 30))
+(define plato-three (make-slipnode 'plato-three "three" 30))
+(define plato-four (make-slipnode 'plato-four "four" 30))
+(define plato-five (make-slipnode 'plato-five "five" 30))
+(define plato-leftmost (make-slipnode 'plato-leftmost "lmost" 40))
+(define plato-rightmost (make-slipnode 'plato-rightmost "rmost" 40))
+(define plato-middle (make-slipnode 'plato-middle "middle" 40))
+(define plato-single (make-slipnode 'plato-single "single" 40))
+(define plato-whole (make-slipnode 'plato-whole "whole" 40))
+(define plato-alphabetic-first (make-slipnode 'plato-alphabetic-first "first" 60))
+(define plato-alphabetic-last (make-slipnode 'plato-alphabetic-last "last" 60))
+(define plato-left (make-slipnode 'plato-left "left" 40))
+(define plato-right (make-slipnode 'plato-right "right" 40))
+(define plato-predecessor (make-slipnode 'plato-predecessor "pred" 50))
+(define plato-successor (make-slipnode 'plato-successor "succ" 50))
+(define plato-sameness (make-slipnode 'plato-sameness "same" 80))
+(define plato-predgrp (make-slipnode 'plato-predgrp "predgrp" 50))
+(define plato-succgrp (make-slipnode 'plato-succgrp "succgrp" 50))
+(define plato-samegrp (make-slipnode 'plato-samegrp "samegrp" 80))
+(define plato-identity (make-slipnode 'plato-identity "Identity" 90))
+(define plato-opposite (make-slipnode 'plato-opposite "Opposite" 90))
+(define plato-letter (make-slipnode 'plato-letter "letter" 20))
+(define plato-group (make-slipnode 'plato-group "group" 80))
+(define plato-letter-category (make-slipnode 'plato-letter-category "LetterCtgy" 30))
+(define plato-string-position-category (make-slipnode 'plato-string-position-category "StringPos" 70))
+(define plato-alphabetic-position-category (make-slipnode 'plato-alphabetic-position-category "AlphaPos" 80))
+(define plato-direction-category (make-slipnode 'plato-direction-category "Direction" 70))
+(define plato-bond-category (make-slipnode 'plato-bond-category "BondCtgy" 80))
+(define plato-group-category (make-slipnode 'plato-group-category "GroupCtgy" 80))
+(define plato-length (make-slipnode 'plato-length "Length" 60))
+(define plato-object-category (make-slipnode 'plato-object-category "ObjectCtgy" 90))
+(define plato-bond-facet (make-slipnode 'plato-bond-facet "BondFacet" 90))
 
 (define *slipnet-nodes*
-  (slipnet-node-list*
-   (plato-a "a" conceptual-depth: 10)
-   (plato-b "b" conceptual-depth: 10)
-   (plato-c "c" conceptual-depth: 10)
-   (plato-d "d" conceptual-depth: 10)
-   (plato-e "e" conceptual-depth: 10)
-   (plato-f "f" conceptual-depth: 10)
-   (plato-g "g" conceptual-depth: 10)
-   (plato-h "h" conceptual-depth: 10)
-   (plato-i "i" conceptual-depth: 10)
-   (plato-j "j" conceptual-depth: 10)
-   (plato-k "k" conceptual-depth: 10)
-   (plato-l "l" conceptual-depth: 10)
-   (plato-m "m" conceptual-depth: 10)
-   (plato-n "n" conceptual-depth: 10)
-   (plato-o "o" conceptual-depth: 10)
-   (plato-p "p" conceptual-depth: 10)
-   (plato-q "q" conceptual-depth: 10)
-   (plato-r "r" conceptual-depth: 10)
-   (plato-s "s" conceptual-depth: 10)
-   (plato-t "t" conceptual-depth: 10)
-   (plato-u "u" conceptual-depth: 10)
-   (plato-v "v" conceptual-depth: 10)
-   (plato-w "w" conceptual-depth: 10)
-   (plato-x "x" conceptual-depth: 10)
-   (plato-y "y" conceptual-depth: 10)
-   (plato-z "z" conceptual-depth: 10)
-   (plato-one "one" conceptual-depth: 30)
-   (plato-two "two" conceptual-depth: 30)
-   (plato-three "three" conceptual-depth: 30)
-   (plato-four "four" conceptual-depth: 30)
-   (plato-five "five" conceptual-depth: 30)
-   (plato-leftmost "lmost" conceptual-depth: 40)
-   (plato-rightmost "rmost" conceptual-depth: 40)
-   (plato-middle "middle" conceptual-depth: 40)
-   (plato-single "single" conceptual-depth: 40)
-   (plato-whole "whole" conceptual-depth: 40)
-   (plato-alphabetic-first "first" conceptual-depth: 60)
-   (plato-alphabetic-last "last" conceptual-depth: 60)
-   (plato-left "left" conceptual-depth: 40)
-   (plato-right "right" conceptual-depth: 40)
-   (plato-predecessor "pred" conceptual-depth: 50)
-   (plato-successor "succ" conceptual-depth: 50)
-   (plato-sameness "same" conceptual-depth: 80)
-   (plato-predgrp "predgrp" conceptual-depth: 50)
-   (plato-succgrp "succgrp" conceptual-depth: 50)
-   (plato-samegrp "samegrp" conceptual-depth: 80)
-   (plato-identity "Identity" conceptual-depth: 90)
-   (plato-opposite "Opposite" conceptual-depth: 90)
-   (plato-letter "letter" conceptual-depth: 20)
-   (plato-group "group" conceptual-depth: 80)
-   (plato-letter-category "LetterCtgy" conceptual-depth: 30)
-   (plato-string-position-category "StringPos" conceptual-depth: 70)
-   (plato-alphabetic-position-category "AlphaPos" conceptual-depth: 80)
-   (plato-direction-category "Direction" conceptual-depth: 70)
-   (plato-bond-category "BondCtgy" conceptual-depth: 80)
-   (plato-group-category "GroupCtgy" conceptual-depth: 80)
-   (plato-length "Length" conceptual-depth: 60)
-   (plato-object-category "ObjectCtgy" conceptual-depth: 90)
-   (plato-bond-facet "BondFacet" conceptual-depth: 90)))
-
+  (list plato-a plato-b plato-c plato-d plato-e plato-f plato-g plato-h plato-i
+        plato-j plato-k plato-l plato-m plato-n plato-o plato-p plato-q plato-r
+        plato-s plato-t plato-u plato-v plato-w plato-x plato-y plato-z plato-one
+        plato-two plato-three plato-four plato-five plato-leftmost plato-rightmost
+        plato-middle plato-single plato-whole plato-alphabetic-first
+        plato-alphabetic-last plato-left plato-right plato-predecessor
+        plato-successor plato-sameness plato-predgrp plato-succgrp plato-samegrp
+        plato-identity plato-opposite plato-letter plato-group plato-letter-category
+        plato-string-position-category plato-alphabetic-position-category
+        plato-direction-category plato-bond-category plato-group-category
+        plato-length plato-object-category plato-bond-facet))
 
 (define *slipnet-letters*
   (list plato-a plato-b plato-c plato-d plato-e plato-f plato-g plato-h plato-i
@@ -608,270 +611,416 @@
 
 (tell plato-group 'define-descriptor-predicate group?)
         
+;;----------------------------------------------------------------------------------
+;; Slipnet Links
+
+(define establish-link-type-length
+  (lambda (from-node to-node link-type length)
+    (let ((new-link (make-slipnet-link from-node to-node link-type)))
+      (tell from-node 'add-to-outgoing-links link-type new-link)
+      (tell to-node 'add-to-incoming-links new-link)
+      (tell new-link 'set-link-length length)
+      new-link)))
+
+(define establish-link-type-label
+  (lambda (from-node to-node link-type label)
+    (let ((new-link (make-slipnet-link from-node to-node link-type)))
+      (tell from-node 'add-to-outgoing-links link-type new-link)
+      (tell to-node 'add-to-incoming-links new-link)
+      (tell new-link 'set-label-node label)
+      new-link)))
+
+(define instance-link-97
+  (lambda (from-node to-node)
+    (establish-link-type-length from-node to-node 'instance 97)))
+
+(define instance-link-100
+  (lambda (from-node to-node)
+    (establish-link-type-length from-node to-node 'instance 100)))
+
+(define category-link-0
+  (lambda (from-node to-node)
+    (establish-link-type-length from-node to-node 'category 0)))
+
+(define category-link-diff
+  (lambda (from-node to-node)
+    (establish-link-type-length from-node to-node 'category
+      (- (cd to-node) (cd from-node)))))
+  
+(define lateral-link-label
+  (lambda (from-node to-node label)
+    (establish-link-type-label from-node to-node 'lateral label)))
+
+(define lateral-sliplink-label
+  (lambda (from-node to-node label)
+    (establish-link-type-label from-node to-node 'lateral-sliplink label)))
+
+(define lateral-link-length
+  (lambda (from-node to-node length)
+    (establish-link-type-length from-node to-node 'lateral length)))
+
+(define lateral-sliplink-length
+  (lambda (from-node to-node length)
+    (establish-link-type-length from-node to-node 'lateral-sliplink length)))
+
+(define lateral-link-length-label
+  (lambda (from-node to-node length label)
+    (let ((new-link (make-slipnet-link from-node to-node 'lateral)))
+      (tell from-node 'add-to-outgoing-links 'lateral new-link)
+      (tell to-node 'add-to-incoming-links new-link)
+      (tell new-link 'set-link-length length)
+      (tell new-link 'set-label-node label)
+      new-link)))
 
 
 ;;  SUCCESSOR and PREDECESSOR links
 
-(lateral-link* a -> b label: successor)
-(lateral-link* b -> c label: successor)
-(lateral-link* c -> d label: successor)
-(lateral-link* d -> e label: successor)
-(lateral-link* e -> f label: successor)
-(lateral-link* f -> g label: successor)
-(lateral-link* g -> h label: successor)
-(lateral-link* h -> i label: successor)
-(lateral-link* i -> j label: successor)
-(lateral-link* j -> k label: successor)
-(lateral-link* k -> l label: successor)
-(lateral-link* l -> m label: successor)
-(lateral-link* m -> n label: successor)
-(lateral-link* n -> o label: successor)
-(lateral-link* o -> p label: successor)
-(lateral-link* p -> q label: successor)
-(lateral-link* q -> r label: successor)
-(lateral-link* r -> s label: successor)
-(lateral-link* s -> t label: successor)
-(lateral-link* t -> u label: successor)
-(lateral-link* u -> v label: successor)
-(lateral-link* v -> w label: successor)
-(lateral-link* w -> x label: successor)
-(lateral-link* x -> y label: successor)
-(lateral-link* y -> z label: successor)
+(define a-b_link (lateral-link-label plato-a plato-b plato-successor))
+(define b-c_link (lateral-link-label plato-b plato-c plato-successor))
+(define c-d_link (lateral-link-label plato-c plato-d plato-successor))
+(define d-e_link (lateral-link-label plato-d plato-e plato-successor))
+(define e-f_link (lateral-link-label plato-e plato-f plato-successor))
+(define f-g_link (lateral-link-label plato-f plato-g plato-successor))
+(define g-h_link (lateral-link-label plato-g plato-h plato-successor))
+(define h-i_link (lateral-link-label plato-h plato-i plato-successor))
+(define i-j_link (lateral-link-label plato-i plato-j plato-successor))
+(define j-k_link (lateral-link-label plato-j plato-k plato-successor))
+(define k-l_link (lateral-link-label plato-k plato-l plato-successor))
+(define l-m_link (lateral-link-label plato-l plato-m plato-successor))
+(define m-n_link (lateral-link-label plato-m plato-n plato-successor))
+(define n-o_link (lateral-link-label plato-n plato-o plato-successor))
+(define o-p_link (lateral-link-label plato-o plato-p plato-successor))
+(define p-q_link (lateral-link-label plato-p plato-q plato-successor))
+(define q-r_link (lateral-link-label plato-q plato-r plato-successor))
+(define r-s_link (lateral-link-label plato-r plato-s plato-successor))
+(define s-t_link (lateral-link-label plato-s plato-t plato-successor))
+(define t-u_link (lateral-link-label plato-t plato-u plato-successor))
+(define u-v_link (lateral-link-label plato-u plato-v plato-successor))
+(define v-w_link (lateral-link-label plato-v plato-w plato-successor))
+(define w-x_link (lateral-link-label plato-w plato-x plato-successor))
+(define x-y_link (lateral-link-label plato-x plato-y plato-successor))
+(define y-z_link (lateral-link-label plato-y plato-z plato-successor))
 
-(lateral-link* z -> y label: predecessor)
-(lateral-link* y -> x label: predecessor)
-(lateral-link* x -> w label: predecessor)
-(lateral-link* w -> v label: predecessor)
-(lateral-link* v -> u label: predecessor)
-(lateral-link* u -> t label: predecessor)
-(lateral-link* t -> s label: predecessor)
-(lateral-link* s -> r label: predecessor)
-(lateral-link* r -> q label: predecessor)
-(lateral-link* q -> p label: predecessor)
-(lateral-link* p -> o label: predecessor)
-(lateral-link* o -> n label: predecessor)
-(lateral-link* n -> m label: predecessor)
-(lateral-link* m -> l label: predecessor)
-(lateral-link* l -> k label: predecessor)
-(lateral-link* k -> j label: predecessor)
-(lateral-link* j -> i label: predecessor)
-(lateral-link* i -> h label: predecessor)
-(lateral-link* h -> g label: predecessor)
-(lateral-link* g -> f label: predecessor)
-(lateral-link* f -> e label: predecessor)
-(lateral-link* e -> d label: predecessor)
-(lateral-link* d -> c label: predecessor)
-(lateral-link* c -> b label: predecessor)
-(lateral-link* b -> a label: predecessor)
+(define b-a_link (lateral-link-label plato-b plato-a plato-predecessor))
+(define c-b_link (lateral-link-label plato-c plato-b plato-predecessor))
+(define d-c_link (lateral-link-label plato-d plato-c plato-predecessor))
+(define e-d_link (lateral-link-label plato-e plato-d plato-predecessor))
+(define f-e_link (lateral-link-label plato-f plato-e plato-predecessor))
+(define g-f_link (lateral-link-label plato-g plato-f plato-predecessor))
+(define h-g_link (lateral-link-label plato-h plato-g plato-predecessor))
+(define i-h_link (lateral-link-label plato-i plato-h plato-predecessor))
+(define j-i_link (lateral-link-label plato-j plato-i plato-predecessor))
+(define k-j_link (lateral-link-label plato-k plato-j plato-predecessor))
+(define l-k_link (lateral-link-label plato-l plato-k plato-predecessor))
+(define m-l_link (lateral-link-label plato-m plato-l plato-predecessor))
+(define n-m_link (lateral-link-label plato-n plato-m plato-predecessor))
+(define o-n_link (lateral-link-label plato-o plato-n plato-predecessor))
+(define p-o_link (lateral-link-label plato-p plato-o plato-predecessor))
+(define q-p_link (lateral-link-label plato-q plato-p plato-predecessor))
+(define r-q_link (lateral-link-label plato-r plato-q plato-predecessor))
+(define s-r_link (lateral-link-label plato-s plato-r plato-predecessor))
+(define t-s_link (lateral-link-label plato-t plato-s plato-predecessor))
+(define u-t_link (lateral-link-label plato-u plato-t plato-predecessor))
+(define v-u_link (lateral-link-label plato-v plato-u plato-predecessor))
+(define w-v_link (lateral-link-label plato-w plato-v plato-predecessor))
+(define x-w_link (lateral-link-label plato-x plato-w plato-predecessor))
+(define y-x_link (lateral-link-label plato-y plato-x plato-predecessor))
+(define z-y_link (lateral-link-label plato-z plato-y plato-predecessor))
 
-(lateral-link* one -> two label: successor)
-(lateral-link* two -> three label: successor)
-(lateral-link* three -> four label: successor)
-(lateral-link* four -> five label: successor)
+(define one-two_link (lateral-link-label plato-one plato-two plato-successor))
+(define two-three_link (lateral-link-label plato-two plato-three plato-successor))
+(define three-four_link (lateral-link-label plato-three plato-four plato-successor))
+(define four-five_link (lateral-link-label plato-four plato-five plato-successor))
 
-(lateral-link* five -> four label: predecessor)
-(lateral-link* four -> three label: predecessor)
-(lateral-link* three -> two label: predecessor)
-(lateral-link* two -> one label: predecessor)
+(define five-four_link (lateral-link-label plato-five plato-four plato-predecessor))
+(define four-three_link (lateral-link-label plato-four plato-three plato-predecessor))
+(define three-two_link (lateral-link-label plato-three plato-two plato-predecessor))
+(define two-one_link (lateral-link-label plato-two plato-one plato-predecessor))
 
 
 
 ;;  LETTER-CATEGORY links
 
-(instance-link*
-   letter-category -> (a b c d e f g h i j k l m n o p q r s t u v w x y z)
-   all-lengths: 97)
+(define letter-category-a_link (instance-link-97 plato-letter-category plato-a))
+(define letter-category-b_link (instance-link-97 plato-letter-category plato-b))
+(define letter-category-c_link (instance-link-97 plato-letter-category plato-c))
+(define letter-category-d_link (instance-link-97 plato-letter-category plato-d))
+(define letter-category-e_link (instance-link-97 plato-letter-category plato-e))
+(define letter-category-f_link (instance-link-97 plato-letter-category plato-f))
+(define letter-category-g_link (instance-link-97 plato-letter-category plato-g))
+(define letter-category-h_link (instance-link-97 plato-letter-category plato-h))
+(define letter-category-i_link (instance-link-97 plato-letter-category plato-i))
+(define letter-category-j_link (instance-link-97 plato-letter-category plato-j))
+(define letter-category-k_link (instance-link-97 plato-letter-category plato-k))
+(define letter-category-l_link (instance-link-97 plato-letter-category plato-l))
+(define letter-category-m_link (instance-link-97 plato-letter-category plato-m))
+(define letter-category-n_link (instance-link-97 plato-letter-category plato-n))
+(define letter-category-o_link (instance-link-97 plato-letter-category plato-o))
+(define letter-category-p_link (instance-link-97 plato-letter-category plato-p))
+(define letter-category-q_link (instance-link-97 plato-letter-category plato-q))
+(define letter-category-r_link (instance-link-97 plato-letter-category plato-r))
+(define letter-category-s_link (instance-link-97 plato-letter-category plato-s))
+(define letter-category-t_link (instance-link-97 plato-letter-category plato-t))
+(define letter-category-u_link (instance-link-97 plato-letter-category plato-u))
+(define letter-category-v_link (instance-link-97 plato-letter-category plato-v))
+(define letter-category-w_link (instance-link-97 plato-letter-category plato-w))
+(define letter-category-x_link (instance-link-97 plato-letter-category plato-x))
+(define letter-category-y_link (instance-link-97 plato-letter-category plato-y))
+(define letter-category-z_link (instance-link-97 plato-letter-category plato-z))
 
-(category-link*
-   (a b c d e f g h i j k l m n o p q r s t u v w x y z) -> letter-category
-   all-lengths: 0)
+(define a-letter-category_link (category-link-0 plato-a plato-letter-category))
+(define b-letter-category_link (category-link-0 plato-b plato-letter-category))
+(define c-letter-category_link (category-link-0 plato-c plato-letter-category))
+(define d-letter-category_link (category-link-0 plato-d plato-letter-category))
+(define e-letter-category_link (category-link-0 plato-e plato-letter-category))
+(define f-letter-category_link (category-link-0 plato-f plato-letter-category))
+(define g-letter-category_link (category-link-0 plato-g plato-letter-category))
+(define h-letter-category_link (category-link-0 plato-h plato-letter-category))
+(define i-letter-category_link (category-link-0 plato-i plato-letter-category))
+(define j-letter-category_link (category-link-0 plato-j plato-letter-category))
+(define k-letter-category_link (category-link-0 plato-k plato-letter-category))
+(define l-letter-category_link (category-link-0 plato-l plato-letter-category))
+(define m-letter-category_link (category-link-0 plato-m plato-letter-category))
+(define n-letter-category_link (category-link-0 plato-n plato-letter-category))
+(define o-letter-category_link (category-link-0 plato-o plato-letter-category))
+(define p-letter-category_link (category-link-0 plato-p plato-letter-category))
+(define q-letter-category_link (category-link-0 plato-q plato-letter-category))
+(define r-letter-category_link (category-link-0 plato-r plato-letter-category))
+(define s-letter-category_link (category-link-0 plato-s plato-letter-category))
+(define t-letter-category_link (category-link-0 plato-t plato-letter-category))
+(define u-letter-category_link (category-link-0 plato-u plato-letter-category))
+(define v-letter-category_link (category-link-0 plato-v plato-letter-category))
+(define w-letter-category_link (category-link-0 plato-w plato-letter-category))
+(define x-letter-category_link (category-link-0 plato-x plato-letter-category))
+(define y-letter-category_link (category-link-0 plato-y plato-letter-category))
+(define z-letter-category_link (category-link-0 plato-z plato-letter-category))
 
 (let ((letter-category-depth (cd plato-letter-category)))
   (for* each letter in *slipnet-letters* do
     (tell (first (tell letter 'get-category-links))
       'set-link-length (- letter-category-depth (cd letter)))))
 
-(lateral-link* samegrp -> letter-category length: 50)
+(define samegrp-letter-category_link 
+  (lateral-link-length plato-samegrp plato-letter-category 50))
 
 
 
 ;;  LENGTH links
 
-(instance-link* length -> (one two three four five) all-lengths: 100)
-(category-link* (one two three four five) -> length all-lengths: 0)
+(define length-one_link   (instance-link-100 plato-length plato-one))
+(define length-two_link   (instance-link-100 plato-length plato-two))
+(define length-three_link (instance-link-100 plato-length plato-three))
+(define length-four_link  (instance-link-100 plato-length plato-four))
+(define length-five_link  (instance-link-100 plato-length plato-five))
+
+(define one-length_link   (category-link-0 plato-one plato-length))
+(define two-length_link   (category-link-0 plato-two plato-length))
+(define three-length_link (category-link-0 plato-three plato-length))
+(define four-length_link  (category-link-0 plato-four plato-length))
+(define five-length_link  (category-link-0 plato-five plato-length))
 
 (let ((length-depth (cd plato-length)))
   (for* each number in *slipnet-numbers* do
     (tell (first (tell number 'get-category-links))
       'set-link-length (- length-depth (cd number)))))
 
-(lateral-link* predgrp -> length length: 95)
-(lateral-link* succgrp -> length length: 95)
-(lateral-link* samegrp -> length length: 95)
+(define predgrp-length_link 
+  (lateral-link-length plato-predgrp plato-length 95))
+(define succgrp-length_link 
+  (lateral-link-length plato-succgrp plato-length 95))
+(define samegrp-length_link 
+  (lateral-link-length plato-samegrp plato-length 95))
 
 
 
 ;;  OPPOSITE links
 
-(lateral-sliplink* alphabetic-first <-> alphabetic-last label: opposite)
-(lateral-sliplink* leftmost <-> rightmost label: opposite)
-(lateral-sliplink* left <-> right label: opposite)
-(lateral-sliplink* successor <-> predecessor label: opposite)
-(lateral-sliplink* predgrp <-> succgrp label: opposite)
+(define alphabetic-first-alphabetic-last_link
+  (lateral-sliplink-label plato-alphabetic-first plato-alphabetic-last plato-opposite))
+(define alphabetic-last-alphabetic-first_link
+  (lateral-sliplink-label plato-alphabetic-last plato-alphabetic-first plato-opposite))
+
+(define leftmost-rightmost_link
+  (lateral-sliplink-label plato-leftmost plato-rightmost plato-opposite))
+(define rightmost-leftmost_link
+  (lateral-sliplink-label plato-rightmost plato-leftmost plato-opposite))
+
+(define left-right_link
+  (lateral-sliplink-label plato-left plato-right plato-opposite))
+(define right-left_link
+  (lateral-sliplink-label plato-right plato-left plato-opposite))
+
+(define successor-predecessor_link
+  (lateral-sliplink-label plato-successor plato-predecessor plato-opposite))
+(define predecessor-successor_link
+  (lateral-sliplink-label plato-predecessor plato-successor plato-opposite))
+
+(define predgrp-succgrp_link
+  (lateral-sliplink-label plato-predgrp plato-succgrp plato-opposite))
+(define succgrp-predgrp_link
+  (lateral-sliplink-label plato-succgrp plato-predgrp plato-opposite))
+
 
 
 
 ;;  PROPERTY links
 
-(property-link* a -> alphabetic-first length: 75)
-(property-link* z -> alphabetic-last length: 75)
+(define a-alphabetic-first_link 
+  (establish-link-type-length plato-a plato-alphabetic-first 'property 75))
 
+(define z-alphabetic-last_link 
+  (establish-link-type-length plato-z plato-alphabetic-last 'property 75))
 
 
 ;;  OBJECT-CATEGORY links
 
-(instance-link* object-category -> letter length: 100)
-(category-link* letter -> object-category
-   length: (- (cd plato-object-category) (cd plato-letter)))
+(define object-category-letter_link (instance-link-100 plato-object-category plato-letter))
+(define letter-object-category_link (category-link-diff plato-letter plato-object-category))
 
-(instance-link* object-category -> group length: 100)
-(category-link* group -> object-category
-   length: (- (cd plato-object-category) (cd plato-group)))
-
+(define object-category-group_link (instance-link-100 plato-object-category plato-group))
+(define group-object-category_link (category-link-diff plato-group plato-object-category))
 
 
 ;;  STRING-POSITION-CATEGORY links
 
-(instance-link* string-position-category -> leftmost length: 100)
-(category-link* leftmost -> string-position-category
-   length: (- (cd plato-string-position-category)
-            (cd plato-leftmost)))
+(define string-position-category-leftmost_link 
+  (instance-link-100 plato-string-position-category plato-leftmost))
+(define leftmost-string-position-category_link
+  (category-link-diff plato-leftmost plato-string-position-category))
 
-(instance-link* string-position-category -> rightmost length: 100)
-(category-link* rightmost -> string-position-category
-   length: (- (cd plato-string-position-category)
-            (cd plato-rightmost)))
+(define string-position-category-rightmost_link 
+  (instance-link-100 plato-string-position-category plato-rightmost))
+(define rightmost-string-position-category_link
+  (category-link-diff plato-rightmost plato-string-position-category))
 
-(instance-link* string-position-category -> middle length: 100)
-(category-link* middle -> string-position-category
-   length: (- (cd plato-string-position-category)
-            (cd plato-middle)))
+(define string-position-category-middle_link 
+  (instance-link-100 plato-string-position-category plato-middle))
+(define middle-string-position-category_link
+  (category-link-diff plato-middle plato-string-position-category))
 
-(instance-link* string-position-category -> single length: 100)
-(category-link* single -> string-position-category
-   length: (- (cd plato-string-position-category)
-            (cd plato-single)))
+(define string-position-category-single_link 
+  (instance-link-100 plato-string-position-category plato-single))
+(define single-string-position-category_link
+  (category-link-diff plato-single plato-string-position-category))
 
-(instance-link* string-position-category -> whole length: 100)
-(category-link* whole -> string-position-category
-   length: (- (cd plato-string-position-category)
-            (cd plato-whole)))
+(define string-position-category-whole_link 
+  (instance-link-100 plato-string-position-category plato-whole))
+(define whole-string-position-category_link
+  (category-link-diff plato-whole plato-string-position-category))
 
 
 
 ;;  ALPHABETIC-POSITION-CATEGORY links
 
-(instance-link* alphabetic-position-category -> alphabetic-first length: 100)
-(category-link* alphabetic-first -> alphabetic-position-category
-   length: (- (cd plato-alphabetic-position-category)
-            (cd plato-alphabetic-first)))
+(define alphabetic-position-category-alphabetic-first_link 
+  (instance-link-100 plato-alphabetic-position-category plato-alphabetic-first))
+(define alphabetic-first-alphabetic-position-category_link
+  (category-link-diff plato-alphabetic-first plato-alphabetic-position-category))
 
-(instance-link* alphabetic-position-category -> alphabetic-last length: 100)
-(category-link* alphabetic-last -> alphabetic-position-category
-   length: (- (cd plato-alphabetic-position-category)
-            (cd plato-alphabetic-last)))
-
+(define alphabetic-position-category-alphabetic-last_link 
+  (instance-link-100 plato-alphabetic-position-category plato-alphabetic-last))
+(define alphabetic-last-alphabetic-position-category_link
+  (category-link-diff plato-alphabetic-last plato-alphabetic-position-category))
 
 
 ;;  DIRECTION-CATEGORY links
 
-(instance-link* direction-category -> left length: 100)
-(category-link* left -> direction-category
-   length: (- (cd plato-direction-category)
-            (cd plato-left)))
+(define direction-category-left_link
+  (instance-link-100 plato-direction-category plato-left))
+(define left-direction-category_link
+  (category-link-diff plato-left plato-direction-category))
 
-(instance-link* direction-category -> right length: 100)
-(category-link* right -> direction-category
-   length: (- (cd plato-direction-category)
-            (cd plato-right)))
-
+(define direction-category-right_link
+  (instance-link-100 plato-direction-category plato-right))
+(define right-direction-category_link
+  (category-link-diff plato-right plato-direction-category))
 
 
 ;;  BOND-CATEGORY links
 
-(instance-link* bond-category -> predecessor length: 100)
-(category-link* predecessor -> bond-category
-   length: (- (cd plato-bond-category)
-            (cd plato-predecessor)))
+(define bond-category-predecessor_link
+  (instance-link-100 plato-bond-category plato-predecessor))
+(define predecessor-bond-category_link
+  (category-link-diff plato-predecessor plato-bond-category))
 
-(instance-link* bond-category -> successor length: 100)
-(category-link* successor -> bond-category
-   length: (- (cd plato-bond-category)
-            (cd plato-successor)))
+(define bond-category-successor_link
+  (instance-link-100 plato-bond-category plato-successor))
+(define successor-bond-category_link
+  (category-link-diff plato-successor plato-bond-category))
 
-(instance-link* bond-category -> sameness length: 100)
-(category-link* sameness -> bond-category
-   length: (- (cd plato-bond-category)
-            (cd plato-sameness)))
-
+(define bond-category-sameness_link
+  (instance-link-100 plato-bond-category plato-sameness))
+(define sameness-bond-category_link
+  (category-link-diff plato-sameness plato-bond-category))
 
 
 ;;  GROUP-CATEGORY links
 
-(instance-link* group-category -> predgrp length: 100)
-(category-link* predgrp -> group-category
-   length: (- (cd plato-group-category)
-            (cd plato-predgrp)))
+(define group-category-predgrp_link
+  (instance-link-100 plato-group-category plato-predgrp))
+(define predgrp-group-category_link
+  (category-link-diff plato-predgrp plato-group-category))
 
-(instance-link* group-category -> succgrp length: 100)
-(category-link* succgrp -> group-category
-   length: (- (cd plato-group-category)
-            (cd plato-succgrp)))
+(define group-category-succgrp_link
+  (instance-link-100 plato-group-category plato-succgrp))
+(define succgrp-group-category_link
+  (category-link-diff plato-succgrp plato-group-category))
 
-(instance-link* group-category -> samegrp length: 100)
-(category-link* samegrp -> group-category
-   length: (- (cd plato-group-category)
-            (cd plato-samegrp)))
-
+(define group-category-samegrp_link
+  (instance-link-100 plato-group-category plato-samegrp))
+(define samegrp-group-category_link
+  (category-link-diff plato-samegrp plato-group-category))
 
 
 ;;  ASSOCIATED GROUP links
 
-(lateral-link* sameness -> samegrp length: 30 label: group-category)
-(lateral-link* successor -> succgrp length: 60 label: group-category)
-(lateral-link* predecessor -> predgrp length: 60 label: group-category)
+(define sameness-samegrp_link
+  (lateral-link-length-label plato-sameness plato-samegrp 30 plato-group-category))
+(define successor-succgrp_link
+  (lateral-link-length-label plato-successor plato-succgrp 60 plato-group-category))
+(define predecessor-predgrp_link
+  (lateral-link-length-label plato-predecessor plato-predgrp 60 plato-group-category))
 
 
 
 ;;  ASSOCIATED BOND-CATEGORY links
 
-(lateral-link* samegrp -> sameness length: 90 label: bond-category)
-(lateral-link* succgrp -> successor length: 90 label: bond-category)
-(lateral-link* predgrp -> predecessor length: 90 label: bond-category)
+(define samegrp-sameness_link
+  (lateral-link-length-label plato-samegrp plato-sameness 90 plato-bond-category))
+(define succgrp-successor_link
+  (lateral-link-length-label plato-succgrp plato-successor 90 plato-bond-category))
+(define predgrp-predecessor_link
+  (lateral-link-length-label plato-predgrp plato-predecessor 90 plato-bond-category))
 
 
 
 ;;  BOND-FACET links
 
-(instance-link* bond-facet -> letter-category length: 100)
-(category-link* letter-category -> bond-facet
-   length: (- (cd plato-bond-facet) (cd plato-letter-category)))
+(define bond-facet-letter-category_link
+  (instance-link-100 plato-bond-facet plato-letter-category))
+(define letter-category-bond-facet_link
+  (category-link-diff plato-letter-category plato-bond-facet))
 
-(instance-link* bond-facet -> length length: 100)
-(category-link* length -> bond-facet
-   length: (- (cd plato-bond-facet) (cd plato-length)))
-
+(define bond-facet-length_link
+  (instance-link-100 plato-bond-facet plato-length))
+(define length-bond-facet_link
+  (category-link-diff plato-length plato-bond-facet))
 
 
 ;;  LETTER-CATEGORY-LENGTH links
 
-(lateral-sliplink* letter-category <-> length length: 95)
-
+(define letter-category-length_link
+  (lateral-sliplink-length plato-letter-category plato-length 95))
+(define length-letter-category_link
+  (lateral-sliplink-length plato-length plato-letter-category 95))
 
 
 ;;  LETTER-GROUP links
 
-(lateral-sliplink* letter <-> group length: 90)
+(define letter-group_link
+  (lateral-sliplink-length plato-letter plato-group 90))
+(define group-letter_link
+  (lateral-sliplink-length plato-group plato-letter 90))
 
 
 
@@ -894,17 +1043,52 @@
 ;; incompatible CMs.  However, {first=>last, lmost=>rmost} will still be supporting,
 ;; and {lmost=>rmost, left=>left} will still be incompatible, as they should be:
 
-(lateral-link* leftmost <-> left length: 90 label: identity)
-(lateral-link* leftmost <-> right length: 100 label: opposite)
-(lateral-link* rightmost <-> left length: 100 label: opposite)
-(lateral-link* rightmost <-> right length: 90 label: identity)
-(lateral-link* alphabetic-first <-> leftmost length: 100)
-(lateral-link* alphabetic-first <-> rightmost length: 100)
-(lateral-link* alphabetic-last <-> leftmost length: 100)
-(lateral-link* alphabetic-last <-> rightmost length: 100)
+(define leftmost-left_link
+  (lateral-link-length-label plato-leftmost plato-left 90 plato-identity))
+(define left-leftmost_link
+  (lateral-link-length-label plato-left plato-leftmost 90 plato-identity))
+
+(define leftmost-right_link
+  (lateral-link-length-label plato-leftmost plato-right 100 plato-opposite))
+(define right-leftmost_link
+  (lateral-link-length-label plato-right plato-leftmost 100 plato-opposite))
+
+(define rightmost-left_link
+  (lateral-link-length-label plato-rightmost plato-left 100 plato-opposite))
+(define left-rightmost_link
+  (lateral-link-length-label plato-left plato-rightmost 100 plato-opposite))
+
+(define rightmost-right_link
+  (lateral-link-length-label plato-rightmost plato-right 90 plato-identity))
+(define right-rightmost_link
+  (lateral-link-length-label plato-right plato-rightmost 90 plato-identity))
+
+(define alphabetic-first-leftmost_link
+  (lateral-link-length plato-alphabetic-first plato-leftmost 100))
+(define leftmost-alphabetic-first_link
+  (lateral-link-length plato-leftmost plato-alphabetic-first 100))
+
+(define alphabetic-first-rightmost_link
+  (lateral-link-length plato-alphabetic-first plato-rightmost 100))
+(define rightmost-alphabetic-first_link
+  (lateral-link-length plato-rightmost plato-alphabetic-first 100))
+
+(define alphabetic-last-leftmost_link
+  (lateral-link-length plato-alphabetic-last plato-leftmost 100))
+(define leftmost-alphabetic-last_link
+  (lateral-link-length plato-leftmost plato-alphabetic-last 100))
+
+(define alphabetic-last-rightmost_link
+  (lateral-link-length plato-alphabetic-last plato-rightmost 100))
+(define rightmost-alphabetic-last_link
+  (lateral-link-length plato-rightmost plato-alphabetic-last 100))
+
 
 
 
 ;;  OTHER LINKS
 
-(lateral-sliplink* single <-> whole length: 90)
+(define single-whole_link
+  (lateral-sliplink-length plato-single plato-whole 90))
+(define whole-single_link
+  (lateral-sliplink-length plato-whole plato-single 90))

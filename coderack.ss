@@ -595,35 +595,89 @@
 ;; before any codelet-type-procedures are defined, and before any
 ;; top-down codelet-types are attached to slipnodes.
 
+(define bottom-up-bond-scout
+  (make-codelet-type 'bottom-up-bond-scout (list "Bottom-up" "bond scout")))
+(define top-down-bond-scout:category
+  (make-codelet-type 'top-down-bond-scout:category (list "Top-down bond" "(category) scout")))
+(define top-down-bond-scout:direction
+  (make-codelet-type 'top-down-bond-scout:direction (list "Top-down bond" "(direction) scout")))
+(define bond-evaluator
+  (make-codelet-type 'bond-evaluator (list "Bond evaluator")))
+(define bond-builder
+  (make-codelet-type 'bond-builder (list "Bond builder")))
+(define top-down-group-scout:category
+  (make-codelet-type 'top-down-group-scout:category (list "Top-down group" "(category) scout")))
+(define top-down-group-scout:direction
+  (make-codelet-type 'top-down-group-scout:direction (list "Top-down group" "(direction) scout")))
+(define group-scout:whole-string
+  (make-codelet-type 'group-scout:whole-string (list "Whole-string" "group scout")))
+(define group-evaluator
+  (make-codelet-type 'group-evaluator (list "Group evaluator")))
+(define group-builder
+  (make-codelet-type 'group-builder (list "Group builder")))
+(define bottom-up-bridge-scout
+  (make-codelet-type 'bottom-up-bridge-scout (list "Bottom-up" "bridge scout")))
+(define important-object-bridge-scout
+  (make-codelet-type 'important-object-bridge-scout (list "Important-object" "bridge scout")))
+(define bridge-evaluator
+  (make-codelet-type 'bridge-evaluator (list "Bridge" "evaluator")))
+(define bridge-builder
+  (make-codelet-type 'bridge-builder (list "Bridge" "builder")))
+(define bottom-up-description-scout
+  (make-codelet-type 'bottom-up-description-scout (list "Bottom-up" "descrip. scout")))
+(define top-down-description-scout
+  (make-codelet-type 'top-down-description-scout (list "Top-down" "descrip. scout")))
+(define description-evaluator
+  (make-codelet-type 'description-evaluator (list "Description" "evaluator")))
+(define description-builder
+  (make-codelet-type 'description-builder (list "Description" "builder")))
+(define rule-scout
+  (make-codelet-type 'rule-scout (list "Rule scout")))
+(define rule-evaluator
+  (make-codelet-type 'rule-evaluator (list "Rule evaluator")))
+(define rule-builder
+  (make-codelet-type 'rule-builder (list "Rule builder")))
+(define answer-finder
+  (make-codelet-type 'answer-finder (list "Answer finder")))
+(define answer-justifier
+  (make-codelet-type 'answer-justifier (list "Answer justifier")))
+(define thematic-bridge-scout
+  (make-codelet-type 'thematic-bridge-scout (list "Thematic" "bridge scout")))
+(define progress-watcher
+  (make-codelet-type 'progress-watcher (list "Progress watcher")))
+(define jootser
+  (make-codelet-type 'jootser (list "Jootser")))
+(define breaker
+  (make-codelet-type 'breaker (list "Breaker")))
+
 (define *codelet-types*
-  (codelet-type-list*
-    (bottom-up-bond-scout "Bottom-up" "bond scout")
-    (top-down-bond-scout:category "Top-down bond" "(category) scout")
-    (top-down-bond-scout:direction "Top-down bond" "(direction) scout")
-    (bond-evaluator "Bond evaluator")
-    (bond-builder "Bond builder")
-    (top-down-group-scout:category "Top-down group" "(category) scout")
-    (top-down-group-scout:direction "Top-down group" "(direction) scout")
-    (group-scout:whole-string "Whole-string" "group scout")
-    (group-evaluator "Group evaluator")
-    (group-builder "Group builder")
-    (bottom-up-bridge-scout "Bottom-up" "bridge scout")
-    (important-object-bridge-scout "Important-object" "bridge scout")
-    (bridge-evaluator "Bridge" "evaluator")
-    (bridge-builder "Bridge" "builder")
-    (bottom-up-description-scout "Bottom-up" "descrip. scout")
-    (top-down-description-scout "Top-down" "descrip. scout")
-    (description-evaluator "Description" "evaluator")
-    (description-builder "Description" "builder")
-    (rule-scout "Rule scout")
-    (rule-evaluator "Rule evaluator")
-    (rule-builder "Rule builder")
-    (answer-finder "Answer finder")
-    (answer-justifier "Answer justifier")
-    (thematic-bridge-scout "Thematic" "bridge scout")
-    (progress-watcher "Progress watcher")
-    (jootser "Jootser")
-    (breaker "Breaker")))
+  (list 
+    bottom-up-bond-scout
+    top-down-bond-scout:category
+    top-down-bond-scout:direction
+    bond-evaluator
+    bond-builder
+    top-down-group-scout:category
+    top-down-group-scout:direction
+    group-scout:whole-string
+    group-evaluator
+    group-builder
+    bottom-up-bridge-scout
+    important-object-bridge-scout
+    bridge-evaluator
+    bridge-builder
+    bottom-up-description-scout
+    top-down-description-scout
+    description-evaluator
+    description-builder
+    rule-scout rule-evaluator
+    rule-builder
+    answer-finder
+    answer-justifier
+    thematic-bridge-scout
+    progress-watcher
+    jootser
+    breaker))
     
 
 

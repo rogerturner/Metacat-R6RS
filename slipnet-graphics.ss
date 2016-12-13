@@ -161,6 +161,11 @@
            (else (delegate msg graphics-window))))))))
 
 
+(define-syntax slipnet-layout-table*
+  (syntax-rules ()
+    ( (_ (n ...) ...)
+      (rotate-90-degrees-clockwise (vector (vector n ...) ...)))))
+
 (define *13x5-layout-table*
   (slipnet-layout-table*
     (plato-opposite plato-string-position-category plato-leftmost plato-middle

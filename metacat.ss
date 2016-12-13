@@ -23,8 +23,10 @@
 
 ;; Version 1.2+0.1.0: Cloned from science.slc.edu/~jmarshall/metacat/
 ;;                    Added *gui* switch (run in Chez repl if #f)
-;;            +0.2.0: r6rs compliance part 1: 1st -> first etc; 1- -> $1- etc;
-;;                    '-->' -> '->' etc; case keys; extend-syntax -> define-syntax etc
+;;            +0.2.0: r6rs compliance: 
+;;                      1st -> first etc; 1- -> $1- etc; '-->' -> '->' etc;
+;;                      case keys; extend-syntax -> define-syntax;
+;;                      replace macros using define-top-level-value;
 
  (define *metacat-version* "Metacat 1.2+0.2.0")
 
