@@ -100,7 +100,7 @@
 
 (define default-press-handler
   (lambda (win x y)
-    (printf "mouse pressed at (~a ~a)~%" (exact->inexact x) (exact->inexact y))))
+    (printf "mouse pressed at (~a ~a)~%" (inexact x) (inexact y))))
 
 (define-class (<viewport> parent px py xp yp) (<canvas> parent)
   (ivars (resize-handler nop-event-handler)

@@ -41,22 +41,11 @@
       ((<= urgency-value %very-high-urgency%) 'very-high-urgency)
       (else 'extremely-high-urgency))))
 
-(define urgency-color
-  (lambda (urgency-value)
-    (cond
-      ((<= urgency-value %extremely-low-urgency%) %extremely-low-urgency-color%)
-      ((<= urgency-value %very-low-urgency%) %very-low-urgency-color%)
-      ((<= urgency-value %low-urgency%) %low-urgency-color%)
-      ((<= urgency-value %medium-urgency%) %medium-urgency-color%)
-      ((<= urgency-value %high-urgency%) %high-urgency-color%)
-      ((<= urgency-value %very-high-urgency%) %very-high-urgency-color%)
-      (else %extremely-high-urgency-color%))))
-
 (define %urgency-value-table%
   (let ((table (make-table %num-of-coderack-bins% 101)))
     (for-each-table-element* (table coderack-bin-number temperature) do
       (table-set! table coderack-bin-number temperature
-       (round (expt (add1 coderack-bin-number)
+       ($round (expt (add1 coderack-bin-number)
                (/ (+ ($100- temperature) 10) 15.0)))))
     table))
 
@@ -211,7 +200,7 @@
                     (object-type () 'codelet)
                     (print ()
                      (printf "~a codelet of urgency ~a (time-stamp ~a)~%"
-                       codelet-type-name (round relative-urgency) time-stamp)
+                       codelet-type-name ($round relative-urgency) time-stamp)
                      (if* (not (null? codelet-arguments))
                        (printf "Codelet argument:~%")
                        (print (first codelet-arguments))
@@ -378,7 +367,7 @@
              (let ((i (cond
                        ((>= urgency 100) (sub1 %num-of-coderack-bins%))
                        ((<= urgency 0) 0)
-                       (else (floor (* (% urgency) %num-of-coderack-bins%))))))
+                       (else ($floor (* (% urgency) %num-of-coderack-bins%))))))
               (nth i bins)))
            (add-deferred-codelet (c)
              (set! deferred-codelets (cons c deferred-codelets))
@@ -545,7 +534,7 @@
        ( (answer-justifier) 1)
        ( (breaker) 1)
        ( (thematic-bridge-scout)
-         (round (* 10 (% (tell *workspace* 'get-max-inter-string-unhappiness)))))
+         ($round (* 10 (% (tell *workspace* 'get-max-inter-string-unhappiness)))))
        ( (progress-watcher) 2)
        ( (jootser) (if %justify-mode% 1 2))))))
 

@@ -21,13 +21,13 @@
 
 (define select-memory-font
   (lambda (win-width win-height)
-    (let ((desired-font-height (round (* 1/20 (min win-width win-height)))))
+    (let ((desired-font-height ($round (* 1/20 (min win-width win-height)))))
       (set! %memory-answer-icon-font%
        (make-mfont sans-serif (- desired-font-height) '(bold italic))))))
 
 (define resize-memory-font
   (lambda (win-width win-height)
-    (tell %memory-answer-icon-font% 'resize (round (* 1/20 (min win-width win-height))))))
+    (tell %memory-answer-icon-font% 'resize ($round (* 1/20 (min win-width win-height))))))
 
 (define memory-background-color
   (lambda ()
@@ -37,7 +37,7 @@
   (lambda (activation)
     (let ((grey-level
            (+ %memory-background-grey-level%
-              (round (* (% activation) ($100- %memory-background-grey-level%))))))
+              ($round (* (% activation) ($100- %memory-background-grey-level%))))))
       (swl-color (string-append "grey" (number->string grey-level))))))
 
 (define memory-window-press-handler

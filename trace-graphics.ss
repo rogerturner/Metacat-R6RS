@@ -27,13 +27,13 @@
 
 (define select-trace-fonts
   (lambda (win-width win-height)
-    (let ((desired-answer-height (round (* 17/60 win-height)))
-          (desired-clamp-height (round (* 17/60 win-height)))
-          (desired-concept-height (round (* 15/60 win-height)))
-          (desired-cmap-height (round (* 15/60 win-height)))
-          (desired-group-height (round (* 17/60 win-height)))
-          (desired-rule-height (round (* 17/60 win-height)))
-          (desired-snag-height (round (* 11/60 win-height))))
+    (let ((desired-answer-height ($round (* 17/60 win-height)))
+          (desired-clamp-height ($round (* 17/60 win-height)))
+          (desired-concept-height ($round (* 15/60 win-height)))
+          (desired-cmap-height ($round (* 15/60 win-height)))
+          (desired-group-height ($round (* 17/60 win-height)))
+          (desired-rule-height ($round (* 17/60 win-height)))
+          (desired-snag-height ($round (* 11/60 win-height))))
       (set! %answer-event-icon-font%
        (make-mfont sans-serif (- desired-answer-height) '(bold italic)))
       (set! %clamp-event-icon-font%
@@ -51,13 +51,13 @@
 
 (define resize-trace-fonts
   (lambda (win-width win-height)
-    (tell %answer-event-icon-font% 'resize (round (* 17/60 win-height)))
-    (tell %clamp-event-icon-font% 'resize (round (* 17/60 win-height)))
-    (tell %concept-activation-event-icon-font% 'resize (round (* 15/60 win-height)))
-    (tell %concept-mapping-event-icon-font% 'resize (round (* 15/60 win-height)))
-    (tell %group-event-icon-font% 'resize (round (* 17/60 win-height)))
-    (tell %rule-event-icon-font% 'resize (round (* 17/60 win-height)))
-    (tell %snag-event-icon-font% 'resize (round (* 11/60 win-height)))))
+    (tell %answer-event-icon-font% 'resize ($round (* 17/60 win-height)))
+    (tell %clamp-event-icon-font% 'resize ($round (* 17/60 win-height)))
+    (tell %concept-activation-event-icon-font% 'resize ($round (* 15/60 win-height)))
+    (tell %concept-mapping-event-icon-font% 'resize ($round (* 15/60 win-height)))
+    (tell %group-event-icon-font% 'resize ($round (* 17/60 win-height)))
+    (tell %rule-event-icon-font% 'resize ($round (* 17/60 win-height)))
+    (tell %snag-event-icon-font% 'resize ($round (* 11/60 win-height)))))
       
 (define %group-event-icon-arrowhead-length% 2/25)
 (define %minimum-event-width% 1)
@@ -317,27 +317,6 @@
                            (origin (,xc ,yc)))
                    (text (text-relative (0 -7/20)) ,text))))))
       (list normal-pexp highlight-pexp width height))))
-
-
-(define group-event-pexp-text-string
-  (lambda (group)
-    (let* ((bond-facet (tell group 'get-bond-facet))
-           (constituent-objects (tell group 'get-constituent-objects))
-           (descriptors (tell-all constituent-objects 'get-descriptor-for bond-facet))
-           (descriptor-strings
-             (map (lambda (object descriptor)
-                   (cond
-                     ((platonic-number? descriptor)
-                      (format "~a" (platonic-number->number descriptor)))
-                     ((letter? object) (tell descriptor 'get-lowercase-name))
-                     ((group? object) (tell descriptor 'get-uppercase-name))))
-               constituent-objects
-               descriptors)))
-      (apply string-append
-       (cons (first descriptor-strings)
-         (adjacency-map
-           (lambda (x y) (format "-~a" y))
-           descriptor-strings))))))
 
 
 (define group-event-pexp-arrowhead

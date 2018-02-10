@@ -29,6 +29,9 @@
 (define *step-mode?* #f)
 (define %step-cycles% 1)
 (define *display-mode?* #f)
+(define *initial-slipnode-unclamp-time* #f)
+(define *temperature-clamped?* #f)
+(define *terminate* #f)
 
 (define ss
   (lambda args
@@ -145,6 +148,7 @@
 (define run-mcat
   (lambda ()
     (continuation-point* terminate
+      (set! *terminate* terminate)
       (repeat* forever
        (step-mcat)
        (if* (= *codelet-count* *initial-slipnode-unclamp-time*)
@@ -286,7 +290,7 @@
            plato-string-position-category plato-rightmost)
          (if* (odd? string-length)
            (let ((middle-letter
-                  (tell string 'get-letter (truncate (/ string-length 2)))))
+                  (tell string 'get-letter ($truncate (/ string-length 2)))))
              (tell middle-letter 'new-description
               plato-string-position-category plato-middle))))))))
 
@@ -342,3 +346,20 @@
       (tell *slipnet-window* 'update-graphics))
     (if* %coderack-graphics%
       (tell *coderack-window* 'update-graphics))))
+
+(define ?
+  (lambda ()
+    (printf "~%For the problem...             Enter:~%")
+    (printf " \"If abc->abd, then ijk->???\" : (run \"abc abd ijk\")~%")
+    (printf "To~%")
+    (printf "  try for a different answer  : (go)~%")
+    (printf "  forget previous answers     : (clearmem)~%")
+    (printf "  set commentary style        : (eliza-mode-on) (eliza-mode-off)~%")
+    (printf "  set verbose commentary      : (verbose-on)    (verbose-off)~%")
+    (printf "-> Metacat home page          : http://science.slc.edu/~~jmarshall/metacat/~%~%")))
+    
+(if *repl*
+  (begin
+    (setup)
+    (printf "~s: enter (?) for help~%" *metacat-version*))
+  (printf "Metacat loaded.~%Type (setup) at the > prompt to begin.~%"))

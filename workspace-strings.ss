@@ -334,7 +334,7 @@
               'done))
            (update-average-intra-string-unhappiness ()
              (set! average-intra-string-unhappiness
-              (round (average (tell-all (tell self 'get-objects)
+              ($round (average (tell-all (tell self 'get-objects)
                                'get-intra-string-unhappiness))))
              'done)
            (choose-object message
@@ -397,7 +397,7 @@
            (nested-member? (object)
              (let ((top-level-objects (tell self 'get-top-level-objects)))
               (or (member? object top-level-objects)
-                  (ormap-meth top-level-objects 'nested-member? object))))
+                  (exists-meth top-level-objects 'nested-member? object))))
            (singleton-group? ()
              (= (length (tell self 'get-top-level-objects)) 1))
            (get-subobject-bridges (bridge-orientation)
@@ -410,7 +410,7 @@
            (get-bond-facet () plato-letter-category)
       ;;-----------------------------------------------------------------------
            (spanning-group-exists? ()
-             (ormap-meth group-list 'spans-whole-string?))
+             (exists-meth group-list 'spans-whole-string?))
            (get-spanning-group ()
              (select-meth group-list 'spans-whole-string?))
            (get-all-reference-objects (rule)

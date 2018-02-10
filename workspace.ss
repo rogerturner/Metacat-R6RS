@@ -312,7 +312,7 @@
            (object-exists? (object)
              (member? object (tell self 'get-objects)))
            (spanning-bridge-exists? (bridge-type)
-             (ormap-meth (tell self 'get-bridges bridge-type) 'spanning-bridge?))
+             (exists-meth (tell self 'get-bridges bridge-type) 'spanning-bridge?))
            (get-spanning-bridge (bridge-type)
              (select-meth (tell self 'get-bridges bridge-type) 'spanning-bridge?))
            (add-bridge (bridge)
@@ -440,7 +440,7 @@
            (rule-exists? (rule-type)
              (not (null? (tell self 'get-rules rule-type))))
            (supported-rule-exists? (rule-type)
-             (ormap-meth (tell self 'get-rules rule-type) 'supported?))
+             (exists-meth (tell self 'get-rules rule-type) 'supported?))
            (get-possible-rule-types ()
              (cond
               ((and top-rule-possible? bottom-rule-possible?) '(top bottom))
@@ -597,7 +597,7 @@
                      raw-top-strength)
                     ((and (spanning-group-possible? initial-string)
                       (spanning-group-possible? modified-string))
-                     (round (* 1/2 raw-top-strength)))
+                     ($round (* 1/2 raw-top-strength)))
                     ((tell self 'maximal-mapping? 'top)
                      ($100* (tanh (* 1/40 raw-top-strength))))
                     (else raw-top-strength)))
@@ -608,7 +608,7 @@
                       raw-bottom-strength)
                      ((and (spanning-group-possible? target-string)
                            (spanning-group-possible? answer-string))
-                      (round (* 1/2 raw-bottom-strength)))
+                      ($round (* 1/2 raw-bottom-strength)))
                      ((tell self 'maximal-mapping? 'bottom)
                       ($100* (tanh (* 1/40 raw-bottom-strength))))
                      (else raw-bottom-strength))))
@@ -618,7 +618,7 @@
                      raw-vertical-strength)
                     ((and (spanning-group-possible? initial-string)
                       (spanning-group-possible? target-string))
-                     (round (* 1/2 raw-vertical-strength)))
+                     ($round (* 1/2 raw-vertical-strength)))
                     ((tell self 'maximal-mapping? 'vertical)
                      ($100* (tanh (* 1/40 raw-vertical-strength))))
                     (else raw-vertical-strength))))))
@@ -665,7 +665,7 @@
   (lambda (string)
     (or (tell string 'spanning-group-exists?)
         (let ((objects (tell string 'get-constituent-objects)))
-         (ormap
+         (exists
            (lambda (bond-facet)
              (let ((relations
                     (adjacency-map

@@ -20,24 +20,17 @@
 ;; random seeds cannot be bigger than this number in Chez Scheme
 (define *largest-random-seed* 4294967295)
 
-(define concatenate-symbols
-  (lambda symbols
-    (string->symbol (apply string-append (map symbol->string symbols)))))
-
 (define printf
   (let ((out (current-output-port)))
     (lambda args
       (apply fprintf (cons out args)))))
 
-(define newline
-  (let ((out (current-output-port)))
-    (lambda ()
-      (fprintf out "~%"))))
+(define concatenate-symbols
+  (lambda symbols
+    (string->symbol (apply string-append (map symbol->string symbols)))))
 
 ;;----------------------------------------------------------------------------------
 ;; Utility Macros
-
-(define *control-panel* (lambda z #f))
 
 (define-syntax mcat
   (syntax-rules ()
@@ -79,7 +72,7 @@
   (lambda (x)
     (syntax-case x (each in from to do)
       ( (_ each (formal ...) in (exp ...) do body ...)
-        (andmap symbol? '(formal ...))
+        (for-all symbol? '(formal ...))
         #`(for-each (lambda (formal ...) body ...) exp ...))
       ( (_ each formal in exp do body ...)
         (symbol? 'formal)
@@ -126,7 +119,7 @@
 (define-syntax if*
   (syntax-rules ()
     ( (_ test exp ...) 
-      (if test (begin exp ...) (void)))))
+      (if test (begin exp ...) #f))))
     
 (define-syntax stochastic-if*
   (syntax-rules ()
@@ -134,7 +127,7 @@
       (let ((prob-thunk (lambda () prob))
             (exps-thunk (lambda () exp ...)))
         (let ((coin-flip (random 1.0)))
-          (if (< coin-flip (prob-thunk)) (exps-thunk) (void)))))))
+          (if (< coin-flip (prob-thunk)) (exps-thunk) #f))))))
 
 (define-syntax continuation-point*
   (syntax-rules ()

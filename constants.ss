@@ -38,35 +38,6 @@
 (define %vertical-theme-window-size% #f)
 (define %default-workspace-width% #f)
 
-;; standard screen sizes: 800x600 1024x768 1152x864 1280x1024 1400x1050
-
-(define set-window-size-defaults
-  (lambda (scale)
-    (let* ((screen-width (swl:screen-width))
-           (screen-height (swl:screen-height))
-           (width (lambda (w) (round (* scale w))))
-           (height (lambda (h) (round (* scale h)))))
-      (set! %default-13x5-slipnet-width% (width 650))
-      (set! %default-coderack-width% (width 230))
-      (set! %default-temperature-width% (width 70))
-      (set! %default-trace-width% (width 1000))
-      (set! %default-trace-height% (height 69))
-      (set! %virtual-trace-length% (width 7000))
-      (set! %default-memory-width% (width 260))
-      (set! %default-memory-height% (height 400))
-      (set! %virtual-memory-length% (height 2000))
-      (set! %default-comment-window-width% (width 300))
-      (set! %default-comment-window-height% (height 600))
-      (set! %virtual-comment-window-length% (height 4000))
-      (set! %EEG-window-width% (width 900))
-      (set! %EEG-window-height% (height 120))
-      (set! %virtual-EEG-length% (width 2000))
-      (set! %top-theme-window-size% (list (width 600) (height 140)))
-      (set! %bottom-theme-window-size% (list (width 600) (height 140)))
-      (set! %vertical-theme-window-size% (list (width 160) (height 590)))
-      (set! %default-workspace-width% (width 800))
-      'done)))
-
 ;;----------------------------------------------------------------------
 ;; Colors
 
@@ -957,6 +928,12 @@
 ;; Mcat logo:
 (define %logo-background-color% (swl-color "light sky blue"))
 (define %logo-font% (swl-font sans-serif 18 'bold 'italic))
+
+;; Font references outwith *-graphics
+(define %coderack-codelet-count-font% (swl-font sans-serif 12))
+(define %group-letter-category-font%  (swl-font sans-serif 12))
+(define %relevant-group-length-font%  (swl-font sans-serif 12))
+
 
 ;; incomplete
 (define b/w-mode

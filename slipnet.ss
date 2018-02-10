@@ -172,7 +172,7 @@
              (tell self 'increment-activation-buffer %workspace-activation%)
              'done)
            (decay-activation ()
-             (let ((decay-amount (round (* rate-of-decay activation))))
+             (let ((decay-amount ($round (* rate-of-decay activation))))
               (tell self 'decrement-activation-buffer decay-amount))
              'done)
            (spread-activation ()
@@ -180,7 +180,7 @@
               (let* ((to-node (tell link 'get-to-node))
                      (association (tell link 'get-intrinsic-degree-of-assoc))
                      (spread-amount
-                      (round (* (/ %update-cycle-length% 15)
+                      ($round (* (/ %update-cycle-length% 15)
                               (% association)
                               activation))))
                 (tell to-node 'increment-activation-buffer spread-amount)))
@@ -188,7 +188,7 @@
 
            (set-intrinsic-link-length (new-value)
              (set! intrinsic-link-length new-value)
-             (set! shrunk-link-length (round ($40% new-value)))
+             (set! shrunk-link-length ($round ($40% new-value)))
              'done)
 
            (define-descriptor-predicate (new-procedure)

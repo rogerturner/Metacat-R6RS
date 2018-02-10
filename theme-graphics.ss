@@ -174,40 +174,40 @@
   (lambda (orientation win-width win-height)
     (case orientation
       (horizontal
-       (let ((desired-font-height (round (* 15/140 win-height))))
+       (let ((desired-font-height ($round (* 15/140 win-height))))
          (make-mfont serif (- desired-font-height) '(italic))))
       (vertical
-        (let ((desired-font-height (round (* 23/1000 win-height))))
+        (let ((desired-font-height ($round (* 23/1000 win-height))))
          (make-mfont serif (- desired-font-height) '(italic)))))))
 
 (define select-theme-dimension-highlight-font
   (lambda (orientation win-width win-height)
     (case orientation
       (horizontal
-       (let ((desired-font-height (round (* 15/140 win-height))))
+       (let ((desired-font-height ($round (* 15/140 win-height))))
          (make-mfont serif (- desired-font-height) '(bold italic))))
       (vertical
-        (let ((desired-font-height (round (* 23/1000 win-height))))
+        (let ((desired-font-height ($round (* 23/1000 win-height))))
          (make-mfont serif (- desired-font-height) '(bold italic)))))))
 
 (define select-theme-relation-normal-font
   (lambda (orientation win-width win-height)
     (case orientation
       (horizontal
-       (let ((desired-font-height (round (* 15/140 win-height))))
+       (let ((desired-font-height ($round (* 15/140 win-height))))
          (make-mfont serif (- desired-font-height) '(italic))))
       (vertical
-        (let ((desired-font-height (round (* 23/1000 win-height))))
+        (let ((desired-font-height ($round (* 23/1000 win-height))))
          (make-mfont serif (- desired-font-height) '(italic)))))))
 
 (define select-theme-relation-highlight-font
   (lambda (orientation win-width win-height)
     (case orientation
       (horizontal
-       (let ((desired-font-height (round (* 15/140 win-height))))
+       (let ((desired-font-height ($round (* 15/140 win-height))))
          (make-mfont serif (- desired-font-height) '(bold italic))))
       (vertical
-        (let ((desired-font-height (round (* 23/1000 win-height))))
+        (let ((desired-font-height ($round (* 23/1000 win-height))))
          (make-mfont serif (- desired-font-height) '(bold italic)))))))
 
 (define resize-theme-fonts
@@ -215,15 +215,15 @@
            orientation win-width win-height)
     (case orientation
       (horizontal
-       (tell dim-normal-font 'resize (round (* 15/140 win-height)))
-       (tell dim-highlight-font 'resize (round (* 15/140 win-height)))
-       (tell rel-normal-font 'resize (round (* 15/140 win-height)))
-       (tell rel-highlight-font 'resize (round (* 15/140 win-height))))
+       (tell dim-normal-font 'resize ($round (* 15/140 win-height)))
+       (tell dim-highlight-font 'resize ($round (* 15/140 win-height)))
+       (tell rel-normal-font 'resize ($round (* 15/140 win-height)))
+       (tell rel-highlight-font 'resize ($round (* 15/140 win-height))))
       (vertical
-       (tell dim-normal-font 'resize (round (* 23/1000 win-height)))
-       (tell dim-highlight-font 'resize (round (* 23/1000 win-height)))
-       (tell rel-normal-font 'resize (round (* 23/1000 win-height)))
-       (tell rel-highlight-font 'resize (round (* 23/1000 win-height)))))))
+       (tell dim-normal-font 'resize ($round (* 23/1000 win-height)))
+       (tell dim-highlight-font 'resize ($round (* 23/1000 win-height)))
+       (tell rel-normal-font 'resize ($round (* 23/1000 win-height)))
+       (tell rel-highlight-font 'resize ($round (* 23/1000 win-height)))))))
 
 (define select-bridge-themes-window-pixel-size
   (lambda (layout)
@@ -260,8 +260,8 @@
            (num-panels (length dimensions))
            (max-panel-relations (apply max (map length panel-relations)))
            (row-major? (number? (third layout)))
-           (rows (if row-major? (ceiling (/ num-panels (third layout))) (second layout)))
-           (cols (if row-major? (third layout) (ceiling (/ num-panels (second layout)))))
+           (rows (if row-major? ($ceiling (/ num-panels (third layout))) (second layout)))
+           (cols (if row-major? (third layout) ($ceiling (/ num-panels (second layout)))))
            (panel-orientation (fourth layout))
            (panel-x-length (/ 1 cols))
            (panel-y-length (/ y-pixels (* x-pixels rows)))
@@ -736,17 +736,6 @@
                      (name-coord (map + lower-left `(,name-x ,name-y))))
                `(,relation ,center-coord ,name-coord ,name)))
          (ascending-index-list num-relations) relations names)))))
-
-
-(define relation-name
-  (lambda (relation)
-    (cond
-      ((eq? relation #f) "diff")
-      ((eq? relation plato-identity) "iden")
-      ((eq? relation plato-opposite) "opp")
-      ((eq? relation plato-successor) "succ")
-      ((eq? relation plato-predecessor) "pred")
-      (else #f))))
 
 
 (define dimension-name

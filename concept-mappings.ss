@@ -131,13 +131,13 @@
              (let ((degree-of-assoc (tell self 'get-degree-of-assoc)))
               (if (= degree-of-assoc 100)
                 100
-                (round (* degree-of-assoc
+                ($round (* degree-of-assoc
                         (+ 1 (^2 (% (tell self 'get-conceptual-depth)))))))))
            (get-slippability ()
              (let ((degree-of-assoc (tell self 'get-degree-of-assoc)))
               (if (= degree-of-assoc 100)
                 100
-                (round (* degree-of-assoc
+                ($round (* degree-of-assoc
                         ($1- (^2 (% (tell self 'get-conceptual-depth)))))))))
            (get-concept-pattern ()
              (compress

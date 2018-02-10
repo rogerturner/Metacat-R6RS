@@ -19,8 +19,8 @@
 
 (define select-slipnet-fonts
   (lambda (win-width win-height)
-    (let ((desired-title-height (round (* 80/1000 win-height)))
-          (desired-label-height (round (* 35/1000 win-height))))
+    (let ((desired-title-height ($round (* 80/1000 win-height)))
+          (desired-label-height ($round (* 35/1000 win-height))))
       (set! %slipnet-title-font%
        (make-mfont sans-serif (- desired-title-height) '(bold italic)))
       (set! %slipnode-label-font%
@@ -42,7 +42,7 @@
            (y-dim (column-dimension slipnet-layout-table))
            (x-deltas (+ (* 3 x-dim) 1))
            (y-deltas (+ (* 3 y-dim) 4))
-           (y-pixels (ceiling (* y-deltas (/ x-pixels x-deltas))))
+           (y-pixels ($ceiling (* y-deltas (/ x-pixels x-deltas))))
            (delta (/ 1 x-deltas))
            (max-activation-diameter (* 2 delta))
            (title-coord `(1/2 ,(* (- y-deltas 2) delta)))

@@ -157,7 +157,7 @@
                          (count (bond-counter 'get-left-bond) right-neighbors))))
                 (if (zero? num-of-bond-slots)
                   100
-                  (round (* 100 (/ num-of-similar-bonds num-of-bond-slots)))))))
+                  ($round (* 100 (/ num-of-similar-bonds num-of-bond-slots)))))))
            (get-local-support ()
              (let ((number (tell self 'get-num-of-local-supporting-bonds)))
               (if (zero? number)
@@ -165,7 +165,7 @@
                 (let* ((density (tell self 'get-local-density))
                        (adjusted-density (* 100 (sqrt (% density))))
                        (number-factor (min 1 (expt 0.6 (/ 1 (^3 number))))))
-                  (round (* adjusted-density number-factor))))))
+                  ($round (* adjusted-density number-factor))))))
            (calculate-internal-strength ()
              (let ((compatibility-factor
                     (if (eq? (tell from-object 'object-type)
@@ -176,7 +176,7 @@
                      (if (eq? bond-facet plato-letter-category)
                       1.0
                       0.7)))
-              (round (* compatibility-factor
+              ($round (* compatibility-factor
                       bond-facet-factor
                       (bond-degree-of-assoc bond-category)))))
            (calculate-external-strength ()
@@ -432,13 +432,13 @@
     (tell (tell bond 'get-left-object) 'update-right-bond #f)
     (tell (tell bond 'get-right-object) 'update-left-bond #f)))
 
-
-(define bonds-equal?
-  (lambda (bond1 bond2)
-    (and (eq? (tell bond1 'get-from-object) (tell bond2 'get-from-object))
-     (eq? (tell bond1 'get-to-object) (tell bond2 'get-to-object))
-     (same-bond-category? bond1 bond2)
-     (same-direction? bond1 bond2))))
+#;
+  (define bonds-equal?
+    (lambda (bond1 bond2)
+      (and (eq? (tell bond1 'get-from-object) (tell bond2 'get-from-object))
+       (eq? (tell bond1 'get-to-object) (tell bond2 'get-to-object))
+       (same-bond-category? bond1 bond2)
+       (same-direction? bond1 bond2))))
 
 
 (define directed?
@@ -489,7 +489,7 @@
 
 (define bond-degree-of-assoc
   (lambda (bond-category)
-    (min 100 (round (* 11 (sqrt (tell bond-category 'get-degree-of-assoc)))))))
+    (min 100 ($round (* 11 (sqrt (tell bond-category 'get-degree-of-assoc)))))))
 
 
 (define instance-of?

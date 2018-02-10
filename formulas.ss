@@ -22,7 +22,7 @@
     (cond
       ((= prob 0.0) 0.0)
       ((<= prob 0.5)
-       (let ((low-prob-factor (max 1.0 (truncate (abs (log10 prob))))))
+       (let ((low-prob-factor (max 1.0 ($truncate (abs (log10 prob))))))
         (min 0.5 (+ prob (* (% ($10- (sqrt ($100- *temperature*))))
                           (- (expt 10 ($1- low-prob-factor)) prob))))))
       ((> prob 0.5)
@@ -32,7 +32,7 @@
 (define temp-adjusted-values
   (lambda (value-list)
     (let ((exponent (+ (/ ($100- *temperature*) 30) 0.5)))
-      (map (lambda (value) (round (expt value exponent))) value-list))))
+      (map (lambda (value) ($round (expt value exponent))) value-list))))
 
 
 (define current-translation-temperature-threshold-distribution
@@ -74,6 +74,6 @@
               0
               100)))
        (set! *temperature*
-               (round (weighted-average
+               ($round (weighted-average
                         (list (tell *workspace* 'get-average-unhappiness) rule-factor)
                         (list 70 30))))))))

@@ -81,12 +81,12 @@
 (define wins-all-fights?
   (lambda (challenger challenger-weight defending-structures defender-weight/s)
     (if (list? defender-weight/s)
-     (andmap
+     (for-all
        (lambda (defender defender-weight)
          (wins-fight? challenger challenger-weight defender defender-weight))
        defending-structures
        defender-weight/s)
-     (andmap
+     (for-all
        (lambda (defender)
          (wins-fight? challenger challenger-weight defender defender-weight/s))
        defending-structures))))

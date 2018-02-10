@@ -350,12 +350,10 @@
 (define %max-num-of-flashes% 5)
 (define %max-flash-pause% 100)
 (define %max-snag-pause% 5000)
-(define %text-scroll-pause% 20)
-(define %codelet-highlight-pause% 100)
 
 (define speed-slider-action
   (lambda (scale value)
-    (let ((range (lambda (low high) (max low (round (* (% (- 100 value)) high))))))
+    (let ((range (lambda (low high) (max low ($round (* (% (- 100 value)) high))))))
       (if (= value 100)
        (begin
          (set! %num-of-flashes% 1)
@@ -683,7 +681,7 @@
                 (format "+~a+~a" (+ x x-offset) (+ y y-offset))))
              (get-command-line-string () (send command-line get-string))
              (update-current-problem (tokens)
-              (if* (andmap symbol? tokens)
+              (if* (for-all symbol? tokens)
                 (randomize))
               (set! problem
                 (cond
@@ -1180,3 +1178,72 @@
              (tell *trace* 'undo-last-clamp)
              (tell *trace* 'add-event clamp-event)
              (tell clamp-event 'activate))))))))
+
+(define setup-gui
+  (lambda args
+    (let ((scale (if (null? args) 1 (car args))))
+      (printf "Initializing windows...")
+      (set-window-size-defaults scale)
+      (create-mcat-logo)
+      (set! *workspace-window* (make-workspace-window))
+      (set! *slipnet-window* (make-slipnet-window *13x5-layout-table*))
+      (set! *coderack-window* (make-coderack-window))
+      (set! *themespace-window* (make-themespace-window *themespace-window-layout*))
+      (set! *top-themes-window* (tell *themespace-window* 'get-window 'top-bridge))
+      (set! *bottom-themes-window* (tell *themespace-window* 'get-window 'bottom-bridge))
+      (set! *vertical-themes-window* (tell *themespace-window* 'get-window 'vertical-bridge))
+      (set! *memory-window* (make-memory-window))
+      (set! *comment-window* (make-comment-window))
+      (set! *trace-window* (make-trace-window))
+      (set! *temperature-window* (make-temperature-window))
+      (set! *EEG* (make-EEG))
+      (set! *EEG-window* (make-EEG-window))
+      (set! *control-panel* (make-control-panel))
+      (enable-resizing)
+      ;; this reduces an annoying problem in SWL 0.9x in which >'s gradually fill
+      ;; up the bottom line of the REPL window with each new call to (break):
+      (if* (equal? swl:version "0.9x") (waiter-prompt-string (format "~%>")))
+      (printf "done~%"))))
+
+(define enable-resizing
+  (lambda ()
+    (tell *workspace-window* 'make-resizable 'workspace)
+    (tell *slipnet-window* 'make-resizable 'slipnet)
+    (tell *coderack-window* 'make-resizable 'coderack)
+    (tell *temperature-window* 'make-resizable 'temperature)
+    (tell *themespace-window* 'make-resizable 'theme)
+    (tell *trace-window* 'make-resizable 'trace)
+    (tell *memory-window* 'make-resizable 'memory)
+    (tell *EEG-window* 'make-resizable 'EEG)
+    (tell *comment-window* 'make-resizable 'comment)
+    (start-resize-listener)))
+
+;; standard screen sizes: 800x600 1024x768 1152x864 1280x1024 1400x1050
+
+(define set-window-size-defaults
+  (lambda (scale)
+    (let* ((screen-width (swl:screen-width))
+           (screen-height (swl:screen-height))
+           (width (lambda (w) ($round (* scale w))))
+           (height (lambda (h) ($round (* scale h)))))
+      (set! %default-13x5-slipnet-width% (width 650))
+      (set! %default-coderack-width% (width 230))
+      (set! %default-temperature-width% (width 70))
+      (set! %default-trace-width% (width 1000))
+      (set! %default-trace-height% (height 69))
+      (set! %virtual-trace-length% (width 7000))
+      (set! %default-memory-width% (width 260))
+      (set! %default-memory-height% (height 400))
+      (set! %virtual-memory-length% (height 2000))
+      (set! %default-comment-window-width% (width 300))
+      (set! %default-comment-window-height% (height 600))
+      (set! %virtual-comment-window-length% (height 4000))
+      (set! %EEG-window-width% (width 900))
+      (set! %EEG-window-height% (height 120))
+      (set! %virtual-EEG-length% (width 2000))
+      (set! %top-theme-window-size% (list (width 600) (height 140)))
+      (set! %bottom-theme-window-size% (list (width 600) (height 140)))
+      (set! %vertical-theme-window-size% (list (width 160) (height 590)))
+      (set! %default-workspace-width% (width 800))
+      'done)))
+

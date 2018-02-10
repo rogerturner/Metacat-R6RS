@@ -207,7 +207,7 @@
              (and (= (length rule-clauses) 1)
               (verbatim-clause? (first rule-clauses))))
            (literal? ()
-             (and (not (tell self 'verbatim?)) (ormap literal-clause? rule-clauses)))
+             (and (not (tell self 'verbatim?)) (exists literal-clause? rule-clauses)))
            (abstract? ()
              (and (not (tell self 'verbatim?)) (not (tell self 'literal?))))
            (get-characterization ()
@@ -217,7 +217,7 @@
               ((tell self 'abstract?) 'abstract)))
            (translated? () translated?)
            (supported? ()
-             (andmap
+             (for-all
               (lambda (b) (tell *workspace* 'bridge-present? b))
               supporting-horizontal-bridges))
            (currently-works? ()
@@ -268,7 +268,7 @@
               (map (lambda (node) (list node %max-activation%))
                 (remq-duplicates (filter-out symbol? (flatten rule-clauses))))))
            (revise-abstracted-rule-information (proposed-rule)
-             (if* (ormap unsupported-self-change?
+             (if* (exists unsupported-self-change?
                    tagged-supporting-horizontal-bridges)
               (set! tagged-supporting-horizontal-bridges
                 (map (lambda (old-bridges new-bridges)
@@ -316,11 +316,11 @@
                  #f
                  (tell ref-object 'get-bridge 'horizontal)))
               (subobject-bridges
-               (if (ormap (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
+               (if (exists (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
                  (tell ref-object 'get-subobject-bridges 'horizontal)
                  '()))
               (change-self?
-               (ormap (lambda (ct) (eq? (first ct) 'self)) change-templates))
+               (exists (lambda (ct) (eq? (first ct) 'self)) change-templates))
               (supporting-bridges
                (if change-self?
                  (if (exists? self-bridge)
@@ -345,11 +345,11 @@
                  #f
                  (tell ref-object 'get-bridge 'horizontal)))
               (subobject-bridges
-               (if (ormap (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
+               (if (exists (lambda (ct) (eq? (first ct) 'subobjects)) change-templates)
                  (tell ref-object 'get-subobject-bridges 'horizontal)
                  '()))
               (change-self?
-               (ormap (lambda (ct) (eq? (first ct) 'self)) change-templates)))
+               (exists (lambda (ct) (eq? (first ct) 'self)) change-templates)))
          (if change-self?
            (if (exists? self-bridge)
              (cons self-bridge subobject-bridges)
@@ -370,7 +370,7 @@
 (define rule-clause-lists-equal?
   (lambda (rc-list1 rc-list2)
     (and (= (length rc-list1) (length rc-list2))
-         (andmap rule-clauses-equal? rc-list1 rc-list2))))
+         (for-all rule-clauses-equal? rc-list1 rc-list2))))
 
 (define rule-clauses-equal?
   (lambda (rc1 rc2)
@@ -378,7 +378,7 @@
          (= (length (second rc1)) (length (second rc2)))
      (if (verbatim-clause? rc1)
        (equal? (second rc1) (second rc2))
-       (and (andmap object-descriptions-equal? (second rc1) (second rc2))
+       (and (for-all object-descriptions-equal? (second rc1) (second rc2))
             (equal? (third rc1) (third rc2)))))))
 
 (define object-descriptions-equal?
@@ -444,11 +444,11 @@
 
 (define possible-to-instantiate?
   (lambda (rule-clause-templates)
-    (andmap
+    (for-all
       (lambda (template)
        (if (intrinsic-clause? template)
          (object-description-possible? (second template))
-         (andmap object-description-possible? (second template))))
+         (for-all object-description-possible? (second template))))
       rule-clause-templates)))
 
 
@@ -644,7 +644,7 @@
 (define all-subobjects-describable?
   (lambda (object description-type descriptor)
     (and (exists? descriptor)
-      (andmap
+      (for-all
        (lambda (obj) (eq? (tell obj 'get-descriptor-for description-type) descriptor))
        (tell object 'get-constituent-objects)))))
 
@@ -802,7 +802,7 @@
            (list 'intrinsic ref-object change-templates))))
       ((extrinsic-change-description)
        (list 'extrinsic
-         (if (ormap-meth change-descriptions 'subobjects-swap?)
+         (if (exists-meth change-descriptions 'subobjects-swap?)
            (list (tell (first change-descriptions) 'get-enclosing-object))
            (sort-by-method 'get-left-string-pos <
              (tell (first change-descriptions) 'get-reference-objects)))
@@ -813,7 +813,7 @@
 
 (define sort-templates
   (lambda (rule-clause-templates)
-    (sort
+    (list-sort
       (lambda (t1 t2)
        (or (and (intrinsic-clause? t1) (extrinsic-clause? t2))
            (and (extrinsic-clause? t1) (extrinsic-clause? t2)
@@ -842,10 +842,10 @@
   (lambda (rc)
     (record-case rc
       (intrinsic (object-descriptions changes)
-       (or (ormap literal-object-description? object-descriptions)
-           (ormap literal-change? changes)))
+       (or (exists literal-object-description? object-descriptions)
+           (exists literal-change? changes)))
       (extrinsic (object-descriptions dims)
-       (ormap literal-object-description? object-descriptions)))))
+       (exists literal-object-description? object-descriptions)))))
 
 
 (define literal-object-description?
@@ -923,7 +923,7 @@
 
 (define sort-change-templates
   (lambda (change-templates)
-    (sort (lambda (ct1 ct2)
+    (list-sort (lambda (ct1 ct2)
            (or (and (eq? (first ct1) 'self) (eq? (first ct2) 'subobjects))
                (and (eq? (first ct1) (first ct2))
                 (< (list-index *rule-dimension-order* (second ct1))
@@ -1233,15 +1233,15 @@
 
 (define extrinsic-implies-intrinsic?
   (lambda (ec ic)
-    (ormap-meth (tell ec 'get-equivalent-intrinsic-changes) 'conflicts? ic)))
+    (exists-meth (tell ec 'get-equivalent-intrinsic-changes) 'conflicts? ic)))
 
 
 (define extrinsic-implies-extrinsic?
   (lambda (ec1 ec2)
     (let ((equivalent-ic2-changes (tell ec2 'get-equivalent-intrinsic-changes)))
-      (andmap
+      (for-all
        (lambda (ic1)
-         (ormap
+         (exists
            (lambda (ic2) (tell ic1 'implies? ic2))
            equivalent-ic2-changes))
        (tell ec1 'get-equivalent-intrinsic-changes)))))
@@ -1289,7 +1289,7 @@
               (list 'CONFLICT object1 dimension1 object2 dimension2))
              (abort #f)))
          (let ((transforms-grouped-by-object
-                (sort (lambda (ot1 ot2)
+                (list-sort (lambda (ot1 ot2)
                        (> (tell (first ot1) 'get-nesting-level)
                           (tell (first ot2) 'get-nesting-level)))
                   (map (lambda (p) (list (first (first p)) (map second p)))
@@ -1341,7 +1341,7 @@
 (define apply-transforms
   (lambda (transforms image fail)
     (let ((ordered-transforms
-           (sort (apply-before? (tell image 'get-length)) transforms)))
+           (list-sort (apply-before? (tell image 'get-length)) transforms)))
       (for* each transform in ordered-transforms do
        (if (eq? (first transform) plato-group-category)
          (let* ((medium (second (assq plato-bond-facet transforms)))
@@ -1430,7 +1430,7 @@
                    (dimensions (third rule-clause)))
               (cond
                ((< (length denoted-objects) 2) '())
-               ((not (pairwise-andmap disjoint-objects? denoted-objects))
+               ((not (pairwise-for-all disjoint-objects? denoted-objects))
                 (fail denoted-objects (first dimensions)))
                (else (apply append
                       (map (get-dimension-transforms denoted-objects fail)
@@ -1543,7 +1543,7 @@
 
 (define compute-rule-quality
   (lambda (rule)
-    (round (* (% (tell rule 'get-uniformity))
+    ($round (* (% (tell rule 'get-uniformity))
             (weighted-average
              (list (tell rule 'get-abstractness) (tell rule 'get-succinctness))
              (list 3 2))))))
@@ -1725,7 +1725,7 @@
            (adjusted-line-lengths
              (map (lambda (s)
                    (let ((len (string-length s)))
-                     (ceiling (/ len (ceiling (/ len %maximum-rule-line-length%))))))
+                     ($ceiling (/ len ($ceiling (/ len %maximum-rule-line-length%))))))
                clause-strings))
            (max-line-length (maximum adjusted-line-lengths)))
       (apply append
@@ -1960,7 +1960,7 @@
 
 (define get-ObjCtgy/Length/LettCtgy-change-phrases
   (lambda (object-phrase plural? changes)
-    (let* ((present? (lambda l (andmap exists? l)))
+    (let* ((present? (lambda l (for-all exists? l)))
            (ObjCtgy:self (select-descriptor plato-object-category 'self changes))
            (ObjCtgy:subs (select-descriptor plato-object-category 'subobjects changes))
            (Length:self (select-descriptor plato-length 'self changes))

@@ -102,15 +102,6 @@
   (lambda (x)
     (printf "~a" (if (procedure? x) (tell x 'print-name) x))))
 
-(define ask
-  (lambda l
-    (for-each display l)
-    (clear-input-port)
-    (let ((first-char (read-char)))
-      (cond
-       ((char=? first-char #\newline) 'nothing)
-       (else (unread-char first-char) (read))))))
-
 (define type-tester
   (lambda (type)
     (lambda (object)
@@ -150,12 +141,12 @@
   (lambda (x) (if x #t #f)))
 
 (define all-exist?
-  (lambda (l) (andmap exists? l)))
+  (lambda (l) (for-all exists? l)))
 
 (define all-same?
   (lambda (l)
     (or (null? l)
-        (andmap (lambda (x) (eq? x (first l))) l))))
+        (for-all (lambda (x) (eq? x (first l))) l))))
 
 (define compress
   (lambda (l) (filter exists? l)))
@@ -167,33 +158,29 @@
   (lambda (proc l)
     (apply append (map proc l))))
 
-(define scheme-truncate truncate)
-(define truncate
-  (lambda (n) (inexact->exact (scheme-truncate n))))
+(define $truncate
+  (lambda (n) (exact (truncate n))))
 
-(define scheme-ceiling ceiling)
-(define ceiling
-  (lambda (n) (inexact->exact (scheme-ceiling n))))
+(define $ceiling
+  (lambda (n) (exact (ceiling n))))
 
-(define scheme-floor floor)
-(define floor
-  (lambda (n) (inexact->exact (scheme-floor n))))
+(define $floor
+  (lambda (n) (exact (floor n))))
 
-(define scheme-round round)
-(define round
-  (lambda (n) (inexact->exact (scheme-round n))))
+(define $round
+  (lambda (n) (exact (round n))))
 
 (define round-to-10ths
   (lambda (n)
-    (exact->inexact (/ (round (* n 10)) 10))))
+    (inexact (/ ($round (* n 10)) 10))))
 
 (define round-to-100ths
   (lambda (n)
-    (exact->inexact (/ (round (* n 100)) 100))))
+    (inexact (/ ($round (* n 100)) 100))))
 
 (define round-to-1000ths
   (lambda (n)
-    (exact->inexact (/ (round (* n 1000)) 1000))))
+    (inexact (/ ($round (* n 1000)) 1000))))
 
 (define ^2 (lambda (x) (* x x)))
 
@@ -201,15 +188,15 @@
 
 (define sort-wrt-order
   (lambda (l order)
-    (sort (lambda (v1 v2)
-           (< (list-index order v1)
-              (list-index order v2)))
+    (list-sort (lambda (v1 v2)
+                (< (list-index order v1)
+                   (list-index order v2)))
       l)))
 
 (define sort-by-method
   (lambda (method-name pred? l)
-    (sort (lambda (v1 v2)
-           (pred? (tell v1 method-name) (tell v2 method-name)))
+    (list-sort (lambda (v1 v2)
+                (pred? (tell v1 method-name) (tell v2 method-name)))
       l)))
 
 ;; ascending-index-list returns 0-based indices
@@ -236,12 +223,10 @@
 
 (define symbol->letter-categories
   (lambda (sym)
-    (map (compose
-          eval
-          string->symbol
-          (lambda (s) (string-append "plato-" s))
-          string)
-     (string->list (symbol->string sym)))))
+    (map 
+      (lambda (x)
+        (list-ref *slipnet-letters* (- (char->integer x) (char->integer #\a))))
+      (string->list (symbol->string sym)))))
 
 (define char-index
   (lambda (char string)
@@ -388,7 +373,7 @@
 (define randomize
   (let ((upper-bound (expt 2 32)))
     (lambda ()
-      (random-seed (modulo (round (expt (real-time) 5/3)) upper-bound)))))
+      (random-seed (modulo ($round (expt (real-time) 5/3)) upper-bound)))))
 
 (define prob?
   (lambda (p)
@@ -399,7 +384,7 @@
   
 (define ~
   (lambda (n)
-    (let ((delta (random (add1 (round (sqrt n))))))
+    (let ((delta (random (add1 ($round (sqrt n))))))
       (if (prob? 0.5) (+ n delta) (- n delta)))))
 
 ;; random-pick picks an object at random from a list
@@ -419,7 +404,7 @@
     (let ((weight-sum (sum weights)))
       (if (zero? weight-sum)
        (random-pick l)
-       (nth (weighted-index (random (exact->inexact weight-sum)) weights) l)))))
+       (nth (weighted-index (random (inexact weight-sum)) weights) l)))))
 
 ;; stochastic-pick-by-method tells message to each object in
 ;; object-list, yielding a list of integer/real numbers.  It
@@ -451,7 +436,7 @@
     (let ((weight-sum (sum (map first selection-list))))
       (if (zero? weight-sum)
        (random-pick selection-list)
-       (weighted-select (random (exact->inexact weight-sum)) selection-list)))))
+       (weighted-select (random (inexact weight-sum)) selection-list)))))
 
 (define weighted-select
   (lambda (w selection-list)
@@ -466,6 +451,10 @@
       ((null? l) '())
       ((prob? (proc (first l))) (cons (first l) (stochastic-filter proc (rest l))))
       (else (stochastic-filter proc (rest l))))))
+      
+(define add1 (lambda (x) (+ x 1)))
+      
+(define sub1 (lambda (x) (- x 1)))
 
 (define $100- (lambda (n) (- 100 n)))
 
@@ -473,7 +462,7 @@
 
 (define $1- (lambda (x) (- 1 x)))
 
-(define $100* (lambda (x) (round (* 100 x))))
+(define $100* (lambda (x) ($round (* 100 x))))
 
 (define % (lambda (n) (/ n 100)))
 (define $20% (lambda (n) (* 1/5 n)))
@@ -648,23 +637,23 @@
                 (g x (rest l) result)))))))
       (f l1 '()))))
 
-(define cross-product-ormap
+(define cross-product-exists
   (lambda (pred? l1 l2)
-    (ormap (lambda (x)
-            (ormap (lambda (y) (pred? x y))
-              l2))
+    (exists (lambda (x)
+             (exists (lambda (y) (pred? x y))
+               l2))
       l1)))
 
-(define cross-product-andmap
+(define cross-product-for-all
   (lambda (pred? l1 l2)
-    (andmap (lambda (x)
-             (andmap (lambda (y) (pred? x y))
-              l2))
+    (for-all (lambda (x)
+              (for-all (lambda (y) (pred? x y))
+               l2))
       l1)))
 
 (define cross-product-for-each
   (lambda (proc l1 l2)
-    (cross-product-ormap
+    (cross-product-exists
       (lambda (x y) (proc x y) #f)
       l1 l2)))
 
@@ -680,8 +669,8 @@
 (define select-meth (make-list-method-procedure select))
 (define filter-meth (make-list-method-procedure filter))
 (define filter-out-meth (make-list-method-procedure filter-out))
-(define andmap-meth (make-list-method-procedure andmap))
-(define ormap-meth (make-list-method-procedure ormap))
+(define for-all-meth (make-list-method-procedure for-all))
+(define exists-meth (make-list-method-procedure exists))
 (define count-meth (make-list-method-procedure count))
 
 ;; pairwise-map maps proc to each unique, non-reflexive pair of elements in l
@@ -710,15 +699,15 @@
       (pairwise-do l)
       'done)))
 
-(define pairwise-andmap
+(define pairwise-for-all
   (lambda (pred? l)
     (letrec
-      ((pairwise-andmap
+      ((pairwise-for-all
         (lambda (l)
           (or (null? l)
-              (and (andmap (lambda (x) (pred? (first l) x)) (rest l))
-               (pairwise-andmap (rest l)))))))
-      (pairwise-andmap l))))
+              (and (for-all (lambda (x) (pred? (first l) x)) (rest l))
+               (pairwise-for-all (rest l)))))))
+      (pairwise-for-all l))))
 
 (define intersect
   (lambda (l1 l2)
@@ -751,7 +740,7 @@
               (lambda (x l)
                (cond
                 ((null? l) (cons (list x) l))
-                ((andmap (lambda (y) (pred? x y)) (first l))
+                ((for-all (lambda (y) (pred? x y)) (first l))
                  (cons (cons x (first l)) (rest l)))
                 (else (cons (first l) (insert x (rest l))))))))
       (partition l))))
@@ -775,7 +764,7 @@
           (cond
             ((null? l) (cons (list x) l))
             ((and (< (length (first l)) bound)
-              (andmap (lambda (y) (pred? x y)) (first l)))
+              (for-all (lambda (y) (pred? x y)) (first l)))
              (cons (cons x (first l)) (rest l)))
             (else (cons (first l) (insert x (rest l)))))))
        (remove-first
@@ -793,7 +782,7 @@
 
 (define member-pred?
   (lambda (pred? x l)
-    (ormap (lambda (y) (pred? x y)) l)))
+    (exists (lambda (y) (pred? x y)) l)))
 
 (define member-equal?
   (lambda (x l)
@@ -801,11 +790,11 @@
 
 (define subset?
   (lambda (set1 set2)
-    (andmap (lambda (x) (member? x set2)) set1)))
+    (for-all (lambda (x) (member? x set2)) set1)))
 
 (define subset-pred?
   (lambda (pred? set1 set2)
-    (andmap (lambda (x) (member-pred? pred? x set2)) set1)))
+    (for-all (lambda (x) (member-pred? pred? x set2)) set1)))
 
 (define sets-equal?
   (lambda (set1 set2)
@@ -819,11 +808,11 @@
 
 (define sets-disjoint?
   (lambda (set1 set2)
-    (andmap (lambda (x) (not (member? x set2))) set1)))
+    (for-all (lambda (x) (not (member? x set2))) set1)))
 
 (define sets-intersect?
   (lambda (set1 set2)
-    (ormap (lambda (x) (member? x set2)) set1)))
+    (exists (lambda (x) (member? x set2)) set1)))
 
 (define remove-elements-pred
   (lambda (pred? elements l)

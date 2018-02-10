@@ -23,28 +23,28 @@
 
 ;; Version 1.2+0.1.0: Cloned from science.slc.edu/~jmarshall/metacat/
 ;;                    Added *gui* switch (run in Chez repl if #f)
-;;            +0.2.0: r6rs compliance: 
-;;                      1st -> first etc; 1- -> $1- etc; '-->' -> '->' etc;
-;;                      case keys; extend-syntax -> define-syntax;
-;;                      replace macros using define-top-level-value;
+;;            +0.2.0: r6rs compliance
 
  (define *metacat-version* "Metacat 1.2+0.2.0")
+
+;; to create temp.ss containing non-gui Metacat:
+;; cat >temp.ss r6rs-toplevel.ss metacat.ss syntactic-sugar.ss utilities.ss setup.ss no-graphics.ss constants.ss coderack.ss descriptions.ss bonds.ss groups.ss bridges.ss breakers.ss workspace.ss workspace-objects.ss workspace-structures.ss workspace-strings.ss concept-mappings.ss workspace-structure-formulas.ss formulas.ss slipnet.ss images.ss rules.ss answers.ss themes.ss justify.ss trace.ss jootsing.ss memory.ss demos.ss repl.ss run.ss
 
 ;; EDIT THESE SETTINGS APPROPRIATELY FOR YOUR SYSTEM:
 
 ;; Uncomment one of the following:
 ;; (define *platform* 'linux)
- (define *platform* 'macintosh)
+;; (define *platform* 'macintosh)
 ;; (define *platform* 'windows)
 
 ;; Pathname of the directory containing the Metacat source code files
 ;; Uncomment and edit one of the following:
- (define *metacat-directory* "~/Projects/Metacat/Metacat/") ;; Linux or Mac OS X
+;; (define *metacat-directory* "~/Projects/Metacat/") ;; Linux or Mac OS X
 ;; (define *metacat-directory* "C:\\Documents and Settings\\Your Username\\Desktop\\Metacat") ;; Windows
 
 ;; Default directory used by the "Save commentary to file" menu option
 ;; Uncomment and edit one of the following:
- (define *file-dialog-directory* "~/Desktop/") ;; Linux or Mac OS X
+;; (define *file-dialog-directory* "~/Desktop/") ;; Linux or Mac OS X
 ;; (define *file-dialog-directory* "C:\\Documents and Settings\\Your Username\\Desktop") ;; Windows
 
 ;; Version number of Tcl/Tk installed on your system
@@ -55,7 +55,6 @@
 
 ;;----------------------------------------------------------------------------
 
-(define *swl*  *gui*)
 (define *repl* (not *gui*))
 
 ;; do some basic error checking first
@@ -64,27 +63,8 @@
        (not (memq *platform* '(linux windows macintosh))))
   (printf "Error: *platform* is not set properly!~%")
   (printf "Check the configuration settings in the file metacat.ss~%")
-  (thread-kill))
-
-(when (or (not (top-level-bound? '*metacat-directory*))
-       (not (file-exists? *metacat-directory*)))
-  (printf "Error: *metacat-directory* is not set properly!~%")
-  (printf "Check the configuration settings in the file metacat.ss~%")
-  (thread-kill))
-
-(when (or (not (top-level-bound? '*file-dialog-directory*))
-       (not (file-exists? *file-dialog-directory*)))
-  (printf "Error: *file-dialog-directory* is not set properly!~%")
-  (printf "Check the configuration settings in the file metacat.ss~%")
-  (thread-kill))
-
-(when (or (not (top-level-bound? '*tcl/tk-version*))
-       (not (number? *tcl/tk-version*))
-       (< *tcl/tk-version* 8.3))
-  (printf "Error: Tcl/Tk version is not 8.3 or later!~%")
-  (printf "Check the configuration settings in the file metacat.ss~%")
-  (thread-kill))
-
+  (exit))
+  
 (define *tcl/tk-version-8_3?* (>= *tcl/tk-version* 8.3))
 
 (current-directory *metacat-directory*)
@@ -104,7 +84,6 @@
 (load "workspace-strings.ss")
 (load "concept-mappings.ss")
 (load "workspace-structure-formulas.ss")
-(load "run.ss")
 (load "formulas.ss")
 (load "slipnet.ss")
 (load "images.ss")
@@ -116,38 +95,27 @@
 (load "jootsing.ss")
 (load "memory.ss")
 (load "demos.ss")
-(if* *gui*
-  (load "fonts.ss")
-  (load "constants.ss")
-  (load "sgl-interpreter.ss")
-  (load "general-graphics.ss")
-  (load "workspace-graphics.ss")
-  (load "group-graphics.ss")
-  (load "bridge-graphics.ss")
-  (load "rule-graphics.ss")
-  (load "slipnet-graphics.ss")
-  (load "temperature-graphics.ss")
-  (load "coderack-graphics.ss")
-  (load "theme-graphics.ss")
-  (load "trace-graphics.ss")
-  (load "memory-graphics.ss")
-  (load "commentary-graphics.ss")
-  (load "eeg-graphics.ss")
-  (load "gui.ss"))
-
-(define ?
-  (lambda ()
-    (printf "~%For the problem...             Enter:~%")
-    (printf " \"If abc->abd, then ijk->???\" : (run \"abc abd ijk\")~%~%")
-    (printf "Try for a different answer    : (go)~%")
-    (printf "Forget previous answers       : (clearmem)~%")
-    (printf "Commentary style              : (eliza-mode-on) (eliza-mode-off)~%")
-    (printf "Verbose commentary            : (verbose-on)    (verbose-off)~%")
-    (printf "-> Metacat home page          : http://science.slc.edu/~~jmarshall/metacat/~%~%")))
-    
-(if *repl*
+(if *gui*
   (begin
-    (load "repl.ss")
-    (setup)
-    (printf (string-append *metacat-version* ": enter (?) for help")))
-  (printf "Metacat loaded.~%Type (setup) at the > prompt to begin.~%"))
+    (load "fonts.ss")
+    (load "constants.ss")
+    (load "sgl-interpreter.ss")
+    (load "general-graphics.ss")
+    (load "workspace-graphics.ss")
+    (load "group-graphics.ss")
+    (load "bridge-graphics.ss")
+    (load "rule-graphics.ss")
+    (load "slipnet-graphics.ss")
+    (load "temperature-graphics.ss")
+    (load "coderack-graphics.ss")
+    (load "theme-graphics.ss")
+    (load "trace-graphics.ss")
+    (load "memory-graphics.ss")
+    (load "commentary-graphics.ss")
+    (load "eeg-graphics.ss")
+    (load "gui.ss"))
+  (begin
+    (load "no-graphics.ss")
+    (load "repl.ss")))
+
+(load "run.ss")

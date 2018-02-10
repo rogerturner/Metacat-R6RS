@@ -28,8 +28,8 @@
 
 (define select-temperature-fonts
   (lambda (win-width win-height)
-    (let ((desired-title-height (round (* 6/100 win-height)))
-          (desired-value-height (round (* 6/100 win-height))))
+    (let ((desired-title-height ($round (* 6/100 win-height)))
+          (desired-value-height ($round (* 6/100 win-height))))
       (set! %temperature-title-font%
        (make-mfont sans-serif (- desired-title-height) '(normal)))
       (set! %temperature-value-font%
@@ -47,7 +47,7 @@
 
 (define new-temperature-window
   (lambda (x-pixels)
-    (let* ((y-pixels (ceiling (* 5/2 x-pixels)))
+    (let* ((y-pixels ($ceiling (* 5/2 x-pixels)))
            (graphics-window
              (make-unscrollable-graphics-window
                x-pixels y-pixels %temperature-background-color%))

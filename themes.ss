@@ -141,7 +141,7 @@
            (thematic-pressure? types
              (if (null? types)
               (not (null? active-theme-types))
-              (andmap
+              (for-all
                 (lambda (type) (member? type active-theme-types))
                 types)))
            (thematic-pressure-on types
@@ -282,9 +282,9 @@
            (cluster-frozen? (theme-type dimension)
              (tell (tell self 'get-cluster theme-type dimension) 'frozen?))
            (theme-type-frozen? (theme-type)
-             (andmap-meth (tell self 'get-clusters theme-type) 'frozen?))
+             (for-all-meth (tell self 'get-clusters theme-type) 'frozen?))
            (everything-frozen? ()
-             (andmap
+             (for-all
               (lambda (type) (tell self 'theme-type-frozen? type))
               (tell self 'get-possible-theme-types)))
       ;;--------------------------------------------------------------------
@@ -443,7 +443,7 @@
              (net-effect
                (let ((alpha (* sensitivity 1/50 (/ 1 num-relations))))
                 (lambda (net-input)
-                  (round (* %theme-spread-amount% (tanh (* alpha net-input)))))))
+                  ($round (* %theme-spread-amount% (tanh (* alpha net-input)))))))
        ;; This function determines the new activation of a theme based on the
        ;; net inhibitory or excitatory input it receives from other themes in
        ;; its cluster.  net-input < 0 causes an inhibitory effect, net-input > 0
@@ -675,7 +675,7 @@
              (if* (not (tell self 'frozen?))
               (set! activation
                 (clip-positive
-                  (round (+ activation (* (% factor) %theme-boost-amount%))))))
+                  ($round (+ activation (* (% factor) %theme-boost-amount%))))))
              'done)
            (set-activation (n)
              (set! activation n)
@@ -880,7 +880,7 @@
                      (max-theme-activation
                       (apply max (tell-all applicable-themes 'get-activation)))
                      (urgency
-                      (round (* (% max-theme-activation)
+                      ($round (* (% max-theme-activation)
                               (if (tell chosen-object 'string-spanning-group?)
                                 %extremely-high-urgency%
                                 %very-high-urgency%)))))
@@ -1026,13 +1026,13 @@
             (supports?
               (lambda (theme)
                (check-descriptions object1 object2 supported-by-theme? theme))))
-       (and (not (ormap conflicts? themes))
-            (ormap supports? themes))))))
+       (and (not (exists conflicts? themes))
+            (exists supports? themes))))))
 
 
 (define check-descriptions
   (lambda (object1 object2 pred? theme)
-    (cross-product-ormap
+    (cross-product-exists
       (lambda (d1 d2)
        (and (tell d1 'description-type? (tell d2 'get-description-type))
             (pred? d1 d2 theme)))

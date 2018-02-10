@@ -390,12 +390,12 @@
              (set! answer-description answer)
              'done)
            (get-absolute-quality ()
-             (round (weighted-average
+             ($round (weighted-average
                      (list (tell top-rule 'get-quality)
                       ($100- (tell self 'get-temperature)))
                      (list 60 40))))
            (get-relative-quality ()
-             (round (weighted-average
+             ($round (weighted-average
                      (list (tell top-rule 'get-relative-quality)
                       ($100- (tell self 'get-temperature)))
                      (list 60 40))))
@@ -562,7 +562,6 @@
            (get-clamped-concept-patterns () clamped-concept-patterns)
            (get-clamped-codelet-patterns () clamped-codelet-patterns)
            (get-theme-related-concept-patterns () theme-related-concept-patterns)
-           (get-complement-codelet-pattern () complement-codelet-pattern)
            (get-all-clamped-patterns ()
              (append
               clamped-theme-patterns
@@ -838,10 +837,7 @@
   (lambda (group flipped?)
     (let ((generic-event (make-generic-event 'group))
           (print-name
-            (let ((text 
-                    (if *gui*
-                      (group-event-pexp-text-string group)
-                      "group event"))
+            (let ((text (group-event-pexp-text-string group))
                   (direction (tell group 'get-direction)))
               (cond
                ((eq? direction plato-right) (format ">~a>" text))
@@ -928,7 +924,7 @@
        (and (same-group-category? object1 object2)
             (same-group-direction? object1 object2)
         (= (tell object1 'get-group-length) (tell object2 'get-group-length))
-        (andmap equivalent-workspace-objects?
+        (for-all equivalent-workspace-objects?
           (tell object1 'get-constituent-objects)
           (tell object2 'get-constituent-objects)))))))
 
@@ -1500,6 +1496,36 @@
              (if (exists? name) name (second entry)))))))
     (printf ")~n")))
   
+(define relation-name
+  (lambda (relation)
+    (cond
+      ((eq? relation #f) "diff")
+      ((eq? relation plato-identity) "iden")
+      ((eq? relation plato-opposite) "opp")
+      ((eq? relation plato-successor) "succ")
+      ((eq? relation plato-predecessor) "pred")
+      (else #f))))
+
+(define group-event-pexp-text-string
+  (lambda (group)
+    (let* ((bond-facet (tell group 'get-bond-facet))
+           (constituent-objects (tell group 'get-constituent-objects))
+           (descriptors (tell-all constituent-objects 'get-descriptor-for bond-facet))
+           (descriptor-strings
+             (map (lambda (object descriptor)
+                   (cond
+                     ((platonic-number? descriptor)
+                      (format "~a" (platonic-number->number descriptor)))
+                     ((letter? object) (tell descriptor 'get-lowercase-name))
+                     ((group? object) (tell descriptor 'get-uppercase-name))))
+               constituent-objects
+               descriptors)))
+      (apply string-append
+       (cons (first descriptor-strings)
+         (adjacency-map
+           (lambda (x y) (format "-~a" y))
+           descriptor-strings))))))
+
 ;;----------------------------------------------------------------------
 ;; Theme-patterns
 

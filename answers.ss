@@ -888,7 +888,7 @@
            (append
              (tell answer 'get-themes)
              (tell answer 'get-unjustified-themes))))
-      (round (average (map theme-abstractness themes))))))
+      ($round (average (map theme-abstractness themes))))))
 
 
 (define theme-abstractness
@@ -901,7 +901,7 @@
                ((eq? relation plato-identity) 0)
                ((eq? relation diff) 50)
                (else (cd relation)))))
-      (round (average
+      ($round (average
               dimension-abstractness
               relation-abstractness)))))
 
@@ -947,7 +947,7 @@
          rule-weights)
        (vprint rule)
        (let ((degree-of-support (tell rule 'get-degree-of-support)))
-         (say "Degree of support is " (round degree-of-support))
+         (say "Degree of support is " ($round degree-of-support))
          (stochastic-if* ($1- (% degree-of-support))
            (say "Not enough support for chosen rule. Fizzling.")
            (fizzle)))
@@ -1233,7 +1233,7 @@
                 directly-applied-slippages
                 (tell self 'get-coattail-inducing-slippages))))
            (coattail-inducing-slippage? (slippage)
-             (ormap (lambda (x) (eq? slippage (second x)))
+             (exists (lambda (x) (eq? slippage (second x)))
               coattail-slippage-table))
            (get-slippage-bridges () (remq-duplicates slippage-bridges))
            (get-bridge (slippage)
@@ -1301,7 +1301,7 @@
                (map (translate-rule-clause from-string to-string slippage-log fail)
                 rule-clauses))
              (translated-clauses (map-compress first result)))
-       (if (not (andmap valid-rule-clause? translated-clauses))
+       (if (not (for-all valid-rule-clause? translated-clauses))
          #f
          (let* ((translated-rule
                  (make-rule
@@ -1537,12 +1537,12 @@
   (lambda (rule-clause)
     (or (verbatim-clause? rule-clause)
         (and (extrinsic-clause? rule-clause)
-         (andmap valid-object-description? (second rule-clause))
+         (for-all valid-object-description? (second rule-clause))
          (or (> (length (second rule-clause)) 1)
              (not (eq? (first (first (second rule-clause))) plato-letter))))
      (and (intrinsic-clause? rule-clause)
           (valid-object-description? (first (second rule-clause)))
-          (andmap valid-change? (third rule-clause))))))
+          (for-all valid-change? (third rule-clause))))))
 
 
 (define valid-object-description?

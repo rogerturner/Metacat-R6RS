@@ -79,7 +79,7 @@
            (bond-category (tell group-category 'get-related-node plato-bond-category))
            (group-length (length objects))
            (platonic-length (number->platonic-number group-length))
-           (all-letter-group? (andmap letter? objects))
+           (all-letter-group? (for-all letter? objects))
            (letters (apply append (tell-all objects 'get-letters)))
            (image (make-image
                    initial-letter-category
@@ -270,7 +270,7 @@
            (top-level-member? (object) (member? object objects))
            (nested-member? (object)
              (or (member? object objects)
-              (ormap-meth objects 'nested-member? object)))
+              (exists-meth objects 'nested-member? object)))
            (new-bond-description (description-type descriptor)
              (let ((bond-description
                     (make-description self description-type descriptor)))
@@ -380,7 +380,7 @@
                            other-objects)))
                   (if (zero? num-of-objects)
                    100
-                   (round (* 100 (/ num-of-similar-groups num-of-objects))))))))
+                   ($round (* 100 (/ num-of-similar-groups num-of-objects))))))))
            (get-local-support ()
              (let ((num (tell self 'get-num-of-local-supporting-groups)))
               (if (zero? num)
@@ -388,7 +388,7 @@
                   (let* ((density (tell self 'get-local-density))
                          (adjusted-density (* 100 (sqrt (% density))))
                          (num-factor (min 1 (expt 0.6 (/ 1 (^3 num))))))
-                    (round (* adjusted-density num-factor))))))
+                    ($round (* adjusted-density num-factor))))))
            (calculate-internal-strength ()
              (let* ((bond-factor
                      (* (tell bond-category 'get-degree-of-assoc)
@@ -405,7 +405,7 @@
                        (else 90)))
                     (bond-factor-weight (expt bond-factor 0.98))
                     (length-factor-weight ($100- bond-factor-weight)))
-              (round (weighted-average
+              ($round (weighted-average
                       (list bond-factor length-factor)
                       (list bond-factor-weight length-factor-weight)))))
            (calculate-external-strength ()
@@ -589,7 +589,7 @@
       (say "Strength of proposed group is " strength)
       (let ((evaluation-prob (group-evaluation-probability strength)))
        (say "Group evaluation probability of survival is "
-         (format "~a%" (round ($100* evaluation-prob))))
+         (format "~a%" ($round ($100* evaluation-prob))))
        (stochastic-if* ($1- evaluation-prob)
          (say "Group not strong enough. Fizzling.")
          (tell (tell proposed-group 'get-string) 'delete-proposed-group proposed-group)
@@ -640,7 +640,7 @@
               (tell description 'get-description-type)
               (tell description 'get-descriptor)))))
        (fizzle))
-      (if* (not (andmap
+      (if* (not (for-all
                  (lambda (bond)
                    (or (tell string 'bond-present? bond)
                     (tell string 'flipped-bond-present? bond)))
@@ -664,7 +664,7 @@
             (fizzle))
        (let ((incompatible-groups (tell proposed-group 'get-incompatible-groups)))
          (if* (and (not (null? incompatible-groups))
-               (not (andmap
+               (not (for-all
                      (lambda (incompatible-group)
                        (if (and (eq? (tell incompatible-group 'get-group-category)
                                  group-category)
@@ -707,7 +707,7 @@
            (cond
              ((and (eq? group-category plato-samegrp)
                (eq? (tell proposed-group 'get-bond-facet) plato-letter-category)
-               (ormap group? constituent-objects))
+               (exists group? constituent-objects))
               (let ((letters (tell proposed-group 'get-letters)))
                (for* each group in (filter group? constituent-objects) do
                  (break-group group))
@@ -735,7 +735,7 @@
 
              ((and (eq? group-category plato-samegrp)
                (eq? (tell proposed-group 'get-bond-facet) plato-length)
-               (ormap length-group? constituent-objects))
+               (exists length-group? constituent-objects))
               (let ((new-constituent-groups
                      (flatmap
                       (lambda (group)

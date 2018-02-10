@@ -64,4 +64,4 @@
                 (tell object 'description-type-present? description-type))
                objects))
            (local-support ($100* (/ num-of-described-objects num-of-objects))))
-      (round (average local-support (tell description-type 'get-activation))))))
+      ($round (average local-support (tell description-type 'get-activation))))))

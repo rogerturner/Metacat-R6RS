@@ -137,7 +137,7 @@
                              '-text string '-anchor 'nw '-font font))))
                      (width (- (caddr bb) (car bb)))
                      (height (- (cadddr bb) (cadr bb)))
-                     (baseline-offset (round (* 1/5 height))))
+                     (baseline-offset ($round (* 1/5 height))))
                 (swl:tcl-eval *hidden-canvas* 'delete 'all)
                 (list width height baseline-offset))
               (error #f "need to run (create-mcat-logo) first")))

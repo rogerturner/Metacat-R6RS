@@ -275,26 +275,26 @@
                   (tell-all possible-descriptions 'get-conceptual-depth)))))
 
            (description-type-present? (description-type)
-             (ormap-meth (tell self 'get-all-descriptions)
+             (exists-meth (tell self 'get-all-descriptions)
               'description-type? description-type))
 
            (description-present? (description)
              (description-member? description (tell self 'get-all-descriptions)))
 
            (descriptor-present? (descriptor)
-             (ormap (lambda (d) (eq? (tell d 'get-descriptor) descriptor))
+             (exists (lambda (d) (eq? (tell d 'get-descriptor) descriptor))
               (tell self 'get-all-descriptions)))
 
            (all-description-types-present? (description-types)
-             (andmap (lambda (description-type)
-                      (tell self 'description-type-present? description-type))
+             (for-all (lambda (description-type)
+                       (tell self 'description-type-present? description-type))
               description-types))
 
            (add-description (new-description)
              (set! descriptions (cons new-description descriptions))
              (if* (and %workspace-graphics%
-                   (tell new-description 'description-type? plato-length)
-                   (group? self))
+                      (tell new-description 'description-type? plato-length)
+                      (group? self))
               (tell self 'enable-length-graphics)
               (if* (tell self 'drawn?)
                 (tell *workspace-window* 'draw-group-length self)))
@@ -449,8 +449,8 @@
                      ((null? bonds) 100)
                      ((or (tell self 'leftmost-in-string?)
                           (tell self 'rightmost-in-string?))
-                      ($100- (round (* 1/3 (tell (first bonds) 'get-strength)))))
-                     (else ($100- (round (* 1/6 (sum (tell-all bonds
+                      ($100- ($round (* 1/3 (tell (first bonds) 'get-strength)))))
+                     (else ($100- ($round (* 1/6 (sum (tell-all bonds
                                                       'get-strength)))))))))))
              'done)
 
@@ -491,7 +491,7 @@
 
            (update-average-unhappiness ()
              (set! average-unhappiness
-              (round (case (tell string 'get-string-type)
+              ($round (case (tell string 'get-string-type)
                       ( (initial)
                         (average
                           intra-string-unhappiness
@@ -525,7 +525,7 @@
              (set! intra-string-salience
               (if salience-clamped?
                 100
-                (round (+ ($80% intra-string-unhappiness)
+                ($round (+ ($80% intra-string-unhappiness)
                         ($20% relative-importance)))))
              'done)
 
@@ -536,32 +536,32 @@
                 (set! vertical-inter-string-salience 100))
               ((tell string 'string-type? 'initial)
                (set! horizontal-inter-string-salience
-                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                 ($round (+ ($20% horizontal-inter-string-unhappiness)
                          ($80% relative-importance))))
                (set! vertical-inter-string-salience
-                 (round (+ ($20% vertical-inter-string-unhappiness)
+                 ($round (+ ($20% vertical-inter-string-unhappiness)
                          ($80% relative-importance)))))
               ((tell string 'string-type? 'modified)
                (set! horizontal-inter-string-salience
-                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                 ($round (+ ($20% horizontal-inter-string-unhappiness)
                          ($80% relative-importance)))))
               ((tell string 'string-type? 'target)
                (set! vertical-inter-string-salience
-                 (round (+ ($20% vertical-inter-string-unhappiness)
+                 ($round (+ ($20% vertical-inter-string-unhappiness)
                          ($80% relative-importance))))
                (if* %justify-mode%
                  (set! horizontal-inter-string-salience
-                   (round (+ ($20% horizontal-inter-string-unhappiness)
+                   ($round (+ ($20% horizontal-inter-string-unhappiness)
                            ($80% relative-importance))))))
               ((tell string 'string-type? 'answer)
                (set! horizontal-inter-string-salience
-                 (round (+ ($20% horizontal-inter-string-unhappiness)
+                 ($round (+ ($20% horizontal-inter-string-unhappiness)
                          ($80% relative-importance))))))
              'done)
 
            (update-average-salience ()
              (set! average-salience
-              (round (case (tell string 'get-string-type)
+              ($round (case (tell string 'get-string-type)
                       ( (initial)
                         (average
                           intra-string-salience

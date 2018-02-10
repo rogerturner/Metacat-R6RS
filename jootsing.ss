@@ -128,7 +128,7 @@
                     ($100* (/ (tell clamp 'get-time) *codelet-count*)))
                clamps))
              (average-progress
-               (round (weighted-average
+               ($round (weighted-average
                        (tell-all clamps 'get-progress-achieved)
                        elapsed-time-weights)))
              (clamp-type-factor

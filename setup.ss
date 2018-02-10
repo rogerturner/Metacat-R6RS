@@ -46,6 +46,12 @@
 (define %highlight-last-codelet% *gui*)
 (define %nice-graphics% *gui*)
 
+(define %num-of-flashes% 1)
+(define %flash-pause% 1)
+(define %snag-pause% 1)
+(define %codelet-highlight-pause% 1)
+(define %text-scroll-pause% 1)
+
 (define *repl-thread* #f)
 
 (define setup
@@ -56,45 +62,6 @@
         (setup-gui args)))
     (if *repl*
       (set! *comment-window* (make-comment-reporter)))))
-
-(define setup-gui
-  (lambda args
-    (let ((scale (if (null? args) 1 (car args))))
-      (printf "Initializing windows...")
-      (set-window-size-defaults scale)
-      (create-mcat-logo)
-      (set! *workspace-window* (make-workspace-window))
-      (set! *slipnet-window* (make-slipnet-window *13x5-layout-table*))
-      (set! *coderack-window* (make-coderack-window))
-      (set! *themespace-window* (make-themespace-window *themespace-window-layout*))
-      (set! *top-themes-window* (tell *themespace-window* 'get-window 'top-bridge))
-      (set! *bottom-themes-window* (tell *themespace-window* 'get-window 'bottom-bridge))
-      (set! *vertical-themes-window* (tell *themespace-window* 'get-window 'vertical-bridge))
-      (set! *memory-window* (make-memory-window))
-      (set! *comment-window* (make-comment-window))
-      (set! *trace-window* (make-trace-window))
-      (set! *temperature-window* (make-temperature-window))
-      (set! *EEG* (make-EEG))
-      (set! *EEG-window* (make-EEG-window))
-      (set! *control-panel* (make-control-panel))
-      (enable-resizing)
-      ;; this reduces an annoying problem in SWL 0.9x in which >'s gradually fill
-      ;; up the bottom line of the REPL window with each new call to (break):
-      (if* (equal? swl:version "0.9x") (waiter-prompt-string (format "~%>")))
-      (printf "done~%"))))
-
-(define enable-resizing
-  (lambda ()
-    (tell *workspace-window* 'make-resizable 'workspace)
-    (tell *slipnet-window* 'make-resizable 'slipnet)
-    (tell *coderack-window* 'make-resizable 'coderack)
-    (tell *temperature-window* 'make-resizable 'temperature)
-    (tell *themespace-window* 'make-resizable 'theme)
-    (tell *trace-window* 'make-resizable 'trace)
-    (tell *memory-window* 'make-resizable 'memory)
-    (tell *EEG-window* 'make-resizable 'EEG)
-    (tell *comment-window* 'make-resizable 'comment)
-    (start-resize-listener)))
 
 ;;------------------------------------------------------------------
 ;; User-interface commands

@@ -76,7 +76,7 @@
                      (tell answer 'highlighted?)))
               answer-descriptions))
            (snag-present? (snag-rule)
-             (ormap-meth snag-descriptions 'equal?
+             (exists-meth snag-descriptions 'equal?
               (tell *initial-string* 'get-letter-categories)
               (tell *modified-string* 'get-letter-categories)
               (tell *target-string* 'get-letter-categories)
@@ -88,7 +88,7 @@
               (tell answer 'get-target-letters)
               (tell answer 'get-top-rule-clauses)))
            (answer-present? (answer-letters top-rule bottom-rule)
-             (ormap-meth answer-descriptions 'equal?
+             (exists-meth answer-descriptions 'equal?
               (tell *initial-string* 'get-letter-categories)
               (tell *modified-string* 'get-letter-categories)
               (tell *target-string* 'get-letter-categories)
@@ -567,7 +567,7 @@
              (rule2-abstractness (tell answer2 'get-top-rule-abstractness))
              (rule-distance
                (if (= num-rule-differences -1)
-                (round (/ (abs (- rule1-abstractness rule2-abstractness)) 10))
+                ($round (/ (abs (- rule1-abstractness rule2-abstractness)) 10))
                 (* 2 num-rule-differences)))
              (justification-distance
                (+ (length common-answer1-only-unjustified-themes)

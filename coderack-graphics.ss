@@ -19,11 +19,11 @@
 
 (define select-coderack-fonts
   (lambda (win-width win-height)
-    (let ((desired-title-height (round (* 40/1000 win-height)))
-          (desired-subtitle-height (round (* 20/1000 win-height)))
-          (desired-type-height (round (* 14/1000 win-height)))
-          (desired-count-height (round (* 19/1000 win-height)))
-          (desired-sum-height (round (* 19/1000 win-height))))
+    (let ((desired-title-height ($round (* 40/1000 win-height)))
+          (desired-subtitle-height ($round (* 20/1000 win-height)))
+          (desired-type-height ($round (* 14/1000 win-height)))
+          (desired-count-height ($round (* 19/1000 win-height)))
+          (desired-sum-height ($round (* 19/1000 win-height))))
       (set! %coderack-title-font%
        (make-mfont sans-serif (- desired-title-height) '(bold italic)))
       (set! %coderack-subtitle-font%
@@ -49,7 +49,7 @@
   (lambda (x-pixels)
     (let* ((window-height 26/10)
            (coderack-top (- window-height 2/5))
-           (y-pixels (ceiling (* window-height x-pixels)))
+           (y-pixels ($ceiling (* window-height x-pixels)))
            (graphics-window
              (make-unscrollable-graphics-window x-pixels y-pixels
                %coderack-background-color%))
@@ -362,3 +362,14 @@
              (set! display-state 'normal)
              'done)
            (else (delegate msg graphics-window))))))))
+
+(define urgency-color
+  (lambda (urgency-value)
+    (cond
+      ((<= urgency-value %extremely-low-urgency%) %extremely-low-urgency-color%)
+      ((<= urgency-value %very-low-urgency%) %very-low-urgency-color%)
+      ((<= urgency-value %low-urgency%) %low-urgency-color%)
+      ((<= urgency-value %medium-urgency%) %medium-urgency-color%)
+      ((<= urgency-value %high-urgency%) %high-urgency-color%)
+      ((<= urgency-value %very-high-urgency%) %very-high-urgency-color%)
+      (else %extremely-high-urgency-color%))))

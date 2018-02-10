@@ -229,15 +229,15 @@
                 (cons symmetric-slippage symmetric-slippages)))
              'done)
            (concept-mapping-present? (concept-mapping)
-             (ormap (lambda (cm) (CMs-equal? cm concept-mapping))
+             (exists (lambda (cm) (CMs-equal? cm concept-mapping))
               all-concept-mappings))
            (CM-type-present? (type)
-             (ormap-meth all-concept-mappings 'CM-type? type))
+             (exists-meth all-concept-mappings 'CM-type? type))
            (slippage-type-present? (type)
              (let ((cm (select-meth all-concept-mappings 'CM-type? type)))
               (and (exists? cm) (tell cm 'slippage?))))
            (supports-theme-pattern? (pattern)
-             (cross-product-ormap
+             (cross-product-exists
               (lambda (entry cm)
                 (and (eq? (tell cm 'get-CM-type) (first entry))
                      (eq? (tell cm 'get-label) (second entry))))
@@ -362,7 +362,7 @@
            (internally-coherent? ()
              (let ((relevant-distinguishing-CMs
                     (tell self 'get-relevant-distinguishing-CMs)))
-              (cross-product-ormap
+              (cross-product-exists
                 (lambda (cm1 cm2)
                   (and (not (eq? cm1 cm2))
                    (supporting-horizontal-CMs? cm1 cm2)))
@@ -392,7 +392,7 @@
                          (if (tell self 'internally-coherent?) 2.5 1.0))
                        (singleton-factor
                          (singleton-letter-factor object1 object2)))
-                  (min 100 (round (* average-strength
+                  (min 100 ($round (* average-strength
                                    num-of-concept-mappings-factor
                                    internal-coherence-factor
                ;; Only used for horizontal bridges:
@@ -407,7 +407,7 @@
                         (remq self (tell *workspace* 'get-bridges bridge-type))))
                      (total-support
                        (sum (tell-all supporting-bridges 'get-strength))))
-                (round (* (min 100 total-support))))))
+                ($round (* (min 100 total-support))))))
            (else (delegate msg workspace-structure))))))))
 
 
@@ -529,7 +529,7 @@
                     (let* ((cm (nth i cm-list))
                            (n (+ i starting-index-num))
                            (line-offset (* 1 (if group-spanning-bridge?
-                                              (sub1 (* (expt -1 n) (ceiling (/ n 2))))
+                                              (sub1 (* (expt -1 n) ($ceiling (/ n 2))))
                                               (- n)))))
                       (tell cm 'set-graphics-pexp
                         `(let-sgl ((origin ,concept-mapping-list-coord))
@@ -633,15 +633,15 @@
               (set! symmetric-slippages (cons symmetric-slippage symmetric-slippages)))
              'done)
            (concept-mapping-present? (concept-mapping)
-             (ormap (lambda (cm) (CMs-equal? cm concept-mapping))
+             (exists (lambda (cm) (CMs-equal? cm concept-mapping))
               all-concept-mappings))
            (CM-type-present? (type)
-             (ormap-meth all-concept-mappings 'CM-type? type))
+             (exists-meth all-concept-mappings 'CM-type? type))
            (slippage-type-present? (type)
              (let ((cm (select-meth all-concept-mappings 'CM-type? type)))
               (and (exists? cm) (tell cm 'slippage?))))
            (supports-theme-pattern? (pattern)
-             (cross-product-ormap
+             (cross-product-exists
               (lambda (entry cm)
                 (and (eq? (tell cm 'get-CM-type) (first entry))
                      (eq? (tell cm 'get-label) (second entry))))
@@ -765,7 +765,7 @@
            (internally-coherent? ()
              (let ((relevant-distinguishing-CMs
                     (tell self 'get-relevant-distinguishing-CMs)))
-              (cross-product-ormap
+              (cross-product-exists
                 (lambda (cm1 cm2)
                   (and (not (eq? cm1 cm2))
                    (supporting-vertical-CMs? cm1 cm2)))
@@ -788,7 +788,7 @@
                            (else 1.6)))
                        (internal-coherence-factor
                          (if (tell self 'internally-coherent?) 2.5 1.0)))
-                  (min 100 (round (* average-strength
+                  (min 100 ($round (* average-strength
                                    num-of-concept-mappings-factor
                                    internal-coherence-factor)))))))
            (calculate-external-strength ()
@@ -801,7 +801,7 @@
                         (remq self (tell *workspace* 'get-bridges bridge-type))))
                      (total-support
                       (sum (tell-all supporting-bridges 'get-strength))))
-                (round (* (min 100 total-support))))))
+                ($round (* (min 100 total-support))))))
            (else (delegate msg workspace-structure))))))))
 
 
@@ -1001,7 +1001,7 @@
              (object2-candidates
                (filter
                 (lambda (object)
-                  (ormap
+                  (exists
                     (lambda (d) (eq? (tell d 'get-descriptor) object2-descriptor))
                     (tell object 'get-relevant-descriptions)))
                 (tell (second strings) 'get-objects))))
@@ -1059,8 +1059,8 @@
 
 (define reverse-direction-orientation?
   (lambda (concept-mappings)
-    (and (ormap-meth concept-mappings 'CM-type? plato-direction-category)
-         (andmap-meth
+    (and (exists-meth concept-mappings 'CM-type? plato-direction-category)
+         (for-all-meth
           (filter-meth concept-mappings 'reversible-CM-type?)
           'opposite-mapping?)
      (not (fully-active? plato-opposite)))))
@@ -1162,7 +1162,7 @@
        (bridge-graphics 'flash proposed-bridge))
       (tell proposed-bridge 'update-strength)
       (let ((strength (tell proposed-bridge 'get-strength)))
-       (say "Strength is " (round strength))
+       (say "Strength is " ($round strength))
        (stochastic-if* ($1- (temp-adjusted-probability (% strength)))
          (say "Bridge not strong enough. Fizzling.")
          (tell *workspace* 'delete-proposed-bridge proposed-bridge)
@@ -1197,7 +1197,7 @@
           (object2 (tell proposed-bridge 'get-object2))
           (concept-mappings (tell proposed-bridge 'get-concept-mappings)))
       ;; This is necessary because StrPosCtgy:middle descriptions can now be deleted:
-      (if* (not (andmap (lambda (type)
+      (if* (not (for-all (lambda (type)
                          (and (tell object1 'description-type-present? type)
                               (tell object2 'description-type-present? type)))
                  (tell proposed-bridge 'get-concept-mapping-types)))
@@ -1230,7 +1230,7 @@
                 (tell *workspace-window* 'draw-concept-mapping cm))
               (tell *workspace-window* 'flush))))
          (fizzle)))
-      (if* (not (andmap-meth concept-mappings 'relevant?))
+      (if* (not (for-all-meth concept-mappings 'relevant?))
        (say "Not all concept-mappings are still relevant. Fizzling.")
        (if* %workspace-graphics%
          (bridge-graphics 'erase proposed-bridge))
@@ -1369,7 +1369,7 @@
   ;; but b-->bb bridge does not.  This leads to the following rule:
   ;;     Increase length of each object in string by one
   ;;     Change leftmost letter to a group
-       (if* (not (ormap-meth (tell bridge 'get-concept-mappings)
+       (if* (not (exists-meth (tell bridge 'get-concept-mappings)
                   'CM-type? plato-object-category))
          (let ((ObjCtgy-CM (make-concept-mapping
                             object1 plato-object-category
@@ -1542,7 +1542,7 @@
 (define supporting-horizontal-bridges?
   (lambda (b1 b2)
     (and (not (incompatible-horizontal-bridges? b1 b2))
-     (cross-product-ormap
+     (cross-product-exists
        supporting-horizontal-CMs?
        (tell b1 'get-distinguishing-CMs)
        (tell b2 'get-distinguishing-CMs)))))
@@ -1582,12 +1582,12 @@
 
 (define incompatible-horizontal-CM-lists?
   (lambda (l1 l2)
-    (cross-product-ormap incompatible-horizontal-CMs? l1 l2)))
+    (cross-product-exists incompatible-horizontal-CMs? l1 l2)))
 
 
 (define incompatible-with-any-horizontal-CM?
   (lambda (cm l)
-    (cross-product-ormap incompatible-horizontal-CMs? (list cm) l)))
+    (cross-product-exists incompatible-horizontal-CMs? (list cm) l)))
 
 
 (define supporting-horizontal-CMs?
@@ -1632,7 +1632,7 @@
 (define supporting-vertical-bridges?
   (lambda (b1 b2)
     (and (not (incompatible-vertical-bridges? b1 b2))
-     (cross-product-ormap
+     (cross-product-exists
        supporting-vertical-CMs?
        (tell b1 'get-distinguishing-CMs)
        (tell b2 'get-distinguishing-CMs)))))
@@ -1670,12 +1670,12 @@
 
 (define incompatible-vertical-CM-lists?
   (lambda (l1 l2)
-    (cross-product-ormap incompatible-vertical-CMs? l1 l2)))
+    (cross-product-exists incompatible-vertical-CMs? l1 l2)))
 
 
 (define incompatible-with-any-vertical-CM?
   (lambda (cm l)
-    (cross-product-ormap incompatible-vertical-CMs? (list cm) l)))
+    (cross-product-exists incompatible-vertical-CMs? (list cm) l)))
 
 
 (define supporting-vertical-CMs?

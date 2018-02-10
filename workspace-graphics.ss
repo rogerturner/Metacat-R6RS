@@ -21,17 +21,17 @@
 
 (define select-workspace-fonts
   (lambda (win-width win-height)
-    (let ((desired-title-height (round (* 29/600 win-height)))
-          (desired-count-height (round (* 15/600 win-height)))
-          (desired-letter-height (round (* 28/600 win-height)))
-          (desired-group-lcat-height (round (* 21/600 win-height)))
-          (desired-relevant-group-height (round (* 17/600 win-height)))
-          (desired-irrelevant-group-height (round (* 13/600 win-height)))
-          (desired-bridge-label-height (round (* 13/600 win-height)))
-          (desired-relevant-cmap-height (round (* 13/600 win-height)))
-          (desired-irrelevant-cmap-height (round (* 13/600 win-height)))
-          (desired-cmap-superscript-height (round (* 11/600 win-height)))
-          (desired-rule-height (round (* 15/600 win-height))))
+    (let ((desired-title-height ($round (* 29/600 win-height)))
+          (desired-count-height ($round (* 15/600 win-height)))
+          (desired-letter-height ($round (* 28/600 win-height)))
+          (desired-group-lcat-height ($round (* 21/600 win-height)))
+          (desired-relevant-group-height ($round (* 17/600 win-height)))
+          (desired-irrelevant-group-height ($round (* 13/600 win-height)))
+          (desired-bridge-label-height ($round (* 13/600 win-height)))
+          (desired-relevant-cmap-height ($round (* 13/600 win-height)))
+          (desired-irrelevant-cmap-height ($round (* 13/600 win-height)))
+          (desired-cmap-superscript-height ($round (* 11/600 win-height)))
+          (desired-rule-height ($round (* 15/600 win-height))))
       (set! %workspace-title-font%
        (make-mfont sans-serif (- desired-title-height) '(bold italic)))
       (set! %codelet-count-font%
@@ -57,17 +57,17 @@
 
 (define resize-workspace-fonts
   (lambda (win-width win-height)
-    (tell %workspace-title-font% 'resize (round (* 29/600 win-height)))
-    (tell %codelet-count-font% 'resize (round (* 15/600 win-height)))
-    (tell %letter-font% 'resize (round (* 28/600 win-height)))
-    (tell %group-letter-category-font% 'resize (round (* 21/600 win-height)))
-    (tell %relevant-group-length-font% 'resize (round (* 17/600 win-height)))
-    (tell %irrelevant-group-length-font% 'resize (round (* 13/600 win-height)))
-    (tell %bridge-label-font% 'resize (round (* 13/600 win-height)))
-    (tell %relevant-concept-mapping-font% 'resize (round (* 13/600 win-height)))
-    (tell %irrelevant-concept-mapping-font% 'resize (round (* 13/600 win-height)))
-    (tell %concept-mapping-list-superscript-font% 'resize (round (* 11/600 win-height)))
-    (tell %rule-font% 'resize (round (* 15/600 win-height)))))
+    (tell %workspace-title-font% 'resize ($round (* 29/600 win-height)))
+    (tell %codelet-count-font% 'resize ($round (* 15/600 win-height)))
+    (tell %letter-font% 'resize ($round (* 28/600 win-height)))
+    (tell %group-letter-category-font% 'resize ($round (* 21/600 win-height)))
+    (tell %relevant-group-length-font% 'resize ($round (* 17/600 win-height)))
+    (tell %irrelevant-group-length-font% 'resize ($round (* 13/600 win-height)))
+    (tell %bridge-label-font% 'resize ($round (* 13/600 win-height)))
+    (tell %relevant-concept-mapping-font% 'resize ($round (* 13/600 win-height)))
+    (tell %irrelevant-concept-mapping-font% 'resize ($round (* 13/600 win-height)))
+    (tell %concept-mapping-list-superscript-font% 'resize ($round (* 11/600 win-height)))
+    (tell %rule-font% 'resize ($round (* 15/600 win-height)))))
 
 (define workspace-window-press-handler
   (lambda (win x y)
@@ -100,7 +100,7 @@
 (define new-workspace-window
   (lambda (x-pixels)
     (let* ((window-height 3/4)
-           (y-pixels (ceiling (* window-height x-pixels)))
+           (y-pixels ($ceiling (* window-height x-pixels)))
            (graphics-window
              (make-unscrollable-graphics-window x-pixels y-pixels
                %workspace-background-color%)))
@@ -591,7 +591,7 @@
                      (translated-rule (tell snag 'get-rule 'bottom))
                      (crossout-pexp
                       (make-snag-crossout-pexp
-                        translated-rule (ceiling (/ x-pixels 160)))))
+                        translated-rule ($ceiling (/ x-pixels 160)))))
                 (tell graphics-window 'caching-on)
                 (tell self 'draw crossout-pexp)
                 (tell graphics-window 'flush)

@@ -1,3 +1,21 @@
+;;=============================================================================
+;; Copyright (c) 2016 Roger Turner
+;; This file is part of Metacat, which is (c) 1999, 2003 by James B. Marshall
+;;
+;; Metacat is based on Copycat, which was originally written in Common
+;; Lisp by Melanie Mitchell.
+;;
+;; Metacat is free software; you can redistribute it and/or modify it under the
+;; terms of the GNU General Public License as published by the Free Software
+;; Foundation; either version 2 of the License, or (at your option) any later
+;; version.
+;;
+;; Metacat is distributed in the hope that it will be useful, but WITHOUT ANY
+;; WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+;; FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+;; details.
+;;=============================================================================
+
 (define run              ;; String ->
   (lambda (input)
      (let ( (tokens 
@@ -12,11 +30,13 @@
                    ((number? (fourth tokens))
                     `(,(first tokens) ,(second tokens) ,(third tokens) #f ,(fourth tokens))))))
            (set! %justify-mode% (exists? (fourth problem)))
-           (if* (andmap symbol? tokens)
+           (if* (for-all symbol? tokens)
              (randomize))
            (apply init-mcat problem)
            (run-mcat))
          (display "Invalid input!")))))
+
+(define *prev-eliza-para* "")
 
 (define make-comment-reporter
   (lambda ()
@@ -44,17 +64,37 @@
                 (list
                   (format "Beginning run:  If \"~a\" changes to \"~a\", what"
                     initial-sym modified-sym)
-                  (format " does \"~a\" change to?" target-sym)))
-              'done))
-          (add-comment (eliza-mode-lines lines)
-            (display
+                  (format " does \"~a\" change to?" target-sym))))
+            'done)
+          (add-comment (lines1 lines2)
+            (let* ((paragraph1 (apply string-append lines1))
+                   (paragraph2 (apply string-append lines2))
+                   (original-para1 (string- paragraph1 " again")))
               (if %eliza-mode%
-                eliza-mode-lines
-                lines))
+                (begin
+                  (if (string=? original-para1 *prev-eliza-para*)
+                    (display "Hmm...")
+                    (display paragraph1))
+                  (set! *prev-eliza-para* original-para1))
+                (display paragraph2)))
             (newline))
           (else 'done))))))
 
+(define string-
+  (lambda (string match)
+    (let ((start (string-contains string match)))
+      (if start
+        (string-append (substring string 0 start) 
+                       (substring string (+ start (string-length match)) (string-length string)))
+        string))))
+        
+(define string-contains
+  (lambda (string match)
+    (let* ((len (string-length match))
+           (i-limit (- (string-length string) len)))
+      (let loop ((i 0))
+        (and (< i i-limit)
+          (if (string=? match (substring string i (+ i len)))
+            i
+            (loop (+ i 1))))))))
 
-(define swl:sync-display (lambda () 'done))
-
-(define swl:version "1.3")

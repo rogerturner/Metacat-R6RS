@@ -62,7 +62,7 @@
 
 (define select-EEG-font
   (lambda (win-width win-height)
-    (let ((desired-font-height (round (* 18/120 win-height))))
+    (let ((desired-font-height ($round (* 18/120 win-height))))
       (set! %EEG-title-font%
        (make-mfont serif (- desired-font-height) '(italic))))))
 
